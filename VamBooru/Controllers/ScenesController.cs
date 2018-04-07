@@ -19,10 +19,21 @@ namespace VamBooru.Controllers
 			});
 		}
 
+		[HttpPost("[action]")]
+		public Task<UploadResponse> Upload()
+		{
+			return Task.FromResult(new UploadResponse {Success = false});
+		}
+
 		public class Scene
 		{
 			public string Title { get; set; }
 			public string ImageUrl { get; set; }
+		}
+
+		public class UploadResponse
+		{
+			public bool Success { get;set; }
 		}
 	}
 }

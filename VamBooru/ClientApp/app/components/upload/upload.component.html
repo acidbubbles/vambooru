@@ -1,7 +1,8 @@
-<h1>Upload</h1>
+<h1>Upload a Scene</h1>
 
-<p>This is a simple example of an Angular component.</p>
+<input #sceneJsonFileInput type="file" placeholder="Select the .json file" />
+<input #sceneImageFileInput type="file" placeholder="Select the .jpg file" />
 
-<p>Current count: <strong>{{ currentCount }}</strong></p>
-
-<button (click)="incrementUpload()">Increment</button>
+<button type="button" class="btn btn-success" (click)="upload()">
+	<i class="glyphicon glyphicon-open-file"></i>&nbsp;Upload
+</button>
