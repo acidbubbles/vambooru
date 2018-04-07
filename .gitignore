@@ -1,0 +1,11 @@
+Thumbs.db
+*.obj
+*.exe
+*.pdb
+*.user
+*.suo
+*.log
+[Bb]in
+[Dd]ebug*/
+obj/
+.vs/
