@@ -5,6 +5,13 @@ VisualStudioVersion = 15.0.27428.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VamBooru", "VamBooru\VamBooru.csproj", "{9413C4D7-FA78-4F21-8DE4-9AE28343041B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VamBooru.Tests", "VamBooru.Tests\VamBooru.Tests.csproj", "{A13DB83D-3218-43B3-804E-7A1D61422EE1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AF405E0E-14FA-429F-80E2-743FE6BF8CFB}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +22,10 @@ Global
 		{9413C4D7-FA78-4F21-8DE4-9AE28343041B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9413C4D7-FA78-4F21-8DE4-9AE28343041B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9413C4D7-FA78-4F21-8DE4-9AE28343041B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A13DB83D-3218-43B3-804E-7A1D61422EE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A13DB83D-3218-43B3-804E-7A1D61422EE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A13DB83D-3218-43B3-804E-7A1D61422EE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A13DB83D-3218-43B3-804E-7A1D61422EE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
