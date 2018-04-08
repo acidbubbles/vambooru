@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Moq;
 using NUnit.Framework;
 using VamBooru.Controllers;
 
@@ -10,7 +12,9 @@ namespace VamBooru.Tests.Controllers
 		[Test]
 		public async Task Browse_DefaultOrder()
 		{
-			var controller = new ScenesController();
+			var configuration = new Mock<IConfiguration>(MockBehavior.Strict);
+			configuration.Setup(mock => mock["VamBooru:ProjectsPath"]).Returns("/projects");
+			var controller = new ScenesController(configuration.Object);
 
 			var result = await controller.Browse();
 

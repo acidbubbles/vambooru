@@ -6,9 +6,11 @@ The goal is to create a site for the community to share scenes, and eventually g
 
 ## Building
 
-This project is using .NET Core 2.0 and Angular 4.
+This project is using .NET Core 2.0, Entity Framework (SQL Server) and Angular 4.
 
 Either use Visual Studio, or `dotnet build`
+
+You'll also need to create the VamBooru.Data folder
 
 ## Testing
 
