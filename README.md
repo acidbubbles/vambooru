@@ -46,3 +46,7 @@ npm test
 * Ability to overwrite and existing scene (last updated) with maybe release notes? So we can have "new version" in VaM.
 * Check all places we can have a running operations and still click on e.g. Save
 * Get rid of embedded css (e.g. scenes.component.html)
+* Max upload size (both json and image)
+* CDN / Storage URL
+* Max female/male count in tags
+* Tag autocomplete component (both find and add)

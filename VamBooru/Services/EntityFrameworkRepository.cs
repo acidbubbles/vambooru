@@ -29,9 +29,9 @@ namespace VamBooru.Services
 			return _context.Scenes.FindAsync(id);
 		}
 
-		public Task<Scene[]> BrowseScenesAsync()
+		public Task<Scene[]> BrowseScenesAsync(int page, int pageSize)
 		{
-			return _context.Scenes.Where(s => s.Published).ToArrayAsync();
+			return _context.Scenes.AsNoTracking().Where(s => s.Published).Skip(page * pageSize).Take(pageSize).ToArrayAsync();
 		}
 
 		public async Task UpdateSceneAsync(Scene scene)

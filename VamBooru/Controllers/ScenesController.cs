@@ -20,9 +20,9 @@ namespace VamBooru.Controllers
 		}
 
 		[HttpGet("")]
-		public async Task<Scene[]> BrowseAsync()
+		public async Task<Scene[]> BrowseAsync([FromQuery] int page = 0, [FromQuery] int pageSize = 10)
 		{
-			var scenes = await _repository.BrowseScenesAsync();
+			var scenes = await _repository.BrowseScenesAsync(page, pageSize);
 			return scenes.Select(PrepareForDisplay).ToArray();
 		}
 
