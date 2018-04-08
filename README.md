@@ -8,9 +8,11 @@ The goal is to create a site for the community to share scenes, and eventually g
 
 This project is using .NET Core 2.0, Entity Framework (SQL Server) and Angular 4.
 
-Either use Visual Studio, or `dotnet build`
+Either use Visual Studio, or `dotnet build`.
 
-You'll also need to create the VamBooru.Data folder
+Run the DB Migration using `Update-Database` in the Package Manager Console.
+
+You'll also need to create the `VamBooru` data folder, and add any missing configuration entries in `appsettings.json`.
 
 ## Testing
 
