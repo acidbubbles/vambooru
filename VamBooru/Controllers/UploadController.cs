@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,14 +37,18 @@ namespace VamBooru.Controllers
 
 			Guid projectId;
 			using (var projectStream = await CopyToMemoryStream(jsonFile))
+			using (var imageStream = await CopyToMemoryStream(imageFile))
 			{
 				var title = GuessTitle(jsonFile);
 				var tags = _projectParser.GetTagsFromProject(projectStream.ToArray());
+				if (!HasJpegHeader(imageStream))
+					return BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
+				imageStream.Seek(0, SeekOrigin.Begin);
 
 				projectId = await _repository.CreateSceneAsync(title, tags);
+
 				await _storage.SaveSceneAsync(projectId, projectStream);
-				using (var imageStream = imageFile.OpenReadStream())
-					await _storage.SaveSceneThumbAsync(projectId, imageStream);
+				await _storage.SaveSceneThumbAsync(projectId, imageStream);
 			}
 
 			return Ok(new UploadResponse { Success = true, Id = projectId.ToString() });
@@ -70,9 +75,20 @@ namespace VamBooru.Controllers
 			return projectBytes;
 		}
 
+		private static bool HasJpegHeader(Stream stream)
+		{
+			using (var br = new BinaryReader(stream, Encoding.Default, true))
+			{
+				var soi = br.ReadUInt16();  // Start of Image (SOI) marker (FFD8)
+				var marker = br.ReadUInt16(); // JFIF marker (FFE0) or EXIF marker(FF01)
+
+				return soi == 0xd8ff && (marker & 0xe0ff) == 0xe0ff;
+			}
+		}
+
 		public class UploadResponse
 		{
-			public bool Success { get;set; }
+			public bool Success { get; set; }
 			public string Code { get; set; }
 			public string Id { get; set; }
 		}
