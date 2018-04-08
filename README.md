@@ -45,3 +45,4 @@ npm test
 * More meta data: uploaded date
 * Ability to overwrite and existing scene (last updated) with maybe release notes? So we can have "new version" in VaM.
 * Check all places we can have a running operations and still click on e.g. Save
+* Get rid of embedded css (e.g. scenes.component.html)

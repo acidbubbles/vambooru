@@ -37,18 +37,26 @@ namespace VamBooru.Controllers
 			Guid projectId;
 			using (var projectStream = await CopyToMemoryStream(jsonFile))
 			{
-				var title = jsonFile.FileName;
-				if (string.IsNullOrEmpty(title)) title = "untitled";
-				else if (title.EndsWith(".json")) title = title.Substring(0, title.Length - ".json".Length);
+				var title = GuessTitle(jsonFile);
 				var tags = _projectParser.GetTagsFromProject(projectStream.ToArray());
 
 				projectId = await _repository.CreateSceneAsync(title, tags);
-				await _storage.SaveScene(projectId, projectStream);
+				await _storage.SaveSceneAsync(projectId, projectStream);
 				using (var imageStream = imageFile.OpenReadStream())
-					await _storage.SaveSceneThumb(projectId, imageStream);
+					await _storage.SaveSceneThumbAsync(projectId, imageStream);
 			}
 
 			return Ok(new UploadResponse { Success = true, Id = projectId.ToString() });
+		}
+
+		private static string GuessTitle(IFormFile jsonFile)
+		{
+			var title = jsonFile.FileName;
+			if (string.IsNullOrEmpty(title))
+				title = "untitled";
+			else if (title.EndsWith(".json"))
+				title = title.Substring(0, title.Length - ".json".Length);
+			return title;
 		}
 
 		private static async Task<MemoryStream> CopyToMemoryStream(IFormFile file)

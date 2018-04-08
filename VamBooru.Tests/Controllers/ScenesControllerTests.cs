@@ -14,10 +14,11 @@ namespace VamBooru.Tests.Controllers
 		public async Task Browse_DefaultOrder()
 		{
 			var repository = new Mock<IRepository>(MockBehavior.Strict);
+			var storage = new Mock<IStorage>(MockBehavior.Strict);
 
-			var controller = new ScenesController(repository.Object);
+			var controller = new ScenesController(repository.Object, storage.Object);
 
-			var result = await controller.Browse();
+			var result = await controller.BrowseAsync();
 
 			CollectionAssert.AreEqual(new[]
 			{

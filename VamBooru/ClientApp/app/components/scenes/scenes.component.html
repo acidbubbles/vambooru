@@ -1,18 +1,7 @@
 <h1>Browse Scenes</h1>
 
-<p *ngIf="!scenes"><em>Loading...</em></p>
-
-<table class='table' *ngIf="scenes">
-	<thead>
-		<tr>
-			<th>Preview</th>
-			<th>Title</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr *ngFor="let scene of scenes">
-			<td><img src="{{ scene.imageUrl }}" /></td>
-			<td>{{ scene.title }}</td>
-		</tr>
-	</tbody>
-</table>
+<div *ngIf="scenes">
+	<div *ngFor="let scene of scenes">
+		<a [routerLink]="['/scenes', scene.id]"><img src="{{ scene.imageUrl }}" alt="{{ scene.title }}" style="width: 512px;" /></a>
+	</div>
+</div>

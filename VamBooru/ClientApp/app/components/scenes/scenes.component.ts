@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core";
+import { Component, OnInit, Inject } from "@angular/core";
 import { Http } from "@angular/http";
 import { IScene } from "../../model/scene";
 
@@ -6,11 +6,14 @@ import { IScene } from "../../model/scene";
 	selector: "scenes",
 	templateUrl: "./scenes.component.html"
 })
-export class ScenesComponent {
+export class ScenesComponent implements OnInit {
 	scenes: IScene[];
 
-	constructor(http: Http, @Inject("BASE_URL") baseUrl: string) {
-		http.get(baseUrl + "api/scenes").subscribe(result => {
+	constructor(private readonly http: Http, @Inject("BASE_URL") private readonly baseUrl: string) {
+	}
+
+	ngOnInit() {
+		this.http.get(this.baseUrl + "api/scenes").subscribe(result => {
 			this.scenes = result.json() as IScene[];
 		}, error => console.error(error));
 	}

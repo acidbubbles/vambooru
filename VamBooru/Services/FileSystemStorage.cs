@@ -14,22 +14,37 @@ namespace VamBooru.Services
 			_outputFolder = configuration?["VamBooru:ProjectsPath"] ?? throw new ArgumentException("ProjectsPath was not defined", nameof(configuration));
 		}
 
-		public async Task<string> SaveScene(Guid sceneId, Stream stream)
+		public async Task<string> SaveSceneAsync(Guid sceneId, Stream stream)
 		{
-			var filename = $"{sceneId}.json";
-			var path = Path.Combine(_outputFolder, filename);
-			using (var fileStream = File.OpenWrite(path))
+			using (var fileStream = File.OpenWrite(BuildJsonPath(sceneId)))
 				await stream.CopyToAsync(fileStream);
 			return null;
 		}
 
-		public async Task<string> SaveSceneThumb(Guid sceneId, Stream stream)
+		public async Task<string> SaveSceneThumbAsync(Guid sceneId, Stream stream)
+		{
+			using (var fileStream = File.OpenWrite(BuildThumbPath(sceneId)))
+				await stream.CopyToAsync(fileStream);
+			return null;
+		}
+
+		public Task<Stream> LoadSceneThumbAsync(Guid sceneId)
+		{
+			return Task.FromResult<Stream>(new FileStream(BuildThumbPath(sceneId), FileMode.Open, FileAccess.Read));
+		}
+
+		private string BuildJsonPath(Guid sceneId)
+		{
+			var filename = $"{sceneId}.json";
+			var path = Path.Combine(_outputFolder, filename);
+			return path;
+		}
+
+		private string BuildThumbPath(Guid sceneId)
 		{
 			var filename = $"{sceneId}.jpg";
 			var path = Path.Combine(_outputFolder, filename);
-			using (var fileStream = File.OpenWrite(path))
-				await stream.CopyToAsync(fileStream);
-			return null;
+			return path;
 		}
 	}
 }

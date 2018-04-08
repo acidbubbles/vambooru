@@ -6,7 +6,8 @@ namespace VamBooru.Services
 {
 	public interface IStorage
 	{
-		Task<string> SaveScene(Guid sceneId, Stream stream);
-		Task<string> SaveSceneThumb(Guid sceneId, Stream stream);
+		Task<string> SaveSceneAsync(Guid sceneId, Stream stream);
+		Task<string> SaveSceneThumbAsync(Guid sceneId, Stream stream);
+		Task<Stream> LoadSceneThumbAsync(Guid sceneId);
 	}
 }
