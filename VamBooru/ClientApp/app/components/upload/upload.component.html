@@ -1,8 +1,27 @@
 <h1>Upload a Scene</h1>
 
-<input #sceneJsonFileInput type="file" placeholder="Select the .json file" />
-<input #sceneThumbnailFileInput type="file" placeholder="Select the .jpg file" />
+<p>Your scene will not be immediately visible. You'll have the opportunity to add a description and tags before publishing.</p>
 
-<button type="button" class="btn btn-success" (click)="upload()">
-	<i class="glyphicon glyphicon-open-file"></i>&nbsp;Upload
-</button>
+<p>You can find the <code>.json</code> and <code>.jpg</code> file in <code>(VAM install folder)\Saves\scenes</code>.</p>
+
+<div class="form-group">
+	<label class="btn btn-primary" for="sceneJsonFileInput">
+		<input id="sceneJsonFileInput" #sceneJsonFileInput type="file" style="display: none;" onchange="document.getElementById('sceneJsonFileInfo').innerText = this.files[0].name;">
+		Select .json
+	</label>
+	<span class='label label-info' id="sceneJsonFileInfo"></span>
+</div>
+
+<div class="form-group">
+	<label class="btn btn-primary" for="sceneThumbnailFileInput">
+		<input id="sceneThumbnailFileInput" #sceneThumbnailFileInput type="file" style="display: none;" onchange="document.getElementById('sceneThumbnailFileInfo').innerText = this.files[0].name;">
+		Select .jpg
+	</label>
+	<span class='label label-info' id="sceneThumbnailFileInfo"></span>
+</div>
+
+<div class="form-group">
+	<button type="button" class="btn btn-success" (click)="upload()">
+		<i class="glyphicon glyphicon-open-file"></i>&nbsp;Upload
+	</button>
+</div>
