@@ -24,12 +24,14 @@ namespace VamBooru.Controllers
 		}
 
 		[HttpGet("[action]")]
+		[DisableFormValueModelBinding]
 		public Task<Scene[]> Browse()
 		{
 			return _repository.BrowseScenesAsync();
 		}
 
 		[HttpPost("[action]")]
+		[DisableFormValueModelBinding]
 		public async Task<IActionResult> Upload()
 		{
 			var files = Request.Form.Files;

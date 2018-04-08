@@ -5,6 +5,7 @@ namespace VamBooru.Controllers
 {
 	public class HomeController : Controller
 	{
+		[GenerateAntiforgeryTokenCookieForAjax]
 		public IActionResult Index()
 		{
 			return View();
