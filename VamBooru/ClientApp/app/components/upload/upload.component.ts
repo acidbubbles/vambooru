@@ -19,16 +19,14 @@ export class UploadComponent {
 		formData.append("thumbnail", this.sceneThumbnailFileInput.nativeElement.files[0], "project.jpg");
 
 		const headers = new Headers({});
-		headers.append('Accept', 'application/json');
+		headers.append("Accept", "application/json");
 
 		const options = new RequestOptions({ headers });
 
-		const url = "/api/scenes/upload";
-
-		this.http.post(url, formData, options).subscribe(res => {
+		this.http.post("/api/upload/scene", formData, options).subscribe(res => {
 			const body = res.json();
 			if (body.success) {
-				this.router.navigate(['/scenes', body.id]);
+				this.router.navigate(["/scenes", body.id, "edit"]);
 			}
 		});
 	}

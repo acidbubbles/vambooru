@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using VamBooru.Models;
 using VamBooru.Services;
 
@@ -22,9 +23,14 @@ namespace VamBooru
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
-			services.AddMvc();
 			services.AddSingleton(Configuration);
+
+			services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
+			services.AddMvc()
+				.AddJsonOptions(options =>
+				{
+					options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+				});
 
 			var connectionString = Configuration.GetConnectionString("VamBooru") ?? throw new NullReferenceException("The VamBooru connection string was not configured in appsettings.json");
 			services.AddDbContext<VamBooruDbContext>(options =>

@@ -8,6 +8,8 @@ import { AppComponent } from "./components/app/app.component";
 import { NavMenuComponent } from "./components/navmenu/navmenu.component";
 import { HomeComponent } from "./components/home/home.component";
 import { ScenesComponent } from "./components/scenes/scenes.component";
+import { SceneComponent } from "./components/scene/scene.component";
+import { SceneEditComponent } from "./components/scene-edit/scene-edit.component";
 import { UploadComponent } from "./components/upload/upload.component";
 
 @NgModule({
@@ -16,6 +18,8 @@ import { UploadComponent } from "./components/upload/upload.component";
 		NavMenuComponent,
 		UploadComponent,
 		ScenesComponent,
+		SceneComponent,
+		SceneEditComponent,
 		HomeComponent
 	],
 	imports: [
@@ -27,6 +31,8 @@ import { UploadComponent } from "./components/upload/upload.component";
 			{ path: "home", component: HomeComponent },
 			{ path: "upload", component: UploadComponent },
 			{ path: "scenes", component: ScenesComponent },
+			{ path: "scenes/:id", component: SceneComponent },
+			{ path: "scenes/:id/edit", component: SceneEditComponent },
 			{ path: "**", redirectTo: "home" }
 		])
 	]

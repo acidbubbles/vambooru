@@ -30,3 +30,18 @@ Run TypeScript unit tests with:
 cd VamBooru
 npm test
 ```
+
+## Things to do
+
+* Authentication (OAuth)
+* User profile pages (public and edit)
+* Create and assign tags
+* Admin role (ability to assign moderators and other admins)
+* Moderator role (ability to disable users and delete/merge tags)
+* Some e2e tests
+* Unit tests
+* Voting
+* Some browsing functionality (popular, votes)
+* More meta data: uploaded date
+* Ability to overwrite and existing scene (last updated) with maybe release notes? So we can have "new version" in VaM.
+* Check all places we can have a running operations and still click on e.g. Save
