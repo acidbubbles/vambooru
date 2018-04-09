@@ -27,7 +27,7 @@ namespace VamBooru.Tests.Controllers
 					Title = "My super scene",
 					ImageUrl = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
 				}
-			}, result, new ScenesComparer());
+			}, result, new SceneViewModelComparer());
 		}
 	}
 }

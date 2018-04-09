@@ -20,12 +20,14 @@ export class SceneEditComponent implements OnInit, OnDestroy {
 			const id = params["id"];
 			this.http.get(this.baseUrl + "api/scenes/" + id).subscribe(result => {
 				this.scene = result.json();
+				if (!this.scene.tags) this.scene.tags = [];
 			}, error => console.error(error));
 		});
 	}
 
 	ngOnDestroy() {
 		this.routeSub.unsubscribe();
+		delete this.scene;
 	}
 
 	save() {

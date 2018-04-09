@@ -1,12 +1,17 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { ReactiveFormsModule  } from "@angular/forms";
 import { AppModuleShared } from "./app.shared.module";
 import { AppComponent } from "./components/app/app.component";
+
 
 @NgModule({
 	bootstrap: [AppComponent],
 	imports: [
 		BrowserModule,
+		BrowserAnimationsModule,
+		ReactiveFormsModule,
 		AppModuleShared
 	],
 	providers: [

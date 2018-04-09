@@ -9,6 +9,6 @@ namespace VamBooru.Services
 		Task<Guid> CreateSceneAsync(string title, string[] tags);
 		Task<Scene> LoadSceneAsync(Guid id);
 		Task<Scene[]> BrowseScenesAsync(int page, int pageSize);
-		Task UpdateSceneAsync(Scene scene);
+		Task UpdateSceneAsync(SceneViewModel scene);
 	}
 }

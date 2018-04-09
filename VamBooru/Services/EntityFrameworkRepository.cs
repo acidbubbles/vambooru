@@ -34,7 +34,7 @@ namespace VamBooru.Services
 			return _context.Scenes.AsNoTracking().Where(s => s.Published).Skip(page * pageSize).Take(pageSize).ToArrayAsync();
 		}
 
-		public async Task UpdateSceneAsync(Scene scene)
+		public async Task UpdateSceneAsync(SceneViewModel scene)
 		{
 			//TODO: Validate input ID, owner, etc.
 			var dbScene = await _context.Scenes.FindAsync(scene.Id);

@@ -20,14 +20,14 @@ namespace VamBooru.Controllers
 		}
 
 		[HttpGet("")]
-		public async Task<Scene[]> BrowseAsync([FromQuery] int page = 0, [FromQuery] int pageSize = 10)
+		public async Task<SceneViewModel[]> BrowseAsync([FromQuery] int page = 0, [FromQuery] int pageSize = 10)
 		{
 			var scenes = await _repository.BrowseScenesAsync(page, pageSize);
 			return scenes.Select(PrepareForDisplay).ToArray();
 		}
 
 		[HttpGet("{id}")]
-		public async Task<Scene> GetSceneAsync(Guid id)
+		public async Task<SceneViewModel> GetSceneAsync(Guid id)
 		{
 			return PrepareForDisplay(await _repository.LoadSceneAsync(id));
 		}
@@ -39,17 +39,18 @@ namespace VamBooru.Controllers
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> SaveSceneAsync([FromBody] Scene scene)
+		public async Task<IActionResult> SaveSceneAsync([FromBody] SceneViewModel scene)
 		{
 			await _repository.UpdateSceneAsync(scene);
 			return NoContent();
 		}
 
-		private Scene PrepareForDisplay(Scene scene)
+		private SceneViewModel PrepareForDisplay(Scene scene)
 		{
-			if (scene.ImageUrl == null)
-				scene.ImageUrl = Url.RouteUrl(nameof(GetThumbnailAsync), new {id = scene.Id});
-			return scene;
+			var viewModel = scene.ToViewModel();
+			if (viewModel.ImageUrl == null)
+				viewModel.ImageUrl = Url.RouteUrl(nameof(GetThumbnailAsync), new {id = scene.Id});
+			return viewModel;
 		}
 	}
 }
