@@ -54,7 +54,7 @@ namespace VamBooru.Services
 		public async Task UpdateSceneAsync(SceneViewModel scene)
 		{
 			//TODO: Validate input ID, owner, etc.
-			var dbScene = await _context.Scenes.FindAsync(Guid.Parse(scene.Id));
+			var dbScene = await LoadSceneAsync(Guid.Parse(scene.Id));
 			dbScene.Title = scene.Title;
 			dbScene.Published = scene.Published;
 			await AssignTagsAsync(dbScene, scene.Tags.Select(tag => tag.Name).ToArray());
@@ -63,38 +63,45 @@ namespace VamBooru.Services
 
 		private async Task AssignTagsAsync(Scene scene, string[] tags)
 		{
-			//TODO: The implementation of this method could be greatly improved (verify for existing GUID, load multiple items at once, etc.)
-			var dbTags = await GetOrCreateTagsAsync(tags);
-
-			var sceneTags = dbTags.Select(t =>
+			// Remove tags
+			foreach (var tag in scene.Tags.ToArray())
 			{
-				var sceneTag = new SceneTag { Scene = scene, Tag = t };
-				_context.SceneTags.Add(sceneTag);
-				return sceneTag;
-			}).ToList();
+				if (!tags.Contains(tag.Tag.Name))
+					scene.Tags.Remove(tag);
+			}
 
-			scene.Tags = sceneTags;
+			// Add tags
+			var currentTags = scene.Tags.Select(t => t.Tag.Name).ToArray();
+			var newTags = tags.Where(t => !currentTags.Contains(t)).ToArray();
+
+			foreach (var newTag in await GetOrCreateTagsAsync(newTags))
+			{
+				var sceneTag = new SceneTag { Scene = scene, Tag = newTag };
+				_context.SceneTags.Add(sceneTag);
+				scene.Tags.Add(sceneTag);
+			}
 		}
 
 		private async Task<Tag[]> GetOrCreateTagsAsync(string[] tags)
 		{
+			if (!(tags?.Any() ?? false)) return new Tag[0];
+
 			var dbTags = new List<Tag>();
 
-			if (tags?.Any() ?? false)
+			//TODO: This is not "thread safe", multiple users could create the same tags at the same time
+			foreach (var tag in tags)
 			{
-				foreach (var tag in tags)
+				var dbTag = await _context.Tags.SingleOrDefaultAsync(t => t.Name == tag);
+				if (dbTag == null)
 				{
-					var dbTag = await _context.Tags.SingleOrDefaultAsync(t => t.Name == tag);
-					if (dbTag == null)
-					{
-						dbTag = new Tag {Name = tag};
-						_context.Tags.Add(dbTag);
-					}
-					dbTags.Add(dbTag);
+					dbTag = new Tag {Name = tag};
+					_context.Tags.Add(dbTag);
 				}
+				dbTags.Add(dbTag);
 			}
 
 			return dbTags.ToArray();
 		}
 	}
 }
+
