@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -55,10 +55,10 @@ namespace VamBooru.Services
 			}
 
 			if (males > 0)
-				yield return $"{males}-males";
+				yield return $"{males}-male{(males > 1 ? "s" : "")}";
 
 			if (females > 0)
-				yield return $"{females}-females";
+				yield return $"{females}-female{(males > 1 ? "s" : "")}";
 		}
 	}
 }

@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SpaServices.Webpack;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,22 +20,22 @@ namespace VamBooru
 
 		public IConfiguration Configuration { get; }
 
-		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
-		{
+		{ 
 			services.AddSingleton(Configuration);
+			services.AddMvc()
+				.AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
 
 			services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
-			services.AddMvc()
-				.AddJsonOptions(options =>
-				{
-					options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-				});
 
-			var connectionString = Configuration.GetConnectionString("VamBooru") ?? throw new NullReferenceException("The VamBooru connection string was not configured in appsettings.json");
+			services.AddSpaStaticFiles(configuration =>
+			{
+				configuration.RootPath = "ClientApp/dist";
+			});
+
 			services.AddDbContext<VamBooruDbContext>(options =>
 			{
-				options.UseSqlServer(connectionString);
+				options.UseSqlServer(Configuration.GetConnectionString("VamBooru") ?? throw new NullReferenceException("The VamBooru connection string was not configured in appsettings.json"));
 			});
 
 			services.AddTransient<IRepository, EntityFrameworkRepository>();
@@ -43,16 +43,11 @@ namespace VamBooru
 			services.AddTransient<IProjectParser, JsonProjectParser>();
 		}
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
-				{
-					HotModuleReplacement = true
-				});
 			}
 			else
 			{
@@ -60,16 +55,23 @@ namespace VamBooru
 			}
 
 			app.UseStaticFiles();
+			app.UseSpaStaticFiles();
 
 			app.UseMvc(routes =>
 			{
 				routes.MapRoute(
 					name: "default",
-					template: "{controller=Home}/{action=Index}/{id?}");
+					template: "{controller}/{action=Index}/{id?}");
+			});
 
-				routes.MapSpaFallbackRoute(
-					name: "spa-fallback",
-					defaults: new { controller = "Home", action = "Index" });
+			app.UseSpa(spa =>
+			{
+				spa.Options.SourcePath = "ClientApp";
+
+				if (env.IsDevelopment())
+				{
+					spa.UseAngularCliServer(npmScript: "start");
+				}
 			});
 		}
 	}

@@ -6,13 +6,13 @@ The goal is to create a site for the community to share scenes, and eventually g
 
 ## Building
 
-This project is using .NET Core 2.0, Entity Framework (SQL Server) and Angular 4.
+This project is using .NET Core 2.0, Entity Framework (SQL Server) and [Angular 4](https://github.com/angular/angular-cli).
 
 Either use Visual Studio, or `dotnet build`.
 
-Run the DB Migration using `Update-Database` in the Package Manager Console.
+Run the DB Migration using `Update-Database` in the Package Manager Console. You may need to first create the `VamBooru` database.
 
-You'll also need to create the `VamBooru` data folder, and add any missing configuration entries in `appsettings.json`.
+You'll also need to create the `%TEMP%\VamBooru` data folder.
 
 ## Testing
 
@@ -24,11 +24,12 @@ Run C# unit tests with:
 dotnet test VamBooru.Tests/
 ```
 
-Run TypeScript unit tests with:
+Run [unit](https://karma-runner.github.io) and [e2e](http://www.protractortest.org/) tests with:
 
 ```
-cd VamBooru
-npm test
+cd VamBooru/ClientApp
+ng test
+ng e2e
 ```
 
 ## Things to do

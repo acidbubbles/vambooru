@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +11,9 @@ namespace VamBooru.Services
 
 		public FileSystemStorage(IConfiguration configuration)
 		{
-			_outputFolder = configuration?["VamBooru:ProjectsPath"] ?? throw new ArgumentException("ProjectsPath was not defined", nameof(configuration));
+			var outputFolder = configuration?["VamBooru:ProjectsPath"] ?? throw new ArgumentException("ProjectsPath was not defined", nameof(configuration));
+			outputFolder = Environment.ExpandEnvironmentVariables(outputFolder);
+			_outputFolder = outputFolder;
 		}
 
 		public async Task<string> SaveSceneAsync(Guid sceneId, Stream stream)
