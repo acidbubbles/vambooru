@@ -18,18 +18,65 @@ namespace VamBooru.Services
 
 		public async Task<Guid> CreateSceneAsync(string title, string[] tags)
 		{
-			var dbTags = await GetOrCreateTags(tags);
 			var scene = new Scene
 			{
 				Title = title,
-				Tags = dbTags.Select(t => new SceneTag {Tag = t}).ToList()
 			};
+			await AssignTagsAsync(scene, tags);
+
 			_context.Scenes.Add(scene);
 			await _context.SaveChangesAsync();
 			return scene.Id;
 		}
 
-		private async Task<Tag[]> GetOrCreateTags(string[] tags)
+		public Task<Scene> LoadSceneAsync(Guid id)
+		{
+			return _context.Scenes
+				.Include(s => s.Author)
+				.Include(s => s.Tags)
+				.ThenInclude(t => t.Tag)
+				.FirstOrDefaultAsync(s => s.Id == id);
+		}
+
+		public Task<Scene[]> BrowseScenesAsync(int page, int pageSize)
+		{
+			return _context.Scenes
+				.AsNoTracking()
+				.Include(s => s.Author)
+				.Include(s => s.Tags)
+				.ThenInclude(t => t.Tag)
+				.Where(s => s.Published)
+				.Skip(page * pageSize)
+				.Take(pageSize)
+				.ToArrayAsync();
+		}
+
+		public async Task UpdateSceneAsync(SceneViewModel scene)
+		{
+			//TODO: Validate input ID, owner, etc.
+			var dbScene = await _context.Scenes.FindAsync(Guid.Parse(scene.Id));
+			dbScene.Title = scene.Title;
+			dbScene.Published = scene.Published;
+			await AssignTagsAsync(dbScene, scene.Tags.Select(tag => tag.Name).ToArray());
+			await _context.SaveChangesAsync();
+		}
+
+		private async Task AssignTagsAsync(Scene scene, string[] tags)
+		{
+			//TODO: The implementation of this method could be greatly improved (verify for existing GUID, load multiple items at once, etc.)
+			var dbTags = await GetOrCreateTagsAsync(tags);
+
+			var sceneTags = dbTags.Select(t =>
+			{
+				var sceneTag = new SceneTag { Scene = scene, Tag = t };
+				_context.SceneTags.Add(sceneTag);
+				return sceneTag;
+			}).ToList();
+
+			scene.Tags = sceneTags;
+		}
+
+		private async Task<Tag[]> GetOrCreateTagsAsync(string[] tags)
 		{
 			var dbTags = new List<Tag>();
 
@@ -48,25 +95,6 @@ namespace VamBooru.Services
 			}
 
 			return dbTags.ToArray();
-		}
-
-		public Task<Scene> LoadSceneAsync(Guid id)
-		{
-			return _context.Scenes.FindAsync(id);
-		}
-
-		public Task<Scene[]> BrowseScenesAsync(int page, int pageSize)
-		{
-			return _context.Scenes.AsNoTracking().Where(s => s.Published).Skip(page * pageSize).Take(pageSize).ToArrayAsync();
-		}
-
-		public async Task UpdateSceneAsync(SceneViewModel scene)
-		{
-			//TODO: Validate input ID, owner, etc.
-			var dbScene = await _context.Scenes.FindAsync(Guid.Parse(scene.Id));
-			dbScene.Title = scene.Title;
-			dbScene.Published = scene.Published;
-			await _context.SaveChangesAsync();
 		}
 	}
 }

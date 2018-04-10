@@ -1,4 +1,3 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
@@ -54,29 +53,27 @@ namespace VamBooru.Migrations
 				});
 
 			migrationBuilder.CreateTable(
-				name: "SceneTag",
+				name: "SceneTags",
 				columns: table => new
 				{
-					Id = table.Column<long>(nullable: false)
-						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-					SceneId = table.Column<Guid>(nullable: true),
-					TagId = table.Column<Guid>(nullable: true)
+					SceneId = table.Column<Guid>(nullable: false),
+					TagId = table.Column<Guid>(nullable: false)
 				},
 				constraints: table =>
 				{
-					table.PrimaryKey("PK_SceneTag", x => x.Id);
+					table.PrimaryKey("PK_SceneTags", x => new { x.SceneId, x.TagId });
 					table.ForeignKey(
-						name: "FK_SceneTag_Scenes_SceneId",
+						name: "FK_SceneTags_Scenes_SceneId",
 						column: x => x.SceneId,
 						principalTable: "Scenes",
 						principalColumn: "Id",
-						onDelete: ReferentialAction.Restrict);
+						onDelete: ReferentialAction.Cascade);
 					table.ForeignKey(
-						name: "FK_SceneTag_Tags_TagId",
+						name: "FK_SceneTags_Tags_TagId",
 						column: x => x.TagId,
 						principalTable: "Tags",
 						principalColumn: "Id",
-						onDelete: ReferentialAction.Restrict);
+						onDelete: ReferentialAction.Cascade);
 				});
 
 			migrationBuilder.CreateIndex(
@@ -85,20 +82,22 @@ namespace VamBooru.Migrations
 				column: "AuthorId");
 
 			migrationBuilder.CreateIndex(
-				name: "IX_SceneTag_SceneId",
-				table: "SceneTag",
-				column: "SceneId");
+				name: "IX_SceneTags_TagId",
+				table: "SceneTags",
+				column: "TagId");
 
 			migrationBuilder.CreateIndex(
-				name: "IX_SceneTag_TagId",
-				table: "SceneTag",
-				column: "TagId");
+				name: "IX_Tags_Name",
+				table: "Tags",
+				column: "Name",
+				unique: true,
+				filter: "[Name] IS NOT NULL");
 		}
 
 		protected override void Down(MigrationBuilder migrationBuilder)
 		{
 			migrationBuilder.DropTable(
-				name: "SceneTag");
+				name: "SceneTags");
 
 			migrationBuilder.DropTable(
 				name: "Scenes");

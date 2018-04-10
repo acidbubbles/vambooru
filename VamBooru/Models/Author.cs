@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace VamBooru.Models
@@ -7,6 +7,6 @@ namespace VamBooru.Models
 	{
 		public Guid Id { get; set; }
 		public string Username { get; set; }
-		public List<Scene> Scenes { get; set; }
+		public ICollection<Scene> Scenes { get; set; } = new List<Scene>();
 	}
 }

@@ -12,12 +12,6 @@
 		<div class='clearfix'></div>
 		<div class='navbar-collapse collapse' [ngClass]='{ "in": isExpanded }'>
 			<ul class='nav navbar-nav'>
-				<li>
-					<a href="/Account/Login" class="btn btn-default">Log In with GitHub</a>
-				</li>
-				<li>
-					<a href="/Account/LoginFake" class="btn btn-default">Log In as John Doe</a>
-				</li>
 				<li [routerLinkActive]='["link-active"]' [routerLinkActiveOptions]='{ exact: true }'>
 					<a [routerLink]='["/"]' (click)='collapse()'>
 						<span class='glyphicon glyphicon-home'></span> Home

@@ -11,7 +11,7 @@ using VamBooru.Models;
 namespace VamBooru.Migrations
 {
     [DbContext(typeof(VamBooruDbContext))]
-    [Migration("20180408174718_InitialCreate")]
+    [Migration("20180410025310_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,20 +55,15 @@ namespace VamBooru.Migrations
 
             modelBuilder.Entity("VamBooru.Models.SceneTag", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<Guid>("SceneId");
 
-                    b.Property<Guid?>("SceneId");
+                    b.Property<Guid>("TagId");
 
-                    b.Property<Guid?>("TagId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SceneId");
+                    b.HasKey("SceneId", "TagId");
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("SceneTag");
+                    b.ToTable("SceneTags");
                 });
 
             modelBuilder.Entity("VamBooru.Models.Tag", b =>
@@ -79,6 +74,10 @@ namespace VamBooru.Migrations
                     b.Property<string>("Name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
 
                     b.ToTable("Tags");
                 });
@@ -94,11 +93,13 @@ namespace VamBooru.Migrations
                 {
                     b.HasOne("VamBooru.Models.Scene", "Scene")
                         .WithMany("Tags")
-                        .HasForeignKey("SceneId");
+                        .HasForeignKey("SceneId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("VamBooru.Models.Tag", "Tag")
                         .WithMany("Scenes")
-                        .HasForeignKey("TagId");
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,7 +10,7 @@ namespace VamBooru.Models
 		public bool Published { get; set; }
 		public string Title { get; set; }
 		public string ImageUrl { get; set; }
-		public List<SceneTag> Tags { get; set; }
+		public ICollection<SceneTag> Tags { get; set; } = new List<SceneTag>();
 		public Author Author { get; set; }
 
 		public SceneViewModel ToViewModel()
@@ -21,7 +21,7 @@ namespace VamBooru.Models
 				Published = Published,
 				Title = Title,
 				ImageUrl = ImageUrl,
-				Tags = Tags?.Select(tag => tag.Tag.ToViewModel()).ToArray()
+				Tags = Tags.Select(tag => tag.Tag.ToViewModel()).ToArray()
 			};
 		}
 	}
