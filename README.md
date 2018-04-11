@@ -42,7 +42,7 @@ ng e2e
 * Unit tests
 * Voting
 * Some browsing functionality (popular, votes)
-* More meta data: uploaded date
+* Make an actual gallery (that shows the author, the date, votes, some tags and a link to view)
 * Ability to overwrite and existing scene (last updated) with maybe release notes? So we can have "new version" in VaM.
 * Check all places we can have a running operations and still click on e.g. Save
 * Get rid of embedded css (e.g. scenes.component.html)
@@ -52,3 +52,5 @@ ng e2e
 * Tag autocomplete component (both find and add)
 * Upload support files (other images and sounds associated with a list of scenes)
 * Download as zip (with the right folder structure, including the author folder)
+* My Scenes
+* User Avatar

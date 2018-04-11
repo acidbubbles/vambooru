@@ -1,0 +1,30 @@
+<h1>My Account</h1>
+
+<div class="form-group">
+	<button type="button" class="btn btn-default" (click)="publish(false)">
+		<i class="glyphicon glyphicon-log-out"></i>&nbsp;Sign out
+	</button>
+</div>
+
+<h2>Information</h2>
+
+<div class="form-group">
+	<label for="username">Username:</label>
+	<input type="text" class="form-control" id="username" name="username" required placeholder="Username" />
+</div>
+
+<h2>OAuth</h2>
+
+<ul>
+	<li>Guest</li>
+</ul>
+
+<h2>Scenes</h2>
+
+<p>...</p>
+
+<div class="form-group">
+	<button type="button" class="btn btn-danger" (click)="publish(false)">
+		<i class="glyphicon glyphicon-trash"></i>&nbsp;Delete my account and all related scenes
+	</button>
+</div>
