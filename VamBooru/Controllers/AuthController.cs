@@ -15,50 +15,57 @@ namespace VamBooru.Controllers
 	public class AuthController : Controller
 	{
 		private readonly IRepository _repository;
-		private readonly string _scheme;
+		private readonly string _defaultScheme;
 
 		public AuthController(IConfiguration configuration, IRepository repository)
 		{
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
-			_scheme = configuration["Authentication:Scheme"] ?? throw new ArgumentException("Scheme was not configured", nameof(configuration));
+			_defaultScheme = configuration["Authentication:Scheme"] ?? throw new ArgumentException("Scheme was not configured", nameof(configuration));
 		}
 
 		[HttpGet("login")]
-		public async Task<IActionResult> Login([FromRoute] string scheme, [FromQuery] string returnUrl)
+		public async Task<IActionResult> Login()
 		{
-			if (_scheme == "AnonymousGuest")
-				await AnonymousGuestLoginAsync();
-			else
-				await HandleOAuthAsync();
+			if (_defaultScheme == "AnonymousGuest")
+				return await AnonymousGuestLoginAsync();
 
-			await CreateUserAsync(_scheme);
+			await HttpContext.ChallengeAsync(_defaultScheme, new AuthenticationProperties {RedirectUri = Url.RouteUrl(nameof(ValidateLogin))});
+			return new EmptyResult();
+		}
+
+		[HttpGet("login/validate", Name = nameof(ValidateLogin))]
+		public async Task<IActionResult> ValidateLogin()
+		{
+			if (!User.Identity.IsAuthenticated)
+				return Redirect("/");
+
+			var scheme = User.Identity.AuthenticationType;
+			var id = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+			var name = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
+
+			//TODO: This should be replaced by a signup page when the user does not already exist
+			await _repository.CreateUserFromLoginAsync(scheme, id, name);
+
 			return Redirect("/");
 		}
 
-		[HttpGet("{scheme}/callback")]
-		public Task Callback([FromRoute] string scheme, [FromQuery] string returnUrl)
+		public async Task<IActionResult> AnonymousGuestLoginAsync()
 		{
-			return HandleOAuthAsync(returnUrl);
-		}
+			// This is a method used for development only
 
-		private async Task HandleOAuthAsync(string returnUrl = "/")
-		{
-			await HttpContext.ChallengeAsync(new AuthenticationProperties { RedirectUri = returnUrl });
-		}
-
-		public async Task AnonymousGuestLoginAsync(string returnUrl = "/")
-		{
 			var guestId = Guid.NewGuid().ToString();
+			var userId = $"anon-{guestId}";
 			var claims = new List<Claim>
 			{
-				new Claim(ClaimTypes.NameIdentifier, $"anon-{guestId}"),
-				new Claim(ClaimTypes.Name, $"anon-{guestId}"),
+				new Claim(ClaimTypes.NameIdentifier, userId),
+				new Claim(ClaimTypes.Name, userId),
 				new Claim("FullName", $"Anonymous User ({guestId})"),
 				new Claim(ClaimTypes.Role, "AnonymousGuest"),
 			};
 
 			var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
+			var returnUrl = Url.RouteUrl(nameof(ValidateLogin));
 			var authProperties = new AuthenticationProperties
 			{
 				RedirectUri = Url.Content(returnUrl)
@@ -70,15 +77,7 @@ namespace VamBooru.Controllers
 				authProperties
 			);
 
-			HttpContext.User = new ClaimsPrincipal(new[] {new ClaimsIdentity(claims)});
-		}
-
-		private async Task CreateUserAsync(string scheme)
-		{
-			var id = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-			var name = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
-
-			await _repository.CreateUserFromLoginAsync(scheme, id, name);
+			return Redirect(returnUrl);
 		}
 	}
 }

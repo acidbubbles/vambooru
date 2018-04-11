@@ -69,7 +69,7 @@ namespace VamBooru.Controllers
 			return new UserLoginInfo
 			{
 				//TODO: Get this from the logged in information
-				Scheme = "AnonymousGuest",
+				Scheme = User.Identity.AuthenticationType,
 				NameIdentifier = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value
 			};
 		}

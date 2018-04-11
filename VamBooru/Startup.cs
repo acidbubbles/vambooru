@@ -80,13 +80,29 @@ namespace VamBooru
 			}
 		}
 
+		private void ConfigureGitHubAuthentication(IServiceCollection services)
+		{
+			ConfigureOAuthAuthentication(services, "GitHub", options =>
+			{
+				options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+				options.TokenEndpoint = "https://github.com/login/oauth/access_token";
+				options.UserInformationEndpoint = "https://api.github.com/user";
+
+				options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+				options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+				options.ClaimActions.MapJsonKey("urn:github:login", "login");
+				options.ClaimActions.MapJsonKey("urn:github:url", "html_url");
+				options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+			});
+		}
+
 		private static void ConfigureAnonymousGuestAuthentication(IServiceCollection services)
 		{
 			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 				.AddCookie(options => options.LoginPath = "/");
 		}
 
-		private void ConfigureGitHubAuthentication(IServiceCollection services)
+		private void ConfigureOAuthAuthentication(IServiceCollection services, string scheme, Action<OAuthOptions> configureOptions)
 		{
 			services.ConfigureApplicationCookie(options =>
 			{
@@ -97,24 +113,16 @@ namespace VamBooru
 				{
 					options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 					options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-					options.DefaultChallengeScheme = "GitHub";
+					options.DefaultChallengeScheme = scheme;
 				})
 				.AddCookie(options => options.LoginPath = "/")
-				.AddOAuth("GitHub", options =>
+				.AddOAuth(scheme, options =>
 				{
-					options.ClientId = Configuration["GitHub:ClientId"];
-					options.ClientSecret = Configuration["GitHub:ClientSecret"];
-					options.CallbackPath = new PathString("/auth/github/callback");
+					options.ClientId = Configuration[$"Authentication:{scheme}:ClientId"];
+					options.ClientSecret = Configuration[$"Authentication:{scheme}:ClientSecret"];
+					options.CallbackPath = new PathString($"/auth/{scheme.ToLower()}/callback");
 
-					options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
-					options.TokenEndpoint = "https://github.com/login/oauth/access_token";
-					options.UserInformationEndpoint = "https://api.github.com/user";
-
-					options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-					options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-					options.ClaimActions.MapJsonKey("urn:github:login", "login");
-					options.ClaimActions.MapJsonKey("urn:github:url", "html_url");
-					options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+					configureOptions(options);
 
 					options.Events = new OAuthEvents
 					{
@@ -130,8 +138,6 @@ namespace VamBooru
 							var user = JObject.Parse(await response.Content.ReadAsStringAsync());
 
 							context.RunClaimActions(user);
-
-							//TODO: Check if we set the HttpContext.User property here, otherwise do it (for AuthController to create the user)
 						}
 					};
 				});
