@@ -5,23 +5,24 @@
 <p>You can find the <code>.json</code> and <code>.jpg</code> file in <code>(VAM install folder)\Saves\scenes</code>.</p>
 
 <div class="form-group">
-	<label class="btn btn-primary" for="sceneJsonFileInput">
-		<input id="sceneJsonFileInput" #sceneJsonFileInput type="file" style="display: none;" onchange="document.getElementById('sceneJsonFileInfo').innerText = this.files[0].name;">
-		Select .json
+	<label class="btn btn-primary" for="filesInput">
+		<input id="filesInput" #filesInput type="file" style="display: none;" (change)="updateSelection()" multiple />
+		<i class="glyphicon glyphicon-folder-open"></i>&nbsp;Browse files...
 	</label>
-	<span class='label label-info' id="sceneJsonFileInfo"></span>
 </div>
 
-<div class="form-group">
-	<label class="btn btn-primary" for="sceneThumbnailFileInput">
-		<input id="sceneThumbnailFileInput" #sceneThumbnailFileInput type="file" style="display: none;" onchange="document.getElementById('sceneThumbnailFileInfo').innerText = this.files[0].name;">
-		Select .jpg
-	</label>
-	<span class='label label-info' id="sceneThumbnailFileInfo"></span>
+<div *ngIf="filenames?.length">
+	<ul *ngFor="let filename of filenames">
+		<li>{{ filename }} </li>
+	</ul>
 </div>
 
 <div class="form-group">
 	<button type="button" class="btn btn-success" (click)="upload()">
 		<i class="glyphicon glyphicon-open-file"></i>&nbsp;Upload
 	</button>
+</div>
+
+<div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+	Upload failed: {{ errorMessage }}
 </div>

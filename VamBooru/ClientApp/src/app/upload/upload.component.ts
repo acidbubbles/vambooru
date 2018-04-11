@@ -8,21 +8,38 @@ import { IUploadResponse } from "../model/upload-response";
 	templateUrl: "./upload.component.html"
 })
 export class UploadComponent {
-	@ViewChild("sceneJsonFileInput") sceneJsonFileInput: ElementRef;
-	@ViewChild("sceneThumbnailFileInput") sceneThumbnailFileInput: ElementRef;
+	@ViewChild("filesInput") filesInput: ElementRef;
+	filenames: string[];
+	errorMessage: string;
 
 	constructor(private readonly http: HttpClient, private readonly router: Router) {
 	}
 
+	updateSelection() {
+		this.errorMessage = null;
+		const filenames: string[] = [];
+		const files: FileList = this.filesInput.nativeElement.files;
+		for (let i = 0; i < files.length; i++) {
+			const file = files[i];
+			filenames.push(file.name);
+		}
+		this.filenames = filenames;
+	}
+
 	upload() {
 		const formData = new FormData();
-		const sceneJsonFile = this.sceneJsonFileInput.nativeElement.files[0];
-		const sceneJpgFile = this.sceneThumbnailFileInput.nativeElement.files[0];
-		formData.append("json", sceneJsonFile,sceneJsonFile.name);
-		formData.append("jpg", sceneJpgFile, sceneJpgFile.name);
+		const files = this.filesInput.nativeElement.files;
+		for (let i = 0; i < files.length; i++) {
+			const file = files[i];
+			formData.append("file", file, file.name);
+		}
 
-		this.http.post<IUploadResponse>("/api/upload", formData, {}).subscribe(result => {
-			this.router.navigate(["/posts", result.id, "edit"]);
-		});
+		this.http.post<IUploadResponse>("/api/upload", formData, {}).subscribe(
+			result => {
+				this.router.navigate(["/posts", result.id, "edit"]);
+			},
+			error => {
+				this.errorMessage = error.error.code;
+			});
 	}
 }

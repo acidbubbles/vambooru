@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,31 +29,84 @@ namespace VamBooru.Controllers
 		[DisableFormValueModelBinding]
 		public async Task<IActionResult> Upload()
 		{
-			var files = Request.Form.Files;
+			if(!OrganizeFiles(out var scenesFiles, out var supportFiles, out var errorCode)) return BadRequest(new UploadResponse {Success = false, Code = errorCode});
+			if (supportFiles.Any())
+				return BadRequest(new UploadResponse {Success = false, Code = "SupportFilesNotYetSupported"});
 
-			var sceneJsonFile = files.FirstOrDefault(f => f.Name == "json");
-			if (sceneJsonFile == null) return BadRequest(new UploadResponse { Success = false, Code = "JsonMissing" });
+			var scenes = await Task.WhenAll(scenesFiles.Select(async sf =>
+				new Tuple<Scene, SceneJsonAndJpg, MemoryStream, MemoryStream>(
+					new Scene {FilenameWithoutExtension = sf.FilenameWithoutExtension},
+					sf,
+					await CopyToMemoryStream(sf.JsonFile),
+					await CopyToMemoryStream(sf.JpgFile)
+				)));
 
-			var sceneJpgFile = files.FirstOrDefault(f => f.Name == "jpg");
-			if (sceneJpgFile == null) return BadRequest(new UploadResponse { Success = false, Code = "ThumbnailMissing" });
-
-			Guid postId;
-			using (var sceneJsonStream = await CopyToMemoryStream(sceneJsonFile))
-			using (var sceneJpgStream = await CopyToMemoryStream(sceneJpgFile))
+			var tags = new List<string>();
+			foreach (var sceneData in scenes)
 			{
-				var title = GuessTitle(sceneJsonFile);
-				var tags = _sceneParser.GetTags(sceneJsonStream.ToArray());
-				if (!ValidateJpeg(sceneJpgStream)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
-
-				var scene = new Scene {FilenameWithoutExtension = title};
-				var post = await _repository.CreatePostAsync(title, tags, new[] {scene});
-				postId = post.Id;
-
-				await _storage.SaveSceneAsync(scene.Id, sceneJsonStream);
-				await _storage.SaveSceneThumbAsync(scene.Id, sceneJpgStream);
+				tags.AddRange(_sceneParser.GetTags(sceneData.Item3.ToArray()));
+				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 			}
 
-			return Ok(new UploadResponse { Success = true, Id = postId.ToString() });
+			var post = await _repository.CreatePostAsync(scenes.First().Item1.FilenameWithoutExtension, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray());
+
+			foreach (var sceneData in scenes)
+			{
+				await _storage.SaveSceneAsync(sceneData.Item1.Id, sceneData.Item3);
+				sceneData.Item3.Dispose();
+				await _storage.SaveSceneThumbAsync(sceneData.Item1.Id, sceneData.Item4);
+				sceneData.Item4.Dispose();
+			}
+
+			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });
+		}
+
+		public bool OrganizeFiles(out List<SceneJsonAndJpg> scenesFiles, out List<IFormFile> supportFiles, out string errorCode)
+		{
+			var files = Request.Form.Files;
+
+			supportFiles = new List<IFormFile>();
+			scenesFiles = files
+				.Where(file => Path.GetExtension(file.FileName) == ".json")
+				.Select(file => new SceneJsonAndJpg
+				{
+					JsonFile = file,
+					FilenameWithoutExtension = Path.GetFileNameWithoutExtension(file.FileName)
+				})
+				.ToList();
+
+			if (!scenesFiles.Any())
+			{
+				errorCode = "NoSceneJson";
+				return false;
+			}
+
+			foreach (var file in files)
+			{
+				var filename = file.FileName;
+				if (string.IsNullOrEmpty(filename))
+				{
+					errorCode = "MissingFilename";
+					return false;
+				}
+
+				var extension = Path.GetExtension(file.FileName);
+				var filenameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
+				if (extension == ".json") continue;
+				if (extension == ".jpg")
+				{
+					var sceneFile = scenesFiles.FirstOrDefault(sf => sf.FilenameWithoutExtension == filenameWithoutExtension);
+					if (sceneFile != null)
+					{
+						sceneFile.JpgFile = file;
+						continue;
+					}
+				}
+				supportFiles.Add(file);
+			}
+
+			errorCode = null;
+			return true;
 		}
 
 		private static bool ValidateJpeg(Stream sceneJpgStream)
@@ -94,6 +148,13 @@ namespace VamBooru.Controllers
 
 				return soi == 0xd8ff && (marker & 0xe0ff) == 0xe0ff;
 			}
+		}
+
+		public class SceneJsonAndJpg
+		{
+			public string FilenameWithoutExtension { get; set; }
+			public IFormFile JsonFile { get; set; }
+			public IFormFile JpgFile { get; set; }
 		}
 
 		public class UploadResponse

@@ -50,4 +50,5 @@ ng e2e
 * CDN / Storage URL
 * Max female/male count in tags
 * Tag autocomplete component (both find and add)
-* Upload multiple files (e.g. multi-scene posts)
+* Upload support files (other images and sounds associated with a list of scenes)
+* Download as zip (with the right folder structure, including the author folder)
