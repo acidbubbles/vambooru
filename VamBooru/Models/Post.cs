@@ -37,6 +37,6 @@ namespace VamBooru.Models
 		public string Title { get; set; }
 		public string ImageUrl { get; set; }
 		public TagViewModel[] Tags { get; set; }
-		public AuthorViewModel Author { get; set; }
+		public UserViewModel Author { get; set; }
 	}
 }

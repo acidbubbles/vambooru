@@ -34,7 +34,6 @@ ng e2e
 
 ## Things to do
 
-* Authentication (OAuth)
 * User profile pages (public and edit)
 * Admin role (ability to assign moderators and other admins)
 * Moderator role (ability to disable users and delete/merge tags)
@@ -54,3 +53,4 @@ ng e2e
 * Download as zip (with the right folder structure, including the author folder)
 * My Scenes
 * User Avatar
+* Error handling (global and per-page, e.g. httpclient.get())

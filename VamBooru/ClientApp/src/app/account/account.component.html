@@ -1,30 +1,26 @@
 <h1>My Account</h1>
 
-<div class="form-group">
-	<button type="button" class="btn btn-default" (click)="publish(false)">
-		<i class="glyphicon glyphicon-log-out"></i>&nbsp;Sign out
-	</button>
-</div>
+<div *ngIf="user">
+	<div class="form-group">
+		<a href="/auth/logout" class="btn btn-default">
+			<i class="glyphicon glyphicon-log-out"></i>&nbsp;Sign out
+		</a>
+	</div>
 
-<h2>Information</h2>
+	<h2>Information</h2>
 
-<div class="form-group">
-	<label for="username">Username:</label>
-	<input type="text" class="form-control" id="username" name="username" required placeholder="Username" />
-</div>
+	<div class="form-group">
+		<label for="username">Username:</label>
+		<input type="text" class="form-control" id="username" name="username" [(ngModel)]="user.username" required placeholder="Username" />
+	</div>
 
-<h2>OAuth</h2>
+	<div class="form-group">
+		<button class="btn btn-default" (click)="save()">
+			<i class="glyphicon" [ngClass]="{ 'glyphicon-floppy-disk': !saved, 'glyphicon-floppy-saved': saved }"></i>&nbsp;Save
+		</button>
+	</div>
 
-<ul>
-	<li>Guest</li>
-</ul>
+	<h2>Scenes</h2>
 
-<h2>Scenes</h2>
-
-<p>...</p>
-
-<div class="form-group">
-	<button type="button" class="btn btn-danger" (click)="publish(false)">
-		<i class="glyphicon glyphicon-trash"></i>&nbsp;Delete my account and all related scenes
-	</button>
+	<p>...</p>
 </div>

@@ -21,7 +21,7 @@ export class PostEditComponent implements OnInit, OnDestroy {
 			this.http.get<IPost>(this.baseUrl + "api/posts/" + id).subscribe(result => {
 				this.post = result;
 				if (!this.post.tags) this.post.tags = [];
-			}, error => console.error(error));
+			});
 		});
 	}
 

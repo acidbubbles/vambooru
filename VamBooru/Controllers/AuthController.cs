@@ -24,6 +24,7 @@ namespace VamBooru.Controllers
 		}
 
 		[HttpGet("login")]
+		[ResponseCache(NoStore = true, Duration = 0)]
 		public async Task<IActionResult> Login()
 		{
 			if (_defaultScheme == "AnonymousGuest")
@@ -33,7 +34,16 @@ namespace VamBooru.Controllers
 			return new EmptyResult();
 		}
 
+		[HttpGet("logout")]
+		[ResponseCache(NoStore = true, Duration = 0)]
+		public async Task<IActionResult> Logout()
+		{
+			await HttpContext.SignOutAsync();
+			return Redirect("/");
+		}
+
 		[HttpGet("login/validate", Name = nameof(ValidateLogin))]
+		[ResponseCache(NoStore = true, Duration = 0)]
 		public async Task<IActionResult> ValidateLogin()
 		{
 			if (!User.Identity.IsAuthenticated)
@@ -58,9 +68,7 @@ namespace VamBooru.Controllers
 			var claims = new List<Claim>
 			{
 				new Claim(ClaimTypes.NameIdentifier, userId),
-				new Claim(ClaimTypes.Name, userId),
-				new Claim("FullName", $"Anonymous User ({guestId})"),
-				new Claim(ClaimTypes.Role, "AnonymousGuest"),
+				new Claim(ClaimTypes.Name, $"Anonymous User ({guestId})"),
 			};
 
 			var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

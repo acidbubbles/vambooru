@@ -11,16 +11,16 @@ namespace VamBooru.Models
 		public ICollection<Post> Scenes { get; set; } = new List<Post>();
 		public ICollection<UserLogin> Logins { get; set; } = new List<UserLogin>();
 
-		public AuthorViewModel ToViewModel()
+		public UserViewModel ToViewModel()
 		{
-			return new AuthorViewModel
+			return new UserViewModel
 			{
 				Username = Username
 			};
 		}
 	}
 
-	public class AuthorViewModel
+	public class UserViewModel
 	{
 		public string Username { get; set; }
 	}

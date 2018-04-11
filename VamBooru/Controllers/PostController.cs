@@ -34,7 +34,7 @@ namespace VamBooru.Controllers
 		public async Task<IActionResult> SavePostAsync([FromRoute] Guid postId, [FromBody] PostViewModel post)
 		{
 			if (post.Id != postId.ToString()) return BadRequest("Mismatch between route post ID and body post ID");
-			await _repository.UpdatePostAsync(post);
+			await _repository.UpdatePostAsync(this.GetUserLoginInfo(), post);
 			return NoContent();
 		}
 

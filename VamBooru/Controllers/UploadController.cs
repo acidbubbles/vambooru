@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -51,7 +50,7 @@ namespace VamBooru.Controllers
 				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 			}
 
-			var post = await _repository.CreatePostAsync(GetLogin(), scenes.First().Item1.FilenameWithoutExtension, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray());
+			var post = await _repository.CreatePostAsync(this.GetUserLoginInfo(), scenes.First().Item1.FilenameWithoutExtension, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray());
 
 			foreach (var sceneData in scenes)
 			{
@@ -62,16 +61,6 @@ namespace VamBooru.Controllers
 			}
 
 			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });
-		}
-
-		private UserLoginInfo GetLogin()
-		{
-			return new UserLoginInfo
-			{
-				//TODO: Get this from the logged in information
-				Scheme = User.Identity.AuthenticationType,
-				NameIdentifier = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value
-			};
 		}
 
 		public bool OrganizeFiles(out List<SceneJsonAndJpg> scenesFiles, out List<IFormFile> supportFiles, out string errorCode)

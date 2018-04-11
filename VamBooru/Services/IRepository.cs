@@ -9,8 +9,11 @@ namespace VamBooru.Services
 		Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes);
 		Task<Post> LoadPostAsync(Guid id);
 		Task<Post[]> BrowsePostsAsync(int page, int pageSize);
-		Task UpdatePostAsync(PostViewModel post);
+		Task UpdatePostAsync(UserLoginInfo login, PostViewModel post);
 
 		Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name);
+		Task<User> LoadPrivateUserAsync(string scheme, string id);
+		Task<User> LoadPublicUserAsync(string userId);
+		Task UpdateUserAsync(UserLoginInfo login, UserViewModel user);
 	}
 }

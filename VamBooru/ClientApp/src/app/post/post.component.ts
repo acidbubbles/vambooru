@@ -20,7 +20,7 @@ export class PostComponent implements OnInit, OnDestroy {
 			const id = params["id"];
 			this.http.get<IPost>(this.baseUrl + "api/Posts/" + id).subscribe(result => {
 				this.post = result;
-			}, error => console.error(error));
+			});
 		});
 	}
 

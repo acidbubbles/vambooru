@@ -18,16 +18,14 @@ namespace VamBooru.Services
 
 		public async Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes)
 		{
-			var dbLogin = await _context.UserLogins
-				.Include(l => l.User)
-				.FirstOrDefaultAsync(l => l.Scheme == login.Scheme && l.NameIdentifier == login.NameIdentifier);
+			var user = await LoadPrivateUserAsync(login);
 
-			if(dbLogin?.User == null) throw new UnauthorizedAccessException("No user found for this login");
+			if(user == null) throw new UnauthorizedAccessException("No user found for this login");
 
 			var post = new Post
 			{
 				Title = title,
-				Author = dbLogin.User
+				Author = user
 			};
 
 			foreach (var scene in scenes)
@@ -66,14 +64,17 @@ namespace VamBooru.Services
 				.ToArrayAsync();
 		}
 
-		public async Task UpdatePostAsync(PostViewModel post)
+		public async Task UpdatePostAsync(UserLoginInfo login, PostViewModel post)
 		{
-			//TODO: Validate input ID, owner, etc.
+			var user = await LoadPrivateUserAsync(login);
 			var dbPost = await LoadPostAsync(Guid.Parse(post.Id));
+			if(dbPost.Author.Id != user.Id) throw new UnauthorizedAccessException();
+
 			dbPost.Title = post.Title;
 			if (!dbPost.Published && post.Published) dbPost.DatePublished = DateTimeOffset.UtcNow;
 			dbPost.Published = post.Published;
 			await AssignTagsAsync(dbPost, post.Tags.Select(tag => tag.Name).ToArray());
+
 			await _context.SaveChangesAsync();
 		}
 
@@ -121,7 +122,7 @@ namespace VamBooru.Services
 
 		public async Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name)
 		{
-			var login = await _context.UserLogins.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == name);
+			var login = await _context.UserLogins.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == id);
 
 			if (login != null) return login;
 
@@ -133,6 +134,34 @@ namespace VamBooru.Services
 
 			await _context.SaveChangesAsync();
 			return login;
+		}
+
+		public Task<User> LoadPrivateUserAsync(UserLoginInfo info)
+		{
+			return LoadPrivateUserAsync(info.Scheme, info.NameIdentifier);
+		}
+
+		public async Task<User> LoadPrivateUserAsync(string scheme, string id)
+		{
+			var login = await _context.UserLogins
+				.Include(l => l.User)
+				.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == id);
+
+			return login?.User;
+		}
+
+		public Task<User> LoadPublicUserAsync(string userId)
+		{
+			return _context.Users.FindAsync(userId);
+		}
+
+		public async Task UpdateUserAsync(UserLoginInfo login, UserViewModel user)
+		{
+			var dbUser = await LoadPrivateUserAsync(login);
+
+			dbUser.Username = user.Username;
+
+			await _context.SaveChangesAsync();
 		}
 	}
 }

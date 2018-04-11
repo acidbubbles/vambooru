@@ -11,7 +11,7 @@ export class ConfigurationService {
 	constructor(private readonly http: HttpClient, @Inject("BASE_URL") private readonly baseUrl: string) {}
 
 	load(): Promise<IStartupConfiguration> {
-		return this.http.get<IStartupConfiguration>(`${this.baseUrl}/api/startup`)
+		return this.http.get<IStartupConfiguration>(`${this.baseUrl}api/startup`)
 			.toPromise()
 			.then((response: IStartupConfiguration) => {
 				this.startupConfiguration = response;
