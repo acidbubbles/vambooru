@@ -2,7 +2,7 @@
 	<h1>{{post.title}} by {{post.author.username}}</h1>
 
 	<img src="{{ post.imageUrl }}" />
-	<div>
+	<div class="tags">
 		<span *ngFor="let tag of post.tags" class="badge">{{tag.name}}</span>
 	</div>
 	<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-default">

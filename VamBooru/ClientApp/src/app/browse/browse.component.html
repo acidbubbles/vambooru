@@ -1,7 +1,18 @@
 <h1>Browse</h1>
 
-<div *ngIf="posts">
-	<div *ngFor="let post of posts">
-		<a [routerLink]="['/posts', post.id]"><img src="{{ post.imageUrl }}" alt="{{ post.title }}" class="scene-thumbnail" /></a>
+<div class="row" *ngIf="posts">
+	<div class="col-md-3" *ngFor="let post of posts">
+		<div class="thumbnail">
+			<a [routerLink]="['/posts', post.id]">
+				<img src="{{ post.imageUrl }}" alt="{{ post.title }}" style="width:100%" />
+			</a>
+			<div class="caption">
+				<p><b>{{ post.title }}</b></p>
+				<p>by {{ post.author?.username }}</p>
+				<div class="tags">
+					<span *ngFor="let tag of post.tags" class="badge">{{tag.name}}</span>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>

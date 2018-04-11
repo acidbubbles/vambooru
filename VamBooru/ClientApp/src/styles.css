@@ -1,3 +1,14 @@
 .scene-thumbnail {
 	width: 512px;
 }
+
+.caption p {
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.tags {
+	margin-right: 4px;
+}
