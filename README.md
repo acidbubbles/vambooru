@@ -4,15 +4,15 @@ A potential implementation of a sharing site for [Virt-A-Mate](https://www.patre
 
 The goal is to create a site for the community to share scenes, and eventually get them in Virt-A-Mate directly: https://trello.com/c/O61WprH2/15-community-sharing-of-scenes-in-app
 
-## Building
+## Setup
 
-This project is using .NET Core 2.0, Entity Framework (SQL Server) and [Angular 4](https://github.com/angular/angular-cli).
+This project requires .NET Core 2 (uses Postgres as the DB).
 
-Either use Visual Studio, or `dotnet build`.
+Either use Visual Studio, or `dotnet build` to compile.
 
-Run the DB Migration using `Update-Database` in the Package Manager Console. You may need to first create the `VamBooru` database.
+Run the DB Migration using `Update-Database` in the Package Manager Console. You may need to first create the `vambooru` database.
 
-You'll also need to create the `%TEMP%\VamBooru` data folder.
+You'll also need to add a data folder (and create it) and the connection string to the [secrets](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio) or environment variables.
 
 ## Testing
 
@@ -24,7 +24,7 @@ Run C# unit tests with:
 dotnet test VamBooru.Tests/
 ```
 
-Run [unit](https://karma-runner.github.io) and [e2e](http://www.protractortest.org/) tests with:
+Run [unit](https://karma-runner.github.io) and [e2e](http://www.protractortest.org/) tests with [Angular 5](https://github.com/angular/angular-cli):
 
 ```
 cd VamBooru/ClientApp
@@ -36,7 +36,6 @@ ng e2e
 
 * Authentication (OAuth)
 * User profile pages (public and edit)
-* Create and assign tags
 * Admin role (ability to assign moderators and other admins)
 * Moderator role (ability to disable users and delete/merge tags)
 * Some e2e tests
@@ -51,3 +50,4 @@ ng e2e
 * CDN / Storage URL
 * Max female/male count in tags
 * Tag autocomplete component (both find and add)
+* Upload multiple files (e.g. multi-scene posts)

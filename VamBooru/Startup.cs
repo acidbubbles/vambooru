@@ -33,9 +33,9 @@ namespace VamBooru
 				configuration.RootPath = "ClientApp/dist";
 			});
 
-			services.AddDbContext<VamBooruDbContext>(options =>
+			services.AddEntityFrameworkNpgsql().AddDbContext<VamBooruDbContext>(options =>
 			{
-				options.UseSqlServer(Configuration.GetConnectionString("VamBooru") ?? throw new NullReferenceException("The VamBooru connection string was not configured in appsettings.json"));
+				options.UseNpgsql(Configuration.GetConnectionString("VamBooru") ?? throw new NullReferenceException("The VamBooru Postgres connection string was not configured in appsettings.json"));
 			});
 
 			services.AddTransient<IRepository, EntityFrameworkRepository>();

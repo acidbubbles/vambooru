@@ -17,7 +17,7 @@ namespace VamBooru
 				.Build();
 
 			var builder = new DbContextOptionsBuilder<VamBooruDbContext>();
-			builder.UseSqlServer(configuration.GetConnectionString("VamBooru") ?? throw new NullReferenceException("The VamBooru connection string was not configured in appsettings.json"));
+			builder.UseNpgsql(configuration.GetConnectionString("VamBooru") ?? throw new NullReferenceException("The VamBooru connection string was not configured in appsettings.json"));
 			return new VamBooruDbContext(builder.Options);
 		}
 	}
