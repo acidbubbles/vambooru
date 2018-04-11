@@ -16,12 +16,20 @@ namespace VamBooru.Services
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		public async Task<Post> CreatePostAsync(string title, string[] tags, Scene[] scenes)
+		public async Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes)
 		{
+			var dbLogin = await _context.UserLogins
+				.Include(l => l.User)
+				.FirstOrDefaultAsync(l => l.Scheme == login.Scheme && l.NameIdentifier == login.NameIdentifier);
+
+			if(dbLogin?.User == null) throw new UnauthorizedAccessException("No user found for this login");
+
 			var post = new Post
 			{
-				Title = title
+				Title = title,
+				Author = dbLogin.User
 			};
+
 			foreach (var scene in scenes)
 			{
 				_context.Scenes.Add(scene);
@@ -109,6 +117,22 @@ namespace VamBooru.Services
 			}
 
 			return dbTags.ToArray();
+		}
+
+		public async Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name)
+		{
+			var login = await _context.UserLogins.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == name);
+
+			if (login != null) return login;
+
+			var user = new User {Username = name};
+			_context.Users.Add(user);
+
+			login = new UserLogin { User = user, Scheme = scheme, NameIdentifier = id };
+			_context.UserLogins.Add(login);
+
+			await _context.SaveChangesAsync();
+			return login;
 		}
 	}
 }

@@ -17,23 +17,8 @@ namespace VamBooru.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.0.2-rtm-10011")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("VamBooru.Models.OAuth2Login", b =>
-                {
-                    b.Property<string>("Scheme");
-
-                    b.Property<string>("Username");
-
-                    b.Property<Guid?>("UserId");
-
-                    b.HasKey("Scheme", "Username");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("OAuth2Logins");
-                });
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                .HasAnnotation("ProductVersion", "2.0.2-rtm-10011");
 
             modelBuilder.Entity("VamBooru.Models.Post", b =>
                 {
@@ -98,8 +83,7 @@ namespace VamBooru.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Tags");
                 });
@@ -118,11 +102,19 @@ namespace VamBooru.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("VamBooru.Models.OAuth2Login", b =>
+            modelBuilder.Entity("VamBooru.Models.UserLogin", b =>
                 {
-                    b.HasOne("VamBooru.Models.User", "User")
-                        .WithMany("Logins")
-                        .HasForeignKey("UserId");
+                    b.Property<string>("Scheme");
+
+                    b.Property<string>("NameIdentifier");
+
+                    b.Property<Guid?>("UserId");
+
+                    b.HasKey("Scheme", "NameIdentifier");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLogins");
                 });
 
             modelBuilder.Entity("VamBooru.Models.Post", b =>
@@ -150,6 +142,13 @@ namespace VamBooru.Migrations
                     b.HasOne("VamBooru.Models.Post", "Post")
                         .WithMany("Scenes")
                         .HasForeignKey("PostId");
+                });
+
+            modelBuilder.Entity("VamBooru.Models.UserLogin", b =>
+                {
+                    b.HasOne("VamBooru.Models.User", "User")
+                        .WithMany("Logins")
+                        .HasForeignKey("UserId");
                 });
 #pragma warning restore 612, 618
         }

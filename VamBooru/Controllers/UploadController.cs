@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VamBooru.Models;
@@ -27,6 +29,7 @@ namespace VamBooru.Controllers
 
 		[HttpPost("")]
 		[DisableFormValueModelBinding]
+		[Authorize]
 		public async Task<IActionResult> Upload()
 		{
 			if(!OrganizeFiles(out var scenesFiles, out var supportFiles, out var errorCode)) return BadRequest(new UploadResponse {Success = false, Code = errorCode});
@@ -48,7 +51,7 @@ namespace VamBooru.Controllers
 				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 			}
 
-			var post = await _repository.CreatePostAsync(scenes.First().Item1.FilenameWithoutExtension, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray());
+			var post = await _repository.CreatePostAsync(GetLogin(), scenes.First().Item1.FilenameWithoutExtension, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray());
 
 			foreach (var sceneData in scenes)
 			{
@@ -59,6 +62,16 @@ namespace VamBooru.Controllers
 			}
 
 			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });
+		}
+
+		private UserLoginInfo GetLogin()
+		{
+			return new UserLoginInfo
+			{
+				//TODO: Get this from the logged in information
+				Scheme = "AnonymousGuest",
+				NameIdentifier = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value
+			};
 		}
 
 		public bool OrganizeFiles(out List<SceneJsonAndJpg> scenesFiles, out List<IFormFile> supportFiles, out string errorCode)
@@ -116,16 +129,6 @@ namespace VamBooru.Controllers
 
 			sceneJpgStream.Seek(0, SeekOrigin.Begin);
 			return true;
-		}
-
-		private static string GuessTitle(IFormFile jsonFile)
-		{
-			var title = jsonFile.FileName;
-			if (string.IsNullOrEmpty(title))
-				title = "untitled";
-			else if (title.EndsWith(".json"))
-				title = title.Substring(0, title.Length - ".json".Length);
-			return title;
 		}
 
 		private static async Task<MemoryStream> CopyToMemoryStream(IFormFile file)

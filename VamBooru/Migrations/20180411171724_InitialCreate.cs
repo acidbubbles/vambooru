@@ -33,25 +33,6 @@ namespace VamBooru.Migrations
 				});
 
 			migrationBuilder.CreateTable(
-				name: "OAuth2Logins",
-				columns: table => new
-				{
-					Scheme = table.Column<string>(nullable: false),
-					Username = table.Column<string>(nullable: false),
-					UserId = table.Column<Guid>(nullable: true)
-				},
-				constraints: table =>
-				{
-					table.PrimaryKey("PK_OAuth2Logins", x => new { x.Scheme, x.Username });
-					table.ForeignKey(
-						name: "FK_OAuth2Logins_Users_UserId",
-						column: x => x.UserId,
-						principalTable: "Users",
-						principalColumn: "Id",
-						onDelete: ReferentialAction.Restrict);
-				});
-
-			migrationBuilder.CreateTable(
 				name: "Posts",
 				columns: table => new
 				{
@@ -69,6 +50,25 @@ namespace VamBooru.Migrations
 					table.ForeignKey(
 						name: "FK_Posts_Users_AuthorId",
 						column: x => x.AuthorId,
+						principalTable: "Users",
+						principalColumn: "Id",
+						onDelete: ReferentialAction.Restrict);
+				});
+
+			migrationBuilder.CreateTable(
+				name: "UserLogins",
+				columns: table => new
+				{
+					Scheme = table.Column<string>(nullable: false),
+					NameIdentifier = table.Column<string>(nullable: false),
+					UserId = table.Column<Guid>(nullable: true)
+				},
+				constraints: table =>
+				{
+					table.PrimaryKey("PK_UserLogins", x => new { x.Scheme, x.NameIdentifier });
+					table.ForeignKey(
+						name: "FK_UserLogins_Users_UserId",
+						column: x => x.UserId,
 						principalTable: "Users",
 						principalColumn: "Id",
 						onDelete: ReferentialAction.Restrict);
@@ -118,11 +118,6 @@ namespace VamBooru.Migrations
 				});
 
 			migrationBuilder.CreateIndex(
-				name: "IX_OAuth2Logins_UserId",
-				table: "OAuth2Logins",
-				column: "UserId");
-
-			migrationBuilder.CreateIndex(
 				name: "IX_Posts_AuthorId",
 				table: "Posts",
 				column: "AuthorId");
@@ -141,20 +136,24 @@ namespace VamBooru.Migrations
 				name: "IX_Tags_Name",
 				table: "Tags",
 				column: "Name",
-				unique: true,
-				filter: "[Name] IS NOT NULL");
+				unique: true);
+
+			migrationBuilder.CreateIndex(
+				name: "IX_UserLogins_UserId",
+				table: "UserLogins",
+				column: "UserId");
 		}
 
 		protected override void Down(MigrationBuilder migrationBuilder)
 		{
 			migrationBuilder.DropTable(
-				name: "OAuth2Logins");
-
-			migrationBuilder.DropTable(
 				name: "PostTags");
 
 			migrationBuilder.DropTable(
 				name: "Scenes");
+
+			migrationBuilder.DropTable(
+				name: "UserLogins");
 
 			migrationBuilder.DropTable(
 				name: "Tags");

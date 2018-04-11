@@ -9,7 +9,7 @@ namespace VamBooru.Models
 		public string Username { get; set; }
 		public DateTimeOffset DateSubscribed { get; set; } = DateTimeOffset.UtcNow;
 		public ICollection<Post> Scenes { get; set; } = new List<Post>();
-		public ICollection<OAuth2Login> Logins { get; set; } = new List<OAuth2Login>();
+		public ICollection<UserLogin> Logins { get; set; } = new List<UserLogin>();
 
 		public AuthorViewModel ToViewModel()
 		{

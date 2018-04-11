@@ -1,4 +1,5 @@
 import { ITag } from "./tag";
+import { IUser } from "./user";
 
 export interface IPost {
 	id: string;
@@ -6,4 +7,5 @@ export interface IPost {
 	imageUrl: number;
 	published: boolean;
 	tags: ITag[];
+	author: IUser;
 }

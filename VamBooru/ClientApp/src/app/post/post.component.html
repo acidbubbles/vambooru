@@ -1,5 +1,5 @@
 <div *ngIf="post">
-	<h1>{{post?.title}}</h1>
+	<h1>{{post.title}} by {{post.author.username}}</h1>
 
 	<img src="{{ post.imageUrl }}" />
 	<div>

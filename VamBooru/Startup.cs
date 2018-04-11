@@ -124,13 +124,14 @@ namespace VamBooru
 							request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 							request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
 
-							var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead,
-								context.HttpContext.RequestAborted);
+							var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
 							response.EnsureSuccessStatusCode();
 
 							var user = JObject.Parse(await response.Content.ReadAsStringAsync());
 
 							context.RunClaimActions(user);
+
+							//TODO: Check if we set the HttpContext.User property here, otherwise do it (for AuthController to create the user)
 						}
 					};
 				});
