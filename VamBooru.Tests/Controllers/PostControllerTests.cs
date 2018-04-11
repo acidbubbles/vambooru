@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using VamBooru.Controllers;
@@ -8,7 +8,7 @@ using VamBooru.Tests.TestUtils;
 
 namespace VamBooru.Tests.Controllers
 {
-	public class ScenesControllerTests
+	public class PostControllerTests
 	{
 		[Test]
 		public async Task Browse_DefaultOrder()
@@ -16,18 +16,17 @@ namespace VamBooru.Tests.Controllers
 			var repository = new Mock<IRepository>(MockBehavior.Strict);
 			var storage = new Mock<IStorage>(MockBehavior.Strict);
 
-			var controller = new ScenesController(repository.Object, storage.Object);
+			var controller = new PostController(repository.Object);
 
 			var result = await controller.BrowseAsync();
 
 			CollectionAssert.AreEqual(new[]
 			{
-				new Scene
+				new Post
 				{
-					Title = "My super scene",
-					ImageUrl = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+					Title = "My super post"
 				}
-			}, result, new SceneViewModelComparer());
+			}, result, new PostViewModelComparer());
 		}
 	}
 }

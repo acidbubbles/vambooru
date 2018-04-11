@@ -7,7 +7,7 @@ namespace VamBooru.Models
 	{
 		public Guid Id { get; set; }
 		public string Name { get; set; }
-		public ICollection<SceneTag> Scenes { get; set; } = new List<SceneTag>();
+		public ICollection<PostTag> Scenes { get; set; } = new List<PostTag>();
 
 		public TagViewModel ToViewModel()
 		{

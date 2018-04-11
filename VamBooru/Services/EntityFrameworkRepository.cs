@@ -16,69 +16,77 @@ namespace VamBooru.Services
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		public async Task<Guid> CreateSceneAsync(string title, string[] tags)
+		public async Task<Post> CreatePostAsync(string title, string[] tags, Scene[] scenes)
 		{
-			var scene = new Scene
+			var post = new Post
 			{
-				Title = title,
+				Title = title
 			};
-			await AssignTagsAsync(scene, tags);
+			foreach (var scene in scenes)
+			{
+				_context.Scenes.Add(scene);
+				post.Scenes.Add(scene);
+			}
+			await AssignTagsAsync(post, tags);
 
-			_context.Scenes.Add(scene);
+			_context.Posts.Add(post);
 			await _context.SaveChangesAsync();
-			return scene.Id;
+			return post;
 		}
 
-		public Task<Scene> LoadSceneAsync(Guid id)
+		public Task<Post> LoadPostAsync(Guid id)
 		{
-			return _context.Scenes
+			return _context.Posts
 				.Include(s => s.Author)
 				.Include(s => s.Tags)
 				.ThenInclude(t => t.Tag)
+				.Include(s => s.Scenes)
 				.FirstOrDefaultAsync(s => s.Id == id);
 		}
 
-		public Task<Scene[]> BrowseScenesAsync(int page, int pageSize)
+		public Task<Post[]> BrowsePostsAsync(int page, int pageSize)
 		{
-			return _context.Scenes
+			return _context.Posts
 				.AsNoTracking()
 				.Include(s => s.Author)
 				.Include(s => s.Tags)
 				.ThenInclude(t => t.Tag)
+				.Include(s => s.Scenes)
 				.Where(s => s.Published)
 				.Skip(page * pageSize)
 				.Take(pageSize)
 				.ToArrayAsync();
 		}
 
-		public async Task UpdateSceneAsync(SceneViewModel scene)
+		public async Task UpdatePostAsync(PostViewModel post)
 		{
 			//TODO: Validate input ID, owner, etc.
-			var dbScene = await LoadSceneAsync(Guid.Parse(scene.Id));
-			dbScene.Title = scene.Title;
-			dbScene.Published = scene.Published;
-			await AssignTagsAsync(dbScene, scene.Tags.Select(tag => tag.Name).ToArray());
+			var dbPost = await LoadPostAsync(Guid.Parse(post.Id));
+			dbPost.Title = post.Title;
+			if (!dbPost.Published && post.Published) dbPost.DatePublished = DateTimeOffset.UtcNow;
+			dbPost.Published = post.Published;
+			await AssignTagsAsync(dbPost, post.Tags.Select(tag => tag.Name).ToArray());
 			await _context.SaveChangesAsync();
 		}
 
-		private async Task AssignTagsAsync(Scene scene, string[] tags)
+		private async Task AssignTagsAsync(Post post, string[] tags)
 		{
 			// Remove tags
-			foreach (var tag in scene.Tags.ToArray())
+			foreach (var tag in post.Tags.ToArray())
 			{
 				if (!tags.Contains(tag.Tag.Name))
-					scene.Tags.Remove(tag);
+					post.Tags.Remove(tag);
 			}
 
 			// Add tags
-			var currentTags = scene.Tags.Select(t => t.Tag.Name).ToArray();
+			var currentTags = post.Tags.Select(t => t.Tag.Name).ToArray();
 			var newTags = tags.Where(t => !currentTags.Contains(t)).ToArray();
 
 			foreach (var newTag in await GetOrCreateTagsAsync(newTags))
 			{
-				var sceneTag = new SceneTag { Scene = scene, Tag = newTag };
-				_context.SceneTags.Add(sceneTag);
-				scene.Tags.Add(sceneTag);
+				var postTag = new PostTag { Post = post, Tag = newTag };
+				_context.PostTags.Add(postTag);
+				post.Tags.Add(postTag);
 			}
 		}
 

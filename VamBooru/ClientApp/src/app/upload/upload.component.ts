@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { IUploadResponse } from "../model/upload-response";
 
@@ -16,13 +16,13 @@ export class UploadComponent {
 
 	upload() {
 		const formData = new FormData();
-		formData.append("json", this.sceneJsonFileInput.nativeElement.files[0], "project.json");
-		formData.append("thumbnail", this.sceneThumbnailFileInput.nativeElement.files[0], "project.jpg");
+		const sceneJsonFile = this.sceneJsonFileInput.nativeElement.files[0];
+		const sceneJpgFile = this.sceneThumbnailFileInput.nativeElement.files[0];
+		formData.append("json", sceneJsonFile,sceneJsonFile.name);
+		formData.append("jpg", sceneJpgFile, sceneJpgFile.name);
 
-		const httpOptions = {};
-
-		this.http.post<IUploadResponse>("/api/upload/scene", formData, httpOptions).subscribe(result => {
-			this.router.navigate(["/scenes", result.id, "edit"]);
+		this.http.post<IUploadResponse>("/api/upload", formData, {}).subscribe(result => {
+			this.router.navigate(["/posts", result.id, "edit"]);
 		});
 	}
 }

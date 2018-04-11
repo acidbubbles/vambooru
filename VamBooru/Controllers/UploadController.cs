@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using VamBooru.Models;
 using VamBooru.Services;
 
 namespace VamBooru.Controllers
@@ -14,44 +15,53 @@ namespace VamBooru.Controllers
 	{
 		private readonly IRepository _repository;
 		private readonly IStorage _storage;
-		private readonly IProjectParser _projectParser;
+		private readonly ISceneParser _sceneParser;
 
-		public UploadController(IRepository repository, IStorage storage, IProjectParser projectParser)
+		public UploadController(IRepository repository, IStorage storage, ISceneParser sceneParser)
 		{
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 			_storage = storage ?? throw new ArgumentNullException(nameof(storage));
-			_projectParser = projectParser ?? throw new ArgumentNullException(nameof(projectParser));
+			_sceneParser = sceneParser ?? throw new ArgumentNullException(nameof(sceneParser));
 		}
 
-		[HttpPost("scene")]
+		[HttpPost("")]
 		[DisableFormValueModelBinding]
 		public async Task<IActionResult> Upload()
 		{
 			var files = Request.Form.Files;
 
-			var jsonFile = files.FirstOrDefault(f => f.Name == "json");
-			if (jsonFile == null) return BadRequest(new UploadResponse { Success = false, Code = "JsonMissing" });
+			var sceneJsonFile = files.FirstOrDefault(f => f.Name == "json");
+			if (sceneJsonFile == null) return BadRequest(new UploadResponse { Success = false, Code = "JsonMissing" });
 
-			var imageFile = files.FirstOrDefault(f => f.Name == "thumbnail");
-			if (imageFile == null) return BadRequest(new UploadResponse { Success = false, Code = "ThumbnailMissing" });
+			var sceneJpgFile = files.FirstOrDefault(f => f.Name == "jpg");
+			if (sceneJpgFile == null) return BadRequest(new UploadResponse { Success = false, Code = "ThumbnailMissing" });
 
-			Guid projectId;
-			using (var projectStream = await CopyToMemoryStream(jsonFile))
-			using (var imageStream = await CopyToMemoryStream(imageFile))
+			Guid postId;
+			using (var sceneJsonStream = await CopyToMemoryStream(sceneJsonFile))
+			using (var sceneJpgStream = await CopyToMemoryStream(sceneJpgFile))
 			{
-				var title = GuessTitle(jsonFile);
-				var tags = _projectParser.GetTagsFromProject(projectStream.ToArray());
-				if (!HasJpegHeader(imageStream))
-					return BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
-				imageStream.Seek(0, SeekOrigin.Begin);
+				var title = GuessTitle(sceneJsonFile);
+				var tags = _sceneParser.GetTags(sceneJsonStream.ToArray());
+				if (!ValidateJpeg(sceneJpgStream)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 
-				projectId = await _repository.CreateSceneAsync(title, tags);
+				var scene = new Scene {FilenameWithoutExtension = title};
+				var post = await _repository.CreatePostAsync(title, tags, new[] {scene});
+				postId = post.Id;
 
-				await _storage.SaveSceneAsync(projectId, projectStream);
-				await _storage.SaveSceneThumbAsync(projectId, imageStream);
+				await _storage.SaveSceneAsync(scene.Id, sceneJsonStream);
+				await _storage.SaveSceneThumbAsync(scene.Id, sceneJpgStream);
 			}
 
-			return Ok(new UploadResponse { Success = true, Id = projectId.ToString() });
+			return Ok(new UploadResponse { Success = true, Id = postId.ToString() });
+		}
+
+		private static bool ValidateJpeg(Stream sceneJpgStream)
+		{
+			if (!HasJpegHeader(sceneJpgStream))
+				return false;
+
+			sceneJpgStream.Seek(0, SeekOrigin.Begin);
+			return true;
 		}
 
 		private static string GuessTitle(IFormFile jsonFile)

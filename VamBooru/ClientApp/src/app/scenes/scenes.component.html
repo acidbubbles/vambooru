@@ -1,7 +1,0 @@
-<h1>Browse Scenes</h1>
-
-<div *ngIf="scenes">
-	<div *ngFor="let scene of scenes">
-		<a [routerLink]="['/scenes', scene.id]"><img src="{{ scene.imageUrl }}" alt="{{ scene.title }}" style="width: 512px;" /></a>
-	</div>
-</div>

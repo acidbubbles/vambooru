@@ -9,15 +9,20 @@ namespace VamBooru.Models
 		{
 		}
 
-		public DbSet<Author> Authors { get; set; }
-		public DbSet<Scene> Scenes { get; set; }
+		public DbSet<User> Users { get; set; }
+		public DbSet<OAuth2Login> OAuth2Logins { get; set; }
+		public DbSet<Post> Posts { get; set; }
 		public DbSet<Tag> Tags { get; set; }
-		public DbSet<SceneTag> SceneTags { get; set; }
+		public DbSet<PostTag> PostTags { get; set; }
+		public DbSet<Scene> Scenes { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<SceneTag>()
-				.HasKey(t => new { t.SceneId, t.TagId });
+			modelBuilder.Entity<OAuth2Login>()
+				.HasKey(l => new {l.Scheme, l.Username});
+
+			modelBuilder.Entity<PostTag>()
+				.HasKey(t => new { SceneId = t.PostId, t.TagId });
 
 			modelBuilder.Entity<Tag>()
 				.HasIndex(tag => tag.Name)

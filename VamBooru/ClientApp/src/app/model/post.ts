@@ -1,6 +1,6 @@
 import { ITag } from "./tag";
 
-export interface IScene {
+export interface IPost {
 	id: string;
 	title: string;
 	imageUrl: number;

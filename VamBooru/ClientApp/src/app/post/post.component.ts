@@ -2,14 +2,14 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { Subscription } from "rxjs/Subscription";
 import { HttpClient } from "@angular/common/http";
 import { ActivatedRoute } from "@angular/router";
-import { IScene } from "../model/scene";
+import { IPost } from "../model/post";
 
 @Component({
-	selector: "scene",
-	templateUrl: "./scene.component.html"
+	selector: "post",
+	templateUrl: "./post.component.html"
 })
-export class SceneComponent implements OnInit, OnDestroy {
-	scene: IScene;
+export class PostComponent implements OnInit, OnDestroy {
+	post: IPost;
 	routeSub: Subscription;
 
 	constructor(private readonly http: HttpClient, private readonly route: ActivatedRoute, @Inject("BASE_URL") private readonly baseUrl: string) {
@@ -18,8 +18,8 @@ export class SceneComponent implements OnInit, OnDestroy {
 	ngOnInit() {
 		this.routeSub = this.route.params.subscribe(params => {
 			const id = params["id"];
-			this.http.get<IScene>(this.baseUrl + "api/Scenes/" + id).subscribe(result => {
-				this.scene = result;
+			this.http.get<IPost>(this.baseUrl + "api/Posts/" + id).subscribe(result => {
+				this.post = result;
 			}, error => console.error(error));
 		});
 	}

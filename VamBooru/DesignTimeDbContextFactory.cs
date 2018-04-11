@@ -14,6 +14,7 @@ namespace VamBooru
 			var configuration = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
 				.AddJsonFile("appsettings.json")
+				.AddUserSecrets<Startup>()
 				.Build();
 
 			var builder = new DbContextOptionsBuilder<VamBooruDbContext>();

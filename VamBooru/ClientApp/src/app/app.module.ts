@@ -11,9 +11,9 @@ import { AppComponent } from "./app.component";
 import { NavMenuComponent } from "./nav-menu/nav-menu.component";
 
 import { HomeComponent } from "./home/home.component";
-import { ScenesComponent } from "./scenes/scenes.component";
-import { SceneComponent } from "./scene/scene.component";
-import { SceneEditComponent } from "./scene-edit/scene-edit.component";
+import { BrowseComponent } from "./browse/browse.component";
+import { PostComponent } from "./post/post.component";
+import { PostEditComponent } from "./post-edit/post-edit.component";
 import { UploadComponent } from "./upload/upload.component";
 
 @NgModule({
@@ -22,9 +22,9 @@ import { UploadComponent } from "./upload/upload.component";
 		NavMenuComponent,
 		HomeComponent,
 		UploadComponent,
-		ScenesComponent,
-		SceneComponent,
-		SceneEditComponent,
+		BrowseComponent,
+		PostComponent,
+		PostEditComponent,
 	],
 	imports: [
 		BrowserModule.withServerTransition({ appId: "ng-cli-universal" }),
@@ -36,9 +36,9 @@ import { UploadComponent } from "./upload/upload.component";
 		RouterModule.forRoot([
 			{ path: "", component: HomeComponent, pathMatch: "full" },
 			{ path: "upload", component: UploadComponent },
-			{ path: "scenes", component: ScenesComponent },
-			{ path: "scenes/:id", component: SceneComponent },
-			{ path: "scenes/:id/edit", component: SceneEditComponent },
+			{ path: "browse", component: BrowseComponent },
+			{ path: "posts/:id", component: PostComponent },
+			{ path: "posts/:id/edit", component: PostEditComponent },
 			{ path: "**", redirectTo: "home" }
 		])
 	],

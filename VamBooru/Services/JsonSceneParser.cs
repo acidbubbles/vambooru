@@ -7,9 +7,9 @@ using Newtonsoft.Json.Linq;
 
 namespace VamBooru.Services
 {
-	public class JsonProjectParser : IProjectParser
+	public class JsonSceneParser : ISceneParser
 	{
-		public string[] GetTagsFromProject(byte[] projectStream)
+		public string[] GetTags(byte[] projectStream)
 		{
 			var project = ParseProjectJson(projectStream);
 

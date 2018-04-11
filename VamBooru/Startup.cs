@@ -40,7 +40,7 @@ namespace VamBooru
 
 			services.AddTransient<IRepository, EntityFrameworkRepository>();
 			services.AddTransient<IStorage, FileSystemStorage>();
-			services.AddTransient<IProjectParser, JsonProjectParser>();
+			services.AddTransient<ISceneParser, JsonSceneParser>();
 		}
 
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
