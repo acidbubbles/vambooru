@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -31,7 +33,12 @@ namespace VamBooru
 		public void ConfigureServices(IServiceCollection services)
 		{ 
 			services.AddSingleton(Configuration);
-			services.AddMvc()
+			services
+				.AddMvc(options =>
+				{
+					if (Configuration["Https"] == "True")
+						options.Filters.Add(new RequireHttpsAttribute());
+				})
 				.AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
 
 			ConfigureDatabase(services);
@@ -153,6 +160,9 @@ namespace VamBooru
 			{
 				app.UseExceptionHandler("/error");
 			}
+
+			if (Configuration["Https"] == "True")
+				app.UseRewriter(new RewriteOptions().AddRedirectToHttps());
 
 			app.UseStaticFiles();
 			app.UseSpaStaticFiles();

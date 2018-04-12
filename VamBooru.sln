@@ -3,12 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VamBooru", "VamBooru\VamBooru.csproj", "{9413C4D7-FA78-4F21-8DE4-9AE28343041B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VamBooru", "VamBooru\VamBooru.csproj", "{9413C4D7-FA78-4F21-8DE4-9AE28343041B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VamBooru.Tests", "VamBooru.Tests\VamBooru.Tests.csproj", "{A13DB83D-3218-43B3-804E-7A1D61422EE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VamBooru.Tests", "VamBooru.Tests\VamBooru.Tests.csproj", "{A13DB83D-3218-43B3-804E-7A1D61422EE1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AF405E0E-14FA-429F-80E2-743FE6BF8CFB}"
 	ProjectSection(SolutionItems) = preProject
+		app.json = app.json
 		README.md = README.md
 	EndProjectSection
 EndProject

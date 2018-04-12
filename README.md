@@ -59,3 +59,4 @@ ng e2e
 * Use a MemoryCache for the home page stuff
 * Use the database to test things on Heroku
 * Compress the JSON files before storing them in the database!
+* Update all dependencies (.NET, npm)
