@@ -1,7 +1,11 @@
 {
   "name": "vambooru",
-  "version": "0.0.0",
-  "license": "MIT",
+  "version": "0.0.1",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acidbubbles/vambooru"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve --extract-css",
@@ -11,7 +15,6 @@
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "^5.2.0",
     "@angular/common": "^5.2.0",

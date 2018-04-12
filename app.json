@@ -1,0 +1,15 @@
+{
+  "name": "vambooru",
+  "description": "Find out what the Virt-A-Mate community has been creating, and share your own creations!",
+  "repository": "https://github.com/acidbubbles/vambooru",
+  "keywords": ["virt-a-mate", "vam"],
+  "stack": "heroku-16",
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
+    },
+    {
+      "url": "https://github.com/jincod/dotnetcore-buildpack"
+    }
+  ]
+}
