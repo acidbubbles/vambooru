@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { IPost } from "../model/post";
+import { IPost } from "../../model/post";
 
 @Component({
 	selector: "browse",

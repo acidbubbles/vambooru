@@ -12,13 +12,13 @@ import { ConfigurationService } from "./services/configuration-service";
 import { AppComponent } from "./app.component";
 import { NavMenuComponent } from "./nav-menu/nav-menu.component";
 
-import { HomeComponent } from "./home/home.component";
-import { ErrorComponent } from "./error/error.component";
-import { BrowseComponent } from "./browse/browse.component";
-import { PostComponent } from "./post/post.component";
-import { PostEditComponent } from "./post-edit/post-edit.component";
-import { UploadComponent } from "./upload/upload.component";
-import { AccountComponent } from "./account/account.component";
+import { HomeComponent } from "./pages/home/home.component";
+import { ErrorComponent } from "./pages/error/error.component";
+import { BrowseComponent } from "./pages/browse/browse.component";
+import { PostComponent } from "./pages/post/post.component";
+import { PostEditComponent } from "./pages/post-edit/post-edit.component";
+import { UploadComponent } from "./pages/upload/upload.component";
+import { AccountComponent } from "./pages/account/account.component";
 
 @NgModule({
 	declarations: [

@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
-import { IUploadResponse } from "../model/upload-response";
+import { IUploadResponse } from "../../model/upload-response";
 
 @Component({
 	selector: "upload",

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { Subscription } from "rxjs/Subscription";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from "@angular/router";
-import { IPost } from "../model/post";
+import { IPost } from "../../model/post";
 
 @Component({
 	selector: "post-edit",

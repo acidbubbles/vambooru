@@ -1,8 +1,8 @@
 import { Component, OnInit, Inject } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { DOCUMENT } from "@angular/common"
-import { IUser } from "../model/user"
-import { ConfigurationService } from "../services/configuration-service";
+import { DOCUMENT } from "@angular/common";
+import { IUser } from "../../model/user";
+import { ConfigurationService } from "../../services/configuration-service";
 
 @Component({
   selector: "account",

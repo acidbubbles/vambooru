@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { Subscription } from "rxjs/Subscription";
 import { HttpClient } from "@angular/common/http";
 import { ActivatedRoute } from "@angular/router";
-import { IPost } from "../model/post";
-import { ConfigurationService } from "../services/configuration-service";
+import { IPost } from "../../model/post";
+import { ConfigurationService } from "../../services/configuration-service";
 
 @Component({
 	selector: "post",
