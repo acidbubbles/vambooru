@@ -27,8 +27,8 @@ li.link-active a:focus {
 	}
 
 	.navbar {
-		border-radius: 0px;
-		border-width: 0px;
+		border-radius: 0;
+		border-width: 0;
 		height: 100%;
 	}
 
@@ -38,7 +38,7 @@ li.link-active a:focus {
 
 	.navbar-collapse {
 		border-top: 1px solid #444;
-		padding: 0px;
+		padding: 0;
 	}
 
 	.navbar ul {

@@ -25,7 +25,8 @@ export class AccountComponent implements OnInit {
 			headers: new HttpHeaders({ "Content-Type": "application/json" })
 		};
 
-		this.http.put("/api/users/me", this.user, httpOptions).subscribe(result => {
+		this.http.put<IUser>("/api/users/me", this.user, httpOptions).subscribe(result => {
+			this.user.username = result.username;
 			this.configService.config.username = this.user.username;
 			this.saved = true;
 		});

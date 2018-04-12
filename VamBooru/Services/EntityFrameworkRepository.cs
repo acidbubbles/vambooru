@@ -155,13 +155,15 @@ namespace VamBooru.Services
 			return _context.Users.FindAsync(userId);
 		}
 
-		public async Task UpdateUserAsync(UserLoginInfo login, UserViewModel user)
+		public async Task<User> UpdateUserAsync(UserLoginInfo login, UserViewModel user)
 		{
 			var dbUser = await LoadPrivateUserAsync(login);
 
 			dbUser.Username = user.Username;
 
 			await _context.SaveChangesAsync();
+
+			return dbUser;
 		}
 	}
 }

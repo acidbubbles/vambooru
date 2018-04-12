@@ -35,7 +35,7 @@ export class PostEditComponent implements OnInit, OnDestroy {
 			headers: new HttpHeaders({ "Content-Type": "application/json" })
 		};
 
-		this.http.put("/api/posts/" + this.post.id, this.post, httpOptions).subscribe(result => {
+		this.http.put("/api/posts/" + this.post.id, this.post, httpOptions).subscribe(() => {
 			this.router.navigate(["/posts", this.post.id]);
 		});
 	}

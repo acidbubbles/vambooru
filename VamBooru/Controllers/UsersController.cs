@@ -44,8 +44,8 @@ namespace VamBooru.Controllers
 		public async Task<IActionResult> Put([FromRoute] string userId, [FromBody] UserViewModel user)
 		{
 			if (userId != Me || !User.Identity.IsAuthenticated) return Unauthorized();
-			await _repository.UpdateUserAsync(this.GetUserLoginInfo(), user);
-			return NoContent();
+			var dbUser = await _repository.UpdateUserAsync(this.GetUserLoginInfo(), user);
+			return Ok(dbUser.ToViewModel());
 		}
 	}
 }

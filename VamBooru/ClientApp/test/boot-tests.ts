@@ -11,11 +11,12 @@ import * as testing from "@angular/core/testing";
 import * as testingBrowser from "@angular/platform-browser-dynamic/testing";
 
 // There's no typing for the `__karma__` variable. Just declare it as any
+// ReSharper disable once InconsistentNaming
 declare var __karma__: any;
 declare var require: any;
 
 // Prevent Karma from running prematurely
-__karma__.loaded = function () { };
+__karma__.loaded = () => { };
 
 // First, initialize the Angular testing environment
 testing.getTestBed().initTestEnvironment(

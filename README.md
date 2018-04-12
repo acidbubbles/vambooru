@@ -55,3 +55,7 @@ ng e2e
 * User Avatar
 * Error handling (global and per-page, e.g. httpclient.get())
 * Ensure username are unique
+* Implement queuing where possible (e.g. uploading)
+* Use a MemoryCache for the home page stuff
+* Use the database to test things on Heroku
+* Compress the JSON files before storing them in the database!
