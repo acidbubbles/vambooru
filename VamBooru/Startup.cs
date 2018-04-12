@@ -36,7 +36,7 @@ namespace VamBooru
 			services
 				.AddMvc(options =>
 				{
-					if (Configuration["Https"] == "True")
+					if (Configuration["Web:Https"] == "True")
 						options.Filters.Add(new RequireHttpsAttribute());
 				})
 				.AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
@@ -57,7 +57,7 @@ namespace VamBooru
 			services.AddEntityFrameworkNpgsql().AddDbContext<VamBooruDbContext>(options =>
 			{
 				options.UseNpgsql(
-					Configuration.GetConnectionString("VamBooru") ??
+					Configuration["Repository:EFPostgres:ConnectionString"] ??
 					throw new NullReferenceException("The VamBooru Postgres connection string was not configured in appsettings.json")
 				);
 			});
@@ -161,7 +161,7 @@ namespace VamBooru
 				app.UseExceptionHandler("/error");
 			}
 
-			if (Configuration["Https"] == "True")
+			if (Configuration["Web:Https"] == "True")
 				app.UseRewriter(new RewriteOptions().AddRedirectToHttps());
 
 			app.UseStaticFiles();

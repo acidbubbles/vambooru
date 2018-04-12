@@ -11,7 +11,7 @@ namespace VamBooru.Services
 
 		public FileSystemStorage(IConfiguration configuration)
 		{
-			var outputFolder = configuration?["VamBooru:ProjectsPath"] ?? throw new ArgumentException("ProjectsPath was not defined", nameof(configuration));
+			var outputFolder = configuration?["Storage:FileSystem:Path"] ?? throw new ArgumentException("ProjectsPath was not defined", nameof(configuration));
 			outputFolder = Environment.ExpandEnvironmentVariables(outputFolder);
 			_outputFolder = outputFolder;
 		}
