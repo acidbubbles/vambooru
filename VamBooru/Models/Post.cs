@@ -24,7 +24,7 @@ namespace VamBooru.Models
 				Published = Published,
 				Title = Title,
 				ImageUrl = ImageUrl,
-				Tags = Tags?.Select(tag => tag.Tag?.ToViewModel()).ToArray(),
+				Tags = Tags?.Select(tag => tag.Tag.ToViewModel()).OrderBy(t => t.Name).ToArray(),
 				Author = Author?.ToViewModel()
 			};
 		}

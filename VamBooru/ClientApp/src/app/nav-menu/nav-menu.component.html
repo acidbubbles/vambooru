@@ -12,7 +12,7 @@
 		<div class='clearfix'></div>
 		<div class='navbar-collapse collapse' [ngClass]='{ "in": isExpanded }'>
 			<ul class='nav navbar-nav'>
-				<li *ngIf="!isAuthenticated">
+				<li *ngIf="!config?.isAuthenticated">
 					<a href="/auth/login">
 						<span class='glyphicon glyphicon-log-in'></span> Sign in
 					</a>
@@ -27,14 +27,14 @@
 						<span class='glyphicon glyphicon-film'></span> Browse
 					</a>
 				</li>
-				<li *ngIf="isAuthenticated" [routerLinkActive]='["link-active"]'>
+				<li *ngIf="config?.isAuthenticated" [routerLinkActive]='["link-active"]'>
 					<a [routerLink]='["/upload"]' (click)='collapse()'>
 						<span class='glyphicon glyphicon-cloud-upload'></span> Upload
 					</a>
 				</li>
-				<li *ngIf="isAuthenticated" [routerLinkActive]='["link-active"]'>
+				<li *ngIf="config?.isAuthenticated" [routerLinkActive]='["link-active"]'>
 					<a [routerLink]='["/account"]' (click)='collapse()'>
-						<span class='glyphicon glyphicon-user'></span> My Account
+						<span class='glyphicon glyphicon-user'></span> @{{ config.username || '(no username)' }}
 					</a>
 				</li>
 			</ul>

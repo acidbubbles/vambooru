@@ -54,3 +54,4 @@ ng e2e
 * My Scenes
 * User Avatar
 * Error handling (global and per-page, e.g. httpclient.get())
+* Ensure username are unique

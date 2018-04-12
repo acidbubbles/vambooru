@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { ConfigurationService } from "../services/configuration-service";
+import { IStartupConfiguration } from "../model/startup-configuration";
 
 @Component({
 	selector: "app-nav-menu",
@@ -8,10 +9,10 @@ import { ConfigurationService } from "../services/configuration-service";
 })
 export class NavMenuComponent {
 	isExpanded = false;
-	isAuthenticated: boolean;
+	config: IStartupConfiguration;
 
-	constructor(private readonly configService: ConfigurationService) {
-		this.isAuthenticated = configService.config.isAuthenticated;
+	constructor(configService: ConfigurationService) {
+		this.config = configService.config;
 	}
 
 	collapse() {

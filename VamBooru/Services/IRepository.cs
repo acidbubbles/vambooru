@@ -12,6 +12,7 @@ namespace VamBooru.Services
 		Task UpdatePostAsync(UserLoginInfo login, PostViewModel post);
 
 		Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name);
+		Task<User> LoadPrivateUserAsync(UserLoginInfo login);
 		Task<User> LoadPrivateUserAsync(string scheme, string id);
 		Task<User> LoadPublicUserAsync(string userId);
 		Task UpdateUserAsync(UserLoginInfo login, UserViewModel user);
