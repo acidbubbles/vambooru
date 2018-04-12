@@ -1,32 +1,48 @@
+using System;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using VamBooru.Controllers;
 using VamBooru.Models;
 using VamBooru.Services;
-using VamBooru.Tests.TestUtils;
 
 namespace VamBooru.Tests.Controllers
 {
 	public class PostControllerTests
 	{
 		[Test]
-		public async Task Browse_DefaultOrder()
+		public async Task Browse_NoFilters()
 		{
 			var repository = new Mock<IRepository>(MockBehavior.Strict);
-			var storage = new Mock<IStorage>(MockBehavior.Strict);
-
-			var controller = new PostController(repository.Object);
+			repository
+				.Setup(mock => mock.BrowsePostsAsync(0, 10))
+				.ReturnsAsync(new[]
+				{
+					new Post
+					{
+						Id = Guid.Parse("9495ee61-37ac-43cf-8ee0-dbcd18510914"),
+						Title = "My Scene",
+						Author = new User {Username = "john.doe"},
+						Tags = new[]
+						{
+							new PostTag {Tag = new Tag {Id = Guid.Parse("c2fa02b7-b107-4261-8306-9465178f2949"), Name = "artsy"}}
+						}
+					}
+				});
+			var controller = new PostsController(repository.Object);
 
 			var result = await controller.BrowseAsync();
 
-			CollectionAssert.AreEqual(new[]
+			result.ShouldDeepEqual(new[]
 			{
-				new Post
+				new PostViewModel
 				{
-					Title = "My super post"
+					Id ="9495ee61-37ac-43cf-8ee0-dbcd18510914",
+					Title = "My Scene",
+					Author = new UserViewModel {Username = "john.doe"},
+					Tags = new[] {new TagViewModel {Id = "c2fa02b7-b107-4261-8306-9465178f2949", Name = "artsy"}}
 				}
-			}, result, new PostViewModelComparer());
+			});
 		}
 	}
 }

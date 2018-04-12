@@ -8,11 +8,11 @@ using VamBooru.Services;
 namespace VamBooru.Controllers
 {
 	[Route("api/posts")]
-	public class PostController : Controller
+	public class PostsController : Controller
 	{
 		private readonly IRepository _repository;
 
-		public PostController(IRepository repository)
+		public PostsController(IRepository repository)
 		{
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 		}

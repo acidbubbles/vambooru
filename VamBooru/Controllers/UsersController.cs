@@ -9,13 +9,13 @@ using VamBooru.Services;
 namespace VamBooru.Controllers
 {
 	[Route("api/users")]
-	public class UserController : Controller
+	public class UsersController : Controller
 	{
 		private const string Me = "me";
 
 		private readonly IRepository _repository;
 
-		public UserController(IRepository repository)
+		public UsersController(IRepository repository)
 		{
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 		}
