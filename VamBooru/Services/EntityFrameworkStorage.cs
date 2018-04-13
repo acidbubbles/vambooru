@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VamBooru.Models;
@@ -17,16 +18,26 @@ namespace VamBooru.Services
 
 		public async Task<SceneFile> SaveSceneAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream)
 		{
-			return await SaveSceneFile(filenameWithoutExtension, stream, ".json");
+			return await SaveSceneFile(filenameWithoutExtension, stream, ".json", true);
 		}
 
 		public async Task<SceneFile> SaveSceneThumbAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream)
 		{
-			return await SaveSceneFile(filenameWithoutExtension, stream, ".jpg");
+			return await SaveSceneFile(filenameWithoutExtension, stream, ".jpg", false);
 		}
 
-		private async Task<SceneFile> SaveSceneFile(string filenameWithoutExtension, MemoryStream stream, string extension)
+		private async Task<SceneFile> SaveSceneFile(string filenameWithoutExtension, MemoryStream stream, string extension, bool compressed)
 		{
+			if (compressed)
+			{
+				var result = new MemoryStream();
+				using (var gzip = new GZipStream(result, CompressionLevel.Optimal, true))
+				{
+					stream.CopyTo(gzip);
+				}
+				stream = result;
+			}
+
 			var file = new SceneFile
 			{
 				Filename = filenameWithoutExtension + extension,
