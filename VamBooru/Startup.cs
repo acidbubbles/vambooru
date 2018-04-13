@@ -170,7 +170,7 @@ namespace VamBooru
 			}
 			else
 			{
-				app.UseExceptionHandler("/error");
+				app.UseStatusCodePages("text/plain", "Something went wrong... (status code {0})");
 			}
 
 			if (Configuration["Web:Https"] == "True")
