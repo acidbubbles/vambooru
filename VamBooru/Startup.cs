@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
@@ -33,6 +34,15 @@ namespace VamBooru
 		public void ConfigureServices(IServiceCollection services)
 		{ 
 			services.AddSingleton(Configuration);
+
+			services.Configure<ForwardedHeadersOptions>(options =>
+			{
+				options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+				//NOTE: This allows someone to "fake" using HTTPS, but in practice we don't really care. We don't need a secure relationship with the proxy.
+				options.KnownNetworks.Clear();
+				options.KnownProxies.Clear();
+			});
+
 			services
 				.AddMvc(options =>
 				{
@@ -152,6 +162,8 @@ namespace VamBooru
 
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
+			app.UseForwardedHeaders();
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -162,7 +174,9 @@ namespace VamBooru
 			}
 
 			if (Configuration["Web:Https"] == "True")
+			{
 				app.UseRewriter(new RewriteOptions().AddRedirectToHttps());
+			}
 
 			app.UseStaticFiles();
 			app.UseSpaStaticFiles();
