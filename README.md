@@ -10,9 +10,9 @@ This project requires .NET Core 2 (uses Postgres as the DB).
 
 Either use Visual Studio, or `dotnet build` to compile.
 
-Run the DB Migration using `Update-Database` in the Package Manager Console. You may need to first create the `vambooru` database.
+Run the DB Migration using `Update-Database` in the Package Manager Console or `dotnet ef database update` using the .NET Core CLI. You need to first create the `vambooru` database and give the appropriate permissions.
 
-You'll also need to add a data folder (and create it) and the connection string to the [secrets](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio) or environment variables.
+You'll also need to add a data folder (and create it) and the connection string to the [secrets](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio) or tge environment variables See `appsettings.json`; when using environment variables, use `:` as the delimiter (e.g. `Repository:EFPostgres:ConnectionString`).
 
 ## Testing
 
