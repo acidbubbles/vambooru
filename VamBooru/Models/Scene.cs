@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace VamBooru.Models
 {
@@ -7,6 +8,7 @@ namespace VamBooru.Models
 		public Guid Id { get; set; }
 		public string FilenameWithoutExtension { get; set; }
 		public Post Post { get; set; }
+		public ICollection<SceneFile> Files { get; set; }
 
 		public SceneViewModel ToViewModel()
 		{

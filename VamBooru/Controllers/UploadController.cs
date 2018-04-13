@@ -52,13 +52,13 @@ namespace VamBooru.Controllers
 
 			var post = await _repository.CreatePostAsync(this.GetUserLoginInfo(), scenes.First().Item1.FilenameWithoutExtension, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray());
 
+			var tasks = new List<Task>();
 			foreach (var sceneData in scenes)
 			{
-				await _storage.SaveSceneAsync(sceneData.Item1.Id, sceneData.Item3);
-				sceneData.Item3.Dispose();
-				await _storage.SaveSceneThumbAsync(sceneData.Item1.Id, sceneData.Item4);
-				sceneData.Item4.Dispose();
+				tasks.Add(_storage.SaveSceneAsync(sceneData.Item1.Id, sceneData.Item1.FilenameWithoutExtension, sceneData.Item3));
+				tasks.Add(_storage.SaveSceneThumbAsync(sceneData.Item1.Id, sceneData.Item1.FilenameWithoutExtension, sceneData.Item4));
 			}
+			await Task.WhenAll(tasks);
 
 			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });
 		}

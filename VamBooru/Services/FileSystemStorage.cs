@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using VamBooru.Models;
 
 namespace VamBooru.Services
 {
@@ -16,23 +17,24 @@ namespace VamBooru.Services
 			_outputFolder = outputFolder;
 		}
 
-		public async Task<string> SaveSceneAsync(Guid sceneId, Stream stream)
+		public async Task<SceneFile> SaveSceneAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream)
 		{
 			using (var fileStream = File.OpenWrite(BuildJsonPath(sceneId)))
 				await stream.CopyToAsync(fileStream);
 			return null;
 		}
 
-		public async Task<string> SaveSceneThumbAsync(Guid sceneId, Stream stream)
+		public async Task<SceneFile> SaveSceneThumbAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream)
 		{
 			using (var fileStream = File.OpenWrite(BuildThumbPath(sceneId)))
 				await stream.CopyToAsync(fileStream);
 			return null;
 		}
 
-		public Task<Stream> LoadSceneThumbAsync(Guid sceneId)
+		public async Task<SceneFile> LoadSceneThumbAsync(Guid sceneId)
 		{
-			return Task.FromResult<Stream>(new FileStream(BuildThumbPath(sceneId), FileMode.Open, FileAccess.Read));
+			var bytes = await File.ReadAllBytesAsync(BuildThumbPath(sceneId));
+			return new SceneFile {Bytes = bytes};
 		}
 
 		private string BuildJsonPath(Guid sceneId)

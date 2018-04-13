@@ -56,7 +56,19 @@ namespace VamBooru
 			ConfigureAngular(services);
 
 			services.AddTransient<IRepository, EntityFrameworkRepository>();
-			services.AddTransient<IStorage, FileSystemStorage>();
+
+			switch (Configuration["Storage:Type"])
+			{
+				case "FileSystem":
+					services.AddTransient<IStorage, FileSystemStorage>();
+					break;
+				case "EFPostgres":
+					services.AddTransient<IStorage, EntityFrameworkStorage>();
+					break;
+					default:
+						throw new Exception($"Unknown storage type: {Configuration["Storage:Type"]}");
+			}
+
 			services.AddTransient<ISceneParser, JsonSceneParser>();
 
 			ConfigureAuthentication(services);

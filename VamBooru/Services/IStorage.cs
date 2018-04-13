@@ -1,13 +1,14 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
+using VamBooru.Models;
 
 namespace VamBooru.Services
 {
 	public interface IStorage
 	{
-		Task<string> SaveSceneAsync(Guid sceneId, Stream stream);
-		Task<string> SaveSceneThumbAsync(Guid sceneId, Stream stream);
-		Task<Stream> LoadSceneThumbAsync(Guid sceneId);
+		Task<SceneFile> SaveSceneAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream);
+		Task<SceneFile> SaveSceneThumbAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream);
+		Task<SceneFile> LoadSceneThumbAsync(Guid sceneId);
 	}
 }
