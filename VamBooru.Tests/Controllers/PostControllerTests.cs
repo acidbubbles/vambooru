@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using NUnit.Framework;
 using VamBooru.Controllers;
@@ -29,7 +30,8 @@ namespace VamBooru.Tests.Controllers
 						}
 					}
 				});
-			var controller = new PostsController(repository.Object);
+			var cache = SetupCaching("posts:browse:(Newest;Default;0;10)");
+			var controller = new PostsController(repository.Object, cache.Object);
 
 			var result = await controller.BrowseAsync();
 
@@ -43,6 +45,19 @@ namespace VamBooru.Tests.Controllers
 					Tags = new[] {new TagViewModel {Id = "c2fa02b7-b107-4261-8306-9465178f2949", Name = "artsy"}}
 				}
 			});
+		}
+
+		private static Mock<IMemoryCache> SetupCaching(string key)
+		{
+			var cache = new Mock<IMemoryCache>(MockBehavior.Strict);
+			object _;
+			cache
+				.Setup(mock => mock.TryGetValue(key, out _))
+				.Returns(false);
+			cache
+				.Setup(mock => mock.CreateEntry(key))
+				.Returns(Mock.Of<ICacheEntry>());
+			return cache;
 		}
 	}
 }

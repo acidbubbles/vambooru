@@ -11,6 +11,7 @@ import { MarkdownModule } from "ngx-md";
 
 // Services
 import { ConfigurationService } from "./services/configuration-service";
+import { PostsService } from "./services/posts-service";
 
 // Application
 import { AppComponent } from "./app.component";
@@ -67,7 +68,8 @@ import { AccountComponent } from "./pages/account/account.component";
 			useFactory: (configurationService: ConfigurationService) => () => configurationService.load(),
 			deps: [ConfigurationService],
 			multi: true
-		}
+		},
+		PostsService
 	],
 	bootstrap: [AppComponent]
 })

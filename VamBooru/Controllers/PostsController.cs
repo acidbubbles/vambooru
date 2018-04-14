@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using VamBooru.Models;
 using VamBooru.Services;
 
@@ -11,20 +12,44 @@ namespace VamBooru.Controllers
 	public class PostsController : Controller
 	{
 		private readonly IRepository _repository;
+		private readonly IMemoryCache _cache;
 
-		public PostsController(IRepository repository)
+		public PostsController(IRepository repository, IMemoryCache cache)
 		{
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_cache = cache ?? throw new ArgumentNullException(nameof(cache));
 		}
 
 		[HttpGet("")]
-		public async Task<PostViewModel[]> BrowseAsync([FromQuery] string sort = null, [FromQuery] string since = null, [FromQuery] int page = 0, [FromQuery] int pageSize = 10)
+		public async Task<PostViewModel[]> BrowseAsync([FromQuery] string sort = null, [FromQuery] string since = null, [FromQuery] int page = 0, [FromQuery] int pageSize = 16)
+		{
+			var sortParsed = sort != null ? Enum.Parse<PostSortBy>(sort, true) : PostSortBy.Default;
+			var sinceParsed = since != null ? Enum.Parse<PostedSince>(since, true) : PostedSince.Default;
+
+			if (!AllowsCaching(page, pageSize))
+				return await BrowseInternalAsync(page, pageSize, sortParsed, sinceParsed);
+
+			var key = $"posts:browse:({sortParsed};{sinceParsed};{page};{pageSize})";
+			var expirationMinutes = sortParsed == PostSortBy.Newest ? 1 : 10;
+			return await _cache.GetOrCreateAsync(key, entry =>
+			{
+				entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(expirationMinutes);
+				return BrowseInternalAsync(page, pageSize, sortParsed, sinceParsed);
+			});
+		}
+
+		private static bool AllowsCaching(int page, int pageSize)
+		{
+			return page == 0 && pageSize < 16;
+		}
+
+		private async Task<PostViewModel[]> BrowseInternalAsync(int page, int pageSize, PostSortBy sortBy, PostedSince postedSince)
 		{
 			var posts = await _repository.BrowsePostsAsync(
-				sort != null ? Enum.Parse<PostSortBy>(sort) : PostSortBy.Default,
-				since != null ? Enum.Parse<PostedSince>(since) : PostedSince.Default,
-				page,
-				pageSize
+				sortBy,
+				postedSince,
+				page >= 0 ? page : 0,
+				pageSize > 0 ? pageSize : 0
 			);
 			return posts.Select(post => PrepareForDisplay(post, true)).ToArray();
 		}

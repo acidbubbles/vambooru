@@ -71,6 +71,8 @@ namespace VamBooru
 
 			services.AddTransient<ISceneParser, JsonSceneParser>();
 
+			services.AddMemoryCache();
+
 			ConfigureAuthentication(services);
 		}
 

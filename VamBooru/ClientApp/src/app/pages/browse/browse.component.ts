@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { Component, OnInit  } from "@angular/core";
+import { PostsService, PostSortBy, PostedSince } from "../../services/posts-service";
 import { IPost } from "../../model/post";
 
 @Component({
@@ -9,12 +9,19 @@ import { IPost } from "../../model/post";
 export class BrowseComponent implements OnInit {
 	posts: IPost[];
 
-	constructor(private readonly http: HttpClient, @Inject("BASE_URL") private readonly baseUrl: string) {
+	constructor(private readonly postsService: PostsService) {
 	}
 
 	ngOnInit() {
-		this.http.get<IPost[]>(`${this.baseUrl}api/posts`).subscribe(result => {
-			this.posts = result;
-		}, error => console.error(error));
+		this.postsService
+			.load({
+				sort: PostSortBy.newest,
+				since: PostedSince.forever,
+				page: 0,
+				pageSize: 0
+			})
+			.subscribe(result => {
+				this.posts = result;
+			});
 	}
 }
