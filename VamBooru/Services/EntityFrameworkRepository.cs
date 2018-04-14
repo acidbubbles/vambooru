@@ -25,6 +25,7 @@ namespace VamBooru.Services
 			var post = new Post
 			{
 				Title = title,
+				Text = "",
 				Author = user
 			};
 
@@ -52,6 +53,7 @@ namespace VamBooru.Services
 
 		public Task<Post[]> BrowsePostsAsync(int page, int pageSize)
 		{
+			//TODO: Here we query the Post.Text field, and it's not being used. We should do a projection (.Select(x => new {})) or extract the text in another table.
 			return _context.Posts
 				.AsNoTracking()
 				.Include(s => s.Author)
@@ -71,6 +73,7 @@ namespace VamBooru.Services
 			if(dbPost.Author.Id != user.Id) throw new UnauthorizedAccessException();
 
 			dbPost.Title = post.Title;
+			dbPost.Text = post.Text;
 			if (!dbPost.Published && post.Published) dbPost.DatePublished = DateTimeOffset.UtcNow;
 			dbPost.Published = post.Published;
 			await AssignTagsAsync(dbPost, post.Tags.Select(tag => tag.Name).ToArray());

@@ -21,13 +21,13 @@ namespace VamBooru.Controllers
 		public async Task<PostViewModel[]> BrowseAsync([FromQuery] int page = 0, [FromQuery] int pageSize = 10)
 		{
 			var posts = await _repository.BrowsePostsAsync(page, pageSize);
-			return posts.Select(PrepareForDisplay).ToArray();
+			return posts.Select(post => PrepareForDisplay(post, true)).ToArray();
 		}
 
 		[HttpGet("{postId}")]
 		public async Task<PostViewModel> GetPostAsync([FromRoute] Guid postId)
 		{
-			return PrepareForDisplay(await _repository.LoadPostAsync(postId));
+			return PrepareForDisplay(await _repository.LoadPostAsync(postId), false);
 		}
 
 		[HttpPut("{postId}")]
@@ -38,9 +38,9 @@ namespace VamBooru.Controllers
 			return NoContent();
 		}
 
-		private PostViewModel PrepareForDisplay(Post post)
+		private PostViewModel PrepareForDisplay(Post post, bool optimize)
 		{
-			var viewModel = post.ToViewModel();
+			var viewModel = post.ToViewModel(optimize);
 
 			if (viewModel.ImageUrl == null)
 			{

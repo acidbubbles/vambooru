@@ -1,11 +1,17 @@
 <div *ngIf="post">
 	<h1>{{post.title}} by {{post.author.username}}</h1>
 
-	<img src="{{ post.imageUrl }}" />
+	<img src="{{ post.imageUrl }}" class="scene-thumbnail" />
+
+	<markdown [(data)]="post.text"></markdown>
+
 	<div class="tags">
 		<span *ngFor="let tag of post.tags" class="badge">{{tag.name}}</span>
 	</div>
-	<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-default" *ngIf="ownedByCurrentUser">
-		<i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit
-	</a>
+	<div *ngIf="ownedByCurrentUser">
+		<p>You created this post.</p>
+		<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-default">
+			<i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit
+		</a>
+	</div>
 </div>

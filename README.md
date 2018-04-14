@@ -69,3 +69,6 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Compress the JSON files before storing them in the database!
 * Update all dependencies (.NET, npm)
 * Contributing guide / license
+* Show the image in a lightbox when clicking
+* Full text search of post text and title and tags
+* Search by tag

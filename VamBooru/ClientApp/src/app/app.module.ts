@@ -6,6 +6,7 @@ import { HttpClientModule } from "@angular/common/http";
 import { RouterModule } from "@angular/router";
 
 import { TagInputModule } from "ngx-chips";
+import { MarkdownModule } from "ngx-md";
 
 import { ConfigurationService } from "./services/configuration-service";
 
@@ -39,6 +40,7 @@ import { AccountComponent } from "./pages/account/account.component";
 		FormsModule,
 		ReactiveFormsModule,
 		TagInputModule,
+		MarkdownModule.forRoot(),
 		RouterModule.forRoot([
 			{ path: "", component: HomeComponent, pathMatch: "full" },
 			{ path: "error", component: ErrorComponent,  },
