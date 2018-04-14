@@ -16,5 +16,7 @@ namespace VamBooru.Services
 		Task<User> LoadPrivateUserAsync(string scheme, string id);
 		Task<User> LoadPublicUserAsync(string userId);
 		Task<User> UpdateUserAsync(UserLoginInfo login, UserViewModel user);
+
+		Task<Tag[]> SearchTags(string q);
 	}
 }

@@ -90,7 +90,6 @@ namespace VamBooru.Services
 			// Add tags
 			var currentTags = post.Tags.Select(t => t.Tag.Name).ToArray();
 			var newTags = tags.Where(t => !currentTags.Contains(t)).ToArray();
-
 			foreach (var newTag in await GetOrCreateTagsAsync(newTags))
 			{
 				var postTag = new PostTag { Post = post, Tag = newTag };
@@ -164,6 +163,14 @@ namespace VamBooru.Services
 			await _context.SaveChangesAsync();
 
 			return dbUser;
+		}
+
+		public Task<Tag[]> SearchTags(string q)
+		{
+			//TODO: We should use full text search here
+			return _context.Tags
+				.Where(t => t.Name.Contains(q))
+				.ToArrayAsync();
 		}
 	}
 }

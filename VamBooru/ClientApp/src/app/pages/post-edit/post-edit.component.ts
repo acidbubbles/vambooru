@@ -2,7 +2,10 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { Subscription } from "rxjs/Subscription";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from "@angular/router";
+import { Observable } from "rxjs/Observable";
+import "rxjs/add/operator/map";
 import { IPost } from "../../model/post";
+import { ITag } from "../../model/tag";
 
 @Component({
 	selector: "post-edit",
@@ -44,4 +47,11 @@ export class PostEditComponent implements OnInit, OnDestroy {
 		this.post.published = state;
 		this.save();
 	}
+
+	autocompleteTags = (text: string): Observable<ITag[]> => {
+		const url = `/api/tags?q=${text}`;
+		return this.http
+			.get<ITag[]>(url)
+			.map(data => data.map(item => item));;
+	};
 }
