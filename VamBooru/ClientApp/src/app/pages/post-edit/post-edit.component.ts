@@ -14,6 +14,8 @@ import { ITag } from "../../model/tag";
 export class PostEditComponent implements OnInit, OnDestroy {
 	post: IPost;
 	routeSub: Subscription;
+	errorMessage: string;
+	saving: boolean;
 
 	constructor(private readonly http: HttpClient, private readonly router: Router, private readonly route: ActivatedRoute, @Inject("BASE_URL") private readonly baseUrl: string) {
 	}
@@ -34,13 +36,22 @@ export class PostEditComponent implements OnInit, OnDestroy {
 	}
 
 	save() {
+		if (this.saving) return;
+		this.saving = true;
+		this.errorMessage = null;
+
 		const httpOptions = {
 			headers: new HttpHeaders({ "Content-Type": "application/json" })
 		};
 
-		this.http.put(`/api/posts/${this.post.id}`, this.post, httpOptions).subscribe(() => {
-			this.router.navigate(["/posts", this.post.id]);
-		});
+		this.http.put(`/api/posts/${this.post.id}`, this.post, httpOptions).subscribe(
+			() => {
+				this.router.navigate(["/posts", this.post.id]);
+			},
+			error => {
+				this.errorMessage = error.toString();
+				this.saving = false;
+			});
 	}
 
 	publish(state: boolean) {
