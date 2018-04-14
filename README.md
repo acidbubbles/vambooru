@@ -52,7 +52,7 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Make an actual gallery (that shows the author, the date, votes, some tags and a link to view)
 * Ability to overwrite and existing scene (last updated) with maybe release notes? So we can have "new version" in VaM.
 * Max upload size (both json and image)
-* CDN / Storage URL
+* CDN / Storage for scene files
 * Max female/male count in tags
 * Tag autocomplete component (both find and add)
 * Upload support files (other images and sounds associated with a list of scenes)
@@ -71,3 +71,7 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Full text search of post text and title and tags
 * Search by tag
 * Make the post view page at least not completely ugly
+* Privacy policy, terms of service
+* Delete scene and users (and make sure we do delete them)
+* CDN for site css/js/image files
+* Show the scenes you voted for

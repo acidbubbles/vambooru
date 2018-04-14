@@ -5,14 +5,21 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { HttpClientModule } from "@angular/common/http";
 import { RouterModule } from "@angular/router";
 
+// External modules
 import { TagInputModule } from "ngx-chips";
 import { MarkdownModule } from "ngx-md";
 
+// Services
 import { ConfigurationService } from "./services/configuration-service";
 
+// Application
 import { AppComponent } from "./app.component";
 import { NavMenuComponent } from "./nav-menu/nav-menu.component";
 
+// Directives
+import { PostGalleryComponent } from"./components/post-gallery/post-gallery.component";
+
+// Pages
 import { HomeComponent } from "./pages/home/home.component";
 import { ErrorComponent } from "./pages/error/error.component";
 import { BrowseComponent } from "./pages/browse/browse.component";
@@ -25,6 +32,7 @@ import { AccountComponent } from "./pages/account/account.component";
 	declarations: [
 		AppComponent,
 		NavMenuComponent,
+		PostGalleryComponent,
 		HomeComponent,
 		ErrorComponent,
 		BrowseComponent,

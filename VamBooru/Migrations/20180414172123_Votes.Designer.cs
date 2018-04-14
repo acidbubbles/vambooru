@@ -11,9 +11,10 @@ using VamBooru.Models;
 namespace VamBooru.Migrations
 {
     [DbContext(typeof(VamBooruDbContext))]
-    partial class VamBooruDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180414172123_Votes")]
+    partial class Votes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

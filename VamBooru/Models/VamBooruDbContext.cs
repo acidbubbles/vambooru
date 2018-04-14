@@ -23,11 +23,14 @@ namespace VamBooru.Models
 				.HasKey(l => new {l.Scheme, Username = l.NameIdentifier});
 
 			modelBuilder.Entity<PostTag>()
-				.HasKey(t => new { SceneId = t.PostId, t.TagId });
+				.HasKey(t => new { t.PostId, t.TagId });
 
 			modelBuilder.Entity<Tag>()
 				.HasIndex(tag => tag.Name)
 				.IsUnique();
+
+			modelBuilder.Entity<UserPostVote>()
+				.HasKey(t => new { t.UserId, t.PostId });
 		}
 	}
 }

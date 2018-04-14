@@ -15,7 +15,7 @@ namespace VamBooru.Tests.Controllers
 		{
 			var repository = new Mock<IRepository>(MockBehavior.Strict);
 			repository
-				.Setup(mock => mock.BrowsePostsAsync(0, 10))
+				.Setup(mock => mock.BrowsePostsAsync(PostSortBy.Default, PostedSince.Default, 0, 10))
 				.ReturnsAsync(new[]
 				{
 					new Post

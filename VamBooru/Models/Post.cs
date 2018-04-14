@@ -15,9 +15,11 @@ namespace VamBooru.Models
 		[Required] public string Title { get; set; }
 		[Required] [Column(TypeName = "text")] public string Text { get; set; }
 		public string ImageUrl { get; set; }
+		[Required] public User Author { get; set; }
+		public int Votes { get; set; }
 		public ICollection<PostTag> Tags { get; set; } = new List<PostTag>();
 		public ICollection<Scene> Scenes { get; set; } = new List<Scene>();
-		[Required] public User Author { get; set; }
+		public ICollection<UserPostVote> UserVotes { get; set; } = new List<UserPostVote>();
 
 		public PostViewModel ToViewModel(bool optimize)
 		{

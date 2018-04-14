@@ -18,9 +18,14 @@ namespace VamBooru.Controllers
 		}
 
 		[HttpGet("")]
-		public async Task<PostViewModel[]> BrowseAsync([FromQuery] int page = 0, [FromQuery] int pageSize = 10)
+		public async Task<PostViewModel[]> BrowseAsync([FromQuery] string sort = null, [FromQuery] string since = null, [FromQuery] int page = 0, [FromQuery] int pageSize = 10)
 		{
-			var posts = await _repository.BrowsePostsAsync(page, pageSize);
+			var posts = await _repository.BrowsePostsAsync(
+				sort != null ? Enum.Parse<PostSortBy>(sort) : PostSortBy.Default,
+				since != null ? Enum.Parse<PostedSince>(since) : PostedSince.Default,
+				page,
+				pageSize
+			);
 			return posts.Select(post => PrepareForDisplay(post, true)).ToArray();
 		}
 

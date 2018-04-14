@@ -51,16 +51,29 @@ namespace VamBooru.Services
 				.FirstOrDefaultAsync(s => s.Id == id);
 		}
 
-		public Task<Post[]> BrowsePostsAsync(int page, int pageSize)
+		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostedSince since, int page, int pageSize)
 		{
 			//TODO: Here we query the Post.Text field, and it's not being used. We should do a projection (.Select(x => new {})) or extract the text in another table.
-			return _context.Posts
+			var baseQuery = _context.Posts
 				.AsNoTracking()
 				.Include(s => s.Author)
 				.Include(s => s.Tags)
 				.ThenInclude(t => t.Tag)
 				.Include(s => s.Scenes)
-				.Where(s => s.Published)
+				.Where(s => s.Published);
+
+			baseQuery = baseQuery.OrderByDescending(p => p.DatePublished);
+			if (since != PostedSince.Forever)
+				baseQuery = baseQuery.Where(s => s.DatePublished >= DateTimeOffset.UtcNow.AddDays((int) since));
+
+			switch (sortBy)
+			{
+					case PostSortBy.HighestRated:
+						baseQuery = baseQuery.OrderByDescending(p => p.Votes);
+						break;
+			}
+
+			return baseQuery
 				.Skip(page * pageSize)
 				.Take(pageSize)
 				.ToArrayAsync();
@@ -175,6 +188,23 @@ namespace VamBooru.Services
 				.Where(t => t.Name.Contains(q))
 				.ToArrayAsync();
 		}
+	}
+
+	public enum PostSortBy
+	{
+		Default = Newest,
+		Newest = 0,
+		HighestRated = 1,
+	}
+
+	public enum PostedSince
+	{
+		Default = Forever,
+		Forever = 0,
+		LastDay = 1,
+		LastWeek = 7,
+		LastMonth = 30,
+		LastYear = 365,
 	}
 }
 
