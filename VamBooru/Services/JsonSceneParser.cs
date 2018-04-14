@@ -58,7 +58,7 @@ namespace VamBooru.Services
 				yield return $"{males}-male{(males > 1 ? "s" : "")}";
 
 			if (females > 0)
-				yield return $"{females}-female{(males > 1 ? "s" : "")}";
+				yield return $"{females}-female{(females > 1 ? "s" : "")}";
 		}
 	}
 }

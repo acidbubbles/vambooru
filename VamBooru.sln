@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AF405E0E-14FA-429F-80E2-743FE6BF8CFB}"
 	ProjectSection(SolutionItems) = preProject
 		app.json = app.json
+		HEROKU.md = HEROKU.md
 		README.md = README.md
 	EndProjectSection
 EndProject

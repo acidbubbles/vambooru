@@ -23,7 +23,7 @@ export class PostComponent implements OnInit, OnDestroy {
 		this.routeSub = this.route.params.subscribe(params => {
 			this.ownedByCurrentUser = false;
 			const id = params["id"];
-			this.http.get<IPost>(this.baseUrl + "api/Posts/" + id).subscribe(result => {
+			this.http.get<IPost>(`${this.baseUrl}api/Posts/${id}`).subscribe(result => {
 				this.post = result;
 				this.ownedByCurrentUser = this.post.author.username === this.loggedInUsername;
 			});

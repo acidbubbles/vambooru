@@ -15,7 +15,7 @@ export class AccountComponent implements OnInit {
 	constructor(@Inject(DOCUMENT) private readonly document: any, private readonly http: HttpClient, @Inject("BASE_URL") private readonly baseUrl: string, private readonly configService: ConfigurationService) { }
 
 	ngOnInit() {
-		this.http.get<IUser>(this.baseUrl + "api/users/me").subscribe(result => {
+		this.http.get<IUser>(`${this.baseUrl}api/users/me`).subscribe(result => {
 			this.user = result;
 		});
 	}

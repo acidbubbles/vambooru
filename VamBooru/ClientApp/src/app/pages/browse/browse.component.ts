@@ -13,7 +13,7 @@ export class BrowseComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.http.get<IPost[]>(this.baseUrl + "api/posts").subscribe(result => {
+		this.http.get<IPost[]>(`${this.baseUrl}api/posts`).subscribe(result => {
 			this.posts = result;
 		}, error => console.error(error));
 	}

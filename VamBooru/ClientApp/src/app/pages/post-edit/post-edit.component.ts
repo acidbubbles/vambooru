@@ -18,7 +18,7 @@ export class PostEditComponent implements OnInit, OnDestroy {
 	ngOnInit() {
 		this.routeSub = this.route.params.subscribe(params => {
 			const id = params["id"];
-			this.http.get<IPost>(this.baseUrl + "api/posts/" + id).subscribe(result => {
+			this.http.get<IPost>(`${this.baseUrl}api/posts/${id}`).subscribe(result => {
 				this.post = result;
 				if (!this.post.tags) this.post.tags = [];
 			});
@@ -35,7 +35,7 @@ export class PostEditComponent implements OnInit, OnDestroy {
 			headers: new HttpHeaders({ "Content-Type": "application/json" })
 		};
 
-		this.http.put("/api/posts/" + this.post.id, this.post, httpOptions).subscribe(() => {
+		this.http.put(`/api/posts/${this.post.id}`, this.post, httpOptions).subscribe(() => {
 			this.router.navigate(["/posts", this.post.id]);
 		});
 	}
