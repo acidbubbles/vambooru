@@ -60,3 +60,4 @@ ng e2e
 * Use the database to test things on Heroku
 * Compress the JSON files before storing them in the database!
 * Update all dependencies (.NET, npm)
+* Contributing guide / license
