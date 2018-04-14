@@ -32,6 +32,14 @@ ng test
 ng e2e
 ```
 
+## Scalability
+
+This was built to allow scaling, but it was implemented for simplicity. Things to do to scale much more:
+
+1. Use redis to cache the home page search result
+2. Use rabbitmq to queue uploads, and process them in another service
+3. Use a file storage that provides a CDN, and upload there instead of in postgres directly
+
 ## Things to do
 
 * User profile pages (public and edit)

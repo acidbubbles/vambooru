@@ -18,9 +18,9 @@ namespace VamBooru.Controllers
 		[HttpGet("{sceneId}/thumbnail", Name = nameof(GetSceneThumbnailAsync))]
 		public async Task<IActionResult> GetSceneThumbnailAsync([FromRoute] Guid sceneId)
 		{
-			var sceneFile = await _storage.LoadSceneThumbAsync(sceneId);
+			var sceneFile = await _storage.LoadSceneThumbStreamAsync(sceneId);
 			if (sceneFile == null) return NotFound();
-			return File(sceneFile.Bytes, "image/jpeg");
+			return File(sceneFile, "image/jpeg");
 		}
 	}
 }

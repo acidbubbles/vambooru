@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace VamBooru.Models
 {
 	public class Tag
 	{
 		public Guid Id { get; set; }
-		public string Name { get; set; }
+		[Required] public string Name { get; set; }
 		public ICollection<PostTag> Scenes { get; set; } = new List<PostTag>();
 
 		public TagViewModel ToViewModel()

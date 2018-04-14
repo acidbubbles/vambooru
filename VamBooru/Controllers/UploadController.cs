@@ -37,7 +37,7 @@ namespace VamBooru.Controllers
 
 			var scenes = await Task.WhenAll(scenesFiles.Select(async sf =>
 				new Tuple<Scene, SceneJsonAndJpg, MemoryStream, MemoryStream>(
-					new Scene {FilenameWithoutExtension = sf.FilenameWithoutExtension},
+					new Scene {Name = sf.FilenameWithoutExtension},
 					sf,
 					await CopyToMemoryStream(sf.JsonFile),
 					await CopyToMemoryStream(sf.JpgFile)
@@ -50,12 +50,12 @@ namespace VamBooru.Controllers
 				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 			}
 
-			var post = await _repository.CreatePostAsync(this.GetUserLoginInfo(), scenes.First().Item1.FilenameWithoutExtension, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray());
+			var post = await _repository.CreatePostAsync(this.GetUserLoginInfo(), scenes.First().Item1.Name, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray());
 
 			foreach (var sceneData in scenes)
 			{
-				await _storage.SaveSceneAsync(sceneData.Item1.Id, sceneData.Item1.FilenameWithoutExtension, sceneData.Item3);
-				await _storage.SaveSceneThumbAsync(sceneData.Item1.Id, sceneData.Item1.FilenameWithoutExtension, sceneData.Item4);
+				await _storage.SaveSceneAsync(sceneData.Item1, sceneData.Item3);
+				await _storage.SaveSceneThumbAsync(sceneData.Item1, sceneData.Item4);
 			}
 
 			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });

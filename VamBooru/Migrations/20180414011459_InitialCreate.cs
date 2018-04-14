@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
@@ -12,7 +13,7 @@ namespace VamBooru.Migrations
 				columns: table => new
 				{
 					Id = table.Column<Guid>(nullable: false),
-					Name = table.Column<string>(nullable: true)
+					Name = table.Column<string>(nullable: false)
 				},
 				constraints: table =>
 				{
@@ -25,7 +26,7 @@ namespace VamBooru.Migrations
 				{
 					Id = table.Column<Guid>(nullable: false),
 					DateSubscribed = table.Column<DateTimeOffset>(nullable: false),
-					Username = table.Column<string>(nullable: true)
+					Username = table.Column<string>(nullable: false)
 				},
 				constraints: table =>
 				{
@@ -37,12 +38,12 @@ namespace VamBooru.Migrations
 				columns: table => new
 				{
 					Id = table.Column<Guid>(nullable: false),
-					AuthorId = table.Column<Guid>(nullable: true),
+					AuthorId = table.Column<Guid>(nullable: false),
 					DateCreated = table.Column<DateTimeOffset>(nullable: false),
 					DatePublished = table.Column<DateTimeOffset>(nullable: false),
 					ImageUrl = table.Column<string>(nullable: true),
 					Published = table.Column<bool>(nullable: false),
-					Title = table.Column<string>(nullable: true)
+					Title = table.Column<string>(nullable: false)
 				},
 				constraints: table =>
 				{
@@ -52,7 +53,7 @@ namespace VamBooru.Migrations
 						column: x => x.AuthorId,
 						principalTable: "Users",
 						principalColumn: "Id",
-						onDelete: ReferentialAction.Restrict);
+						onDelete: ReferentialAction.Cascade);
 				});
 
 			migrationBuilder.CreateTable(
@@ -61,7 +62,7 @@ namespace VamBooru.Migrations
 				{
 					Scheme = table.Column<string>(nullable: false),
 					NameIdentifier = table.Column<string>(nullable: false),
-					UserId = table.Column<Guid>(nullable: true)
+					UserId = table.Column<Guid>(nullable: false)
 				},
 				constraints: table =>
 				{
@@ -71,7 +72,7 @@ namespace VamBooru.Migrations
 						column: x => x.UserId,
 						principalTable: "Users",
 						principalColumn: "Id",
-						onDelete: ReferentialAction.Restrict);
+						onDelete: ReferentialAction.Cascade);
 				});
 
 			migrationBuilder.CreateTable(
@@ -103,8 +104,8 @@ namespace VamBooru.Migrations
 				columns: table => new
 				{
 					Id = table.Column<Guid>(nullable: false),
-					FilenameWithoutExtension = table.Column<string>(nullable: true),
-					PostId = table.Column<Guid>(nullable: true)
+					Name = table.Column<string>(nullable: false),
+					PostId = table.Column<Guid>(nullable: false)
 				},
 				constraints: table =>
 				{
@@ -114,7 +115,29 @@ namespace VamBooru.Migrations
 						column: x => x.PostId,
 						principalTable: "Posts",
 						principalColumn: "Id",
-						onDelete: ReferentialAction.Restrict);
+						onDelete: ReferentialAction.Cascade);
+				});
+
+			migrationBuilder.CreateTable(
+				name: "SceneFiles",
+				columns: table => new
+				{
+					Id = table.Column<long>(nullable: false)
+						.Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+					Bytes = table.Column<byte[]>(nullable: false),
+					Extension = table.Column<string>(nullable: false),
+					Filename = table.Column<string>(nullable: false),
+					SceneId = table.Column<Guid>(nullable: false)
+				},
+				constraints: table =>
+				{
+					table.PrimaryKey("PK_SceneFiles", x => x.Id);
+					table.ForeignKey(
+						name: "FK_SceneFiles_Scenes_SceneId",
+						column: x => x.SceneId,
+						principalTable: "Scenes",
+						principalColumn: "Id",
+						onDelete: ReferentialAction.Cascade);
 				});
 
 			migrationBuilder.CreateIndex(
@@ -126,6 +149,11 @@ namespace VamBooru.Migrations
 				name: "IX_PostTags_TagId",
 				table: "PostTags",
 				column: "TagId");
+
+			migrationBuilder.CreateIndex(
+				name: "IX_SceneFiles_SceneId",
+				table: "SceneFiles",
+				column: "SceneId");
 
 			migrationBuilder.CreateIndex(
 				name: "IX_Scenes_PostId",
@@ -150,13 +178,16 @@ namespace VamBooru.Migrations
 				name: "PostTags");
 
 			migrationBuilder.DropTable(
-				name: "Scenes");
+				name: "SceneFiles");
 
 			migrationBuilder.DropTable(
 				name: "UserLogins");
 
 			migrationBuilder.DropTable(
 				name: "Tags");
+
+			migrationBuilder.DropTable(
+				name: "Scenes");
 
 			migrationBuilder.DropTable(
 				name: "Posts");

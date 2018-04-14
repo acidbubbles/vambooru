@@ -25,7 +25,7 @@ namespace VamBooru.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid?>("AuthorId");
+                    b.Property<Guid>("AuthorId");
 
                     b.Property<DateTimeOffset>("DateCreated");
 
@@ -35,7 +35,8 @@ namespace VamBooru.Migrations
 
                     b.Property<bool>("Published");
 
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -62,9 +63,10 @@ namespace VamBooru.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("FilenameWithoutExtension");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
-                    b.Property<Guid?>("PostId");
+                    b.Property<Guid>("PostId");
 
                     b.HasKey("Id");
 
@@ -78,11 +80,16 @@ namespace VamBooru.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<byte[]>("Bytes");
+                    b.Property<byte[]>("Bytes")
+                        .IsRequired();
 
-                    b.Property<string>("Filename");
+                    b.Property<string>("Extension")
+                        .IsRequired();
 
-                    b.Property<Guid?>("SceneId");
+                    b.Property<string>("Filename")
+                        .IsRequired();
+
+                    b.Property<Guid>("SceneId");
 
                     b.HasKey("Id");
 
@@ -96,7 +103,8 @@ namespace VamBooru.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -113,7 +121,8 @@ namespace VamBooru.Migrations
 
                     b.Property<DateTimeOffset>("DateSubscribed");
 
-                    b.Property<string>("Username");
+                    b.Property<string>("Username")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -126,7 +135,7 @@ namespace VamBooru.Migrations
 
                     b.Property<string>("NameIdentifier");
 
-                    b.Property<Guid?>("UserId");
+                    b.Property<Guid>("UserId");
 
                     b.HasKey("Scheme", "NameIdentifier");
 
@@ -139,7 +148,8 @@ namespace VamBooru.Migrations
                 {
                     b.HasOne("VamBooru.Models.User", "Author")
                         .WithMany("Scenes")
-                        .HasForeignKey("AuthorId");
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("VamBooru.Models.PostTag", b =>
@@ -159,21 +169,24 @@ namespace VamBooru.Migrations
                 {
                     b.HasOne("VamBooru.Models.Post", "Post")
                         .WithMany("Scenes")
-                        .HasForeignKey("PostId");
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("VamBooru.Models.SceneFile", b =>
                 {
                     b.HasOne("VamBooru.Models.Scene", "Scene")
                         .WithMany("Files")
-                        .HasForeignKey("SceneId");
+                        .HasForeignKey("SceneId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("VamBooru.Models.UserLogin", b =>
                 {
                     b.HasOne("VamBooru.Models.User", "User")
                         .WithMany("Logins")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

@@ -9,6 +9,9 @@ namespace VamBooru.Services
 {
 	public class EntityFrameworkStorage : IStorage
 	{
+		private const string JpgExtension = ".jpg";
+		private const string JsonExtension = ".json";
+
 		private readonly VamBooruDbContext _context;
 
 		public EntityFrameworkStorage(VamBooruDbContext context)
@@ -16,17 +19,17 @@ namespace VamBooru.Services
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		public async Task<SceneFile> SaveSceneAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream)
+		public async Task<SceneFile> SaveSceneAsync(Scene scene, MemoryStream stream)
 		{
-			return await SaveSceneFile(filenameWithoutExtension, stream, ".json", true);
+			return await SaveSceneFile(scene, stream, JsonExtension, true);
 		}
 
-		public async Task<SceneFile> SaveSceneThumbAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream)
+		public async Task<SceneFile> SaveSceneThumbAsync(Scene scene, MemoryStream stream)
 		{
-			return await SaveSceneFile(filenameWithoutExtension, stream, ".jpg", false);
+			return await SaveSceneFile(scene, stream, JpgExtension, false);
 		}
 
-		private async Task<SceneFile> SaveSceneFile(string filenameWithoutExtension, MemoryStream stream, string extension, bool compressed)
+		private async Task<SceneFile> SaveSceneFile(Scene scene, MemoryStream stream, string extension, bool compressed)
 		{
 			if (compressed)
 			{
@@ -40,7 +43,9 @@ namespace VamBooru.Services
 
 			var file = new SceneFile
 			{
-				Filename = filenameWithoutExtension + extension,
+				Scene = scene,
+				Filename = scene.Name + extension,
+				Extension = extension,
 				Bytes = stream.ToArray()
 			};
 			_context.SceneFiles.Add(file);
@@ -48,10 +53,11 @@ namespace VamBooru.Services
 			return file;
 		}
 
-		public Task<SceneFile> LoadSceneThumbAsync(Guid sceneId)
+		public async Task<Stream> LoadSceneThumbStreamAsync(Guid sceneId)
 		{
-			var file = _context.SceneFiles.FirstOrDefaultAsync(sf => sf.Scene.Id == sceneId);
-			return file;
+			var file = await _context.SceneFiles.FirstOrDefaultAsync(sf => sf.Scene.Id == sceneId && sf.Extension == JpgExtension);
+			if (file == null) return null;
+			return new MemoryStream(file.Bytes);
 		}
 	}
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace VamBooru.Models
@@ -10,11 +11,11 @@ namespace VamBooru.Models
 		public bool Published { get; set; }
 		public DateTimeOffset DateCreated { get; set; } = DateTimeOffset.UtcNow;
 		public DateTimeOffset DatePublished { get; set; }
-		public string Title { get; set; }
+		[Required] public string Title { get; set; }
 		public string ImageUrl { get; set; }
 		public ICollection<PostTag> Tags { get; set; } = new List<PostTag>();
 		public ICollection<Scene> Scenes { get; set; } = new List<Scene>();
-		public User Author { get; set; }
+		[Required] public User Author { get; set; }
 
 		public PostViewModel ToViewModel()
 		{

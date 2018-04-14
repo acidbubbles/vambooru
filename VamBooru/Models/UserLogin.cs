@@ -1,8 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace VamBooru.Models
 {
 	public class UserLogin : UserLoginInfo
 	{
-		public User User { get; set; }
+		[Required] public User User { get; set; }
 	}
 
 	public class UserLoginInfo

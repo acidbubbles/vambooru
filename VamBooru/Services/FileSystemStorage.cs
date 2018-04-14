@@ -17,24 +17,23 @@ namespace VamBooru.Services
 			_outputFolder = outputFolder;
 		}
 
-		public async Task<SceneFile> SaveSceneAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream)
+		public async Task<SceneFile> SaveSceneAsync(Scene scene, MemoryStream stream)
 		{
-			using (var fileStream = File.OpenWrite(BuildJsonPath(sceneId)))
+			using (var fileStream = File.OpenWrite(BuildJsonPath(scene.Id)))
 				await stream.CopyToAsync(fileStream);
 			return null;
 		}
 
-		public async Task<SceneFile> SaveSceneThumbAsync(Guid sceneId, string filenameWithoutExtension, MemoryStream stream)
+		public async Task<SceneFile> SaveSceneThumbAsync(Scene scene, MemoryStream stream)
 		{
-			using (var fileStream = File.OpenWrite(BuildThumbPath(sceneId)))
+			using (var fileStream = File.OpenWrite(BuildThumbPath(scene.Id)))
 				await stream.CopyToAsync(fileStream);
 			return null;
 		}
 
-		public async Task<SceneFile> LoadSceneThumbAsync(Guid sceneId)
+		public Task<Stream> LoadSceneThumbStreamAsync(Guid sceneId)
 		{
-			var bytes = await File.ReadAllBytesAsync(BuildThumbPath(sceneId));
-			return new SceneFile {Bytes = bytes};
+			return Task.FromResult<Stream>(File.OpenRead(BuildThumbPath(sceneId)));
 		}
 
 		private string BuildJsonPath(Guid sceneId)
