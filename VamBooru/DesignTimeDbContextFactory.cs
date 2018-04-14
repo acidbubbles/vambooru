@@ -15,10 +15,13 @@ namespace VamBooru
 				.SetBasePath(Directory.GetCurrentDirectory())
 				.AddJsonFile("appsettings.json")
 				.AddUserSecrets<Startup>()
+				.AddEnvironmentVariables()
 				.Build();
 
+			var connectionString = configuration["Repository:EFPostgres:ConnectionString"] ?? throw new NullReferenceException("The VamBooru connection string was not configured in appsettings.json");
+
 			var builder = new DbContextOptionsBuilder<VamBooruDbContext>();
-			builder.UseNpgsql(configuration["Repository:EFPostgres:ConnectionString"] ?? throw new NullReferenceException("The VamBooru connection string was not configured in appsettings.json"));
+			builder.UseNpgsql(connectionString);
 			return new VamBooruDbContext(builder.Options);
 		}
 	}
