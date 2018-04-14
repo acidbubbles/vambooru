@@ -11,6 +11,7 @@ export class UploadComponent {
 	@ViewChild("filesInput") filesInput: ElementRef;
 	filenames: string[];
 	errorMessage: string;
+	uploading: boolean;
 
 	constructor(private readonly http: HttpClient, private readonly router: Router) {
 	}
@@ -27,6 +28,9 @@ export class UploadComponent {
 	}
 
 	upload() {
+		if (this.uploading) return;
+		this.uploading = true;
+
 		const formData = new FormData();
 		const files = this.filesInput.nativeElement.files;
 		for (let i = 0; i < files.length; i++) {
@@ -40,6 +44,7 @@ export class UploadComponent {
 			},
 			error => {
 				this.errorMessage = error.error.code;
+				this.uploading = false;
 			});
 	}
 }

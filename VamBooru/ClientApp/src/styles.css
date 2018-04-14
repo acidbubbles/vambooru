@@ -2,6 +2,10 @@
 	width: 512px;
 }
 
+.scene-thumbnail-small {
+	width: 256px;
+}
+
 .caption p {
 	width: 100%;
 	overflow: hidden;

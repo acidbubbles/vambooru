@@ -18,9 +18,13 @@
 </div>
 
 <div class="form-group">
-	<button type="button" class="btn btn-success" (click)="upload()">
+	<button type="button" class="btn btn-success" (click)="upload()" [disabled]="uploading">
 		<i class="glyphicon glyphicon-open-file"></i>&nbsp;Upload
 	</button>
+</div>
+
+<div class="alert alert-info" role="alert" *ngIf="uploading">
+	Uploading and processing files, please wait, this may take some time...
 </div>
 
 <div class="alert alert-danger" role="alert" *ngIf="errorMessage">

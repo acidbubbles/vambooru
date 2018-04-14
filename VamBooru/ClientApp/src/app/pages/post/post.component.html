@@ -1,9 +1,10 @@
 <div *ngIf="post">
-	<h1>{{post.title}} by {{post.author.username}}</h1>
+	<h1>{{post.title}}</h1>
+	<i>by {{post.author.username}}</i>
 
-	<img src="{{ post.imageUrl }}" class="scene-thumbnail" />
+	<img src="{{ post.imageUrl }}" class="scene-thumbnail center-block" />
 
-	<markdown [(data)]="post.text"></markdown>
+	<markdown [data]="post.text"></markdown>
 
 	<div class="tags">
 		<span *ngFor="let tag of post.tags" class="badge">{{tag.name}}</span>
