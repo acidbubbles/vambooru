@@ -14,7 +14,7 @@ export class BrowseComponent implements OnInit {
 
 	ngOnInit() {
 		this.postsService
-			.load({
+			.searchPosts({
 				sort: PostSortBy.newest,
 				since: PostedSince.forever,
 				page: 0,

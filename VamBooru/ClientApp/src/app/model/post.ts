@@ -9,4 +9,5 @@ export interface IPost {
 	published: boolean;
 	tags: ITag[];
 	author: IUser;
+	votes: number;
 }

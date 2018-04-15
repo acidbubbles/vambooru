@@ -172,7 +172,7 @@ namespace VamBooru.Services
 
 		public async Task<User> UpdateUserAsync(UserLoginInfo login, UserViewModel user)
 		{
-			var dbUser = await LoadPrivateUserAsync(login);
+			var dbUser = await LoadPrivateUserAsync(login) ?? throw new NullReferenceException("User does not exist");
 
 			dbUser.Username = user.Username;
 
@@ -187,6 +187,44 @@ namespace VamBooru.Services
 			return _context.Tags
 				.Where(t => t.Name.Contains(q))
 				.ToArrayAsync();
+		}
+
+		public async Task<UserPostVote> GetVoteAsync(UserLoginInfo login, Guid postId)
+		{
+			var dbUser = await LoadPrivateUserAsync(login) ?? throw new NullReferenceException("User does not exist");
+			return await _context.UserPostVotes.Where(upv => upv.User == dbUser && upv.PostId == postId).FirstOrDefaultAsync();
+		}
+
+		public async Task<int> VoteAsync(UserLoginInfo login, Guid postId, int votes)
+		{
+			var dbUser = await LoadPrivateUserAsync(login) ?? throw new NullReferenceException("User does not exist");
+			var dbVote = await _context.UserPostVotes.Where(upv => upv.User == dbUser && upv.PostId == postId).FirstOrDefaultAsync();
+			int difference;
+			if (dbVote == null)
+			{
+				difference = votes;
+				if (votes != 0)
+				{
+					dbVote = new UserPostVote {PostId = postId, User = dbUser, Votes = votes};
+					_context.UserPostVotes.Add(dbVote);
+				}
+			}
+			else
+			{
+				difference = votes - dbVote.Votes;
+				if (votes == 0)
+					_context.UserPostVotes.Remove(dbVote);
+				else
+					dbVote.Votes = votes;
+			}
+
+			if (difference != 0)
+				//TODO: It is theoritically possible that the same user sends multiple upvotes VERY fast and create a few fake votes.
+				_context.Database.ExecuteSqlCommand($"UPDATE \"Posts\" SET \"Votes\" = \"Votes\" + {difference} WHERE \"Id\" = {postId:B}");
+
+			await _context.SaveChangesAsync();
+
+			return difference;
 		}
 	}
 

@@ -16,6 +16,7 @@ namespace VamBooru.Models
 		public DbSet<PostTag> PostTags { get; set; }
 		public DbSet<Scene> Scenes { get; set; }
 		public DbSet<SceneFile> SceneFiles { get; set; }
+		public DbSet<UserPostVote> UserPostVotes { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

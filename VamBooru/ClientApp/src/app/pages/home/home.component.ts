@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit {
 	}
 	ngOnInit() {
 		this.postsService
-			.load({
+			.searchPosts({
 				sort: PostSortBy.highestRated,
 				since: PostedSince.forever,
 				page: 0,
@@ -25,7 +25,7 @@ export class HomeComponent implements OnInit {
 			});
 
 		this.postsService
-			.load({
+			.searchPosts({
 				sort: PostSortBy.newest,
 				since: PostedSince.forever,
 				page: 0,

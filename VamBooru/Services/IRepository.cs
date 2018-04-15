@@ -18,5 +18,8 @@ namespace VamBooru.Services
 		Task<User> UpdateUserAsync(UserLoginInfo login, UserViewModel user);
 
 		Task<Tag[]> SearchTags(string q);
+
+		Task<UserPostVote> GetVoteAsync(UserLoginInfo login, Guid postId);
+		Task<int> VoteAsync(UserLoginInfo login, Guid postId, int votes);
 	}
 }

@@ -12,6 +12,7 @@ import { MarkdownModule } from "ngx-md";
 // Services
 import { ConfigurationService } from "./services/configuration-service";
 import { PostsService } from "./services/posts-service";
+import { VotesService } from "./services/votes-service";
 
 // Application
 import { AppComponent } from "./app.component";
@@ -69,7 +70,8 @@ import { AccountComponent } from "./pages/account/account.component";
 			deps: [ConfigurationService],
 			multi: true
 		},
-		PostsService
+		PostsService,
+		VotesService
 	],
 	bootstrap: [AppComponent]
 })

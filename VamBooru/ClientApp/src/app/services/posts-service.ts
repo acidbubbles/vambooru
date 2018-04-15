@@ -7,11 +7,15 @@ import { IPost } from "../model/post";
 export class PostsService {
 	constructor(private readonly http: HttpClient, @Inject("BASE_URL") private readonly baseUrl: string) {}
 
-	load(query: IPostQuery): Observable<IPost[]> {
+	searchPosts(query: IPostQuery): Observable<IPost[]> {
 		const httpParams = new HttpParams({
 			fromObject: query as any
 		});
 		return this.http.get<IPost[]>(`${this.baseUrl}api/posts`, { params: httpParams });
+	};
+
+	getPost(postId: string): Observable<IPost> {
+		return this.http.get<IPost>(`${this.baseUrl}api/posts/${postId}`, {});
 	};
 }
 

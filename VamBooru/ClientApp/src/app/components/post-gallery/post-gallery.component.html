@@ -9,7 +9,7 @@
 				<img src="{{ post.imageUrl }}" alt="{{ post.title }}" style="width:100%" />
 			</a>
 			<div class="caption">
-				<p><b>{{ post.title }}</b></p>
+				<p><b>[{{ post.votes }}] {{ post.title }}</b></p>
 				<p>by {{ post.author?.username }}</p>
 				<div class="tags">
 					<span *ngFor="let tag of post.tags" class="badge">{{tag.name}}</span>

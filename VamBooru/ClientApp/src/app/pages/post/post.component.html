@@ -1,18 +1,36 @@
 <div *ngIf="post">
-	<h1>{{post.title}}</h1>
-	<i>by {{post.author.username}}</i>
+	<h1>{{ post.title }}</h1>
+	<i>by {{ post.author.username }}</i>
 
 	<img src="{{ post.imageUrl }}" class="scene-thumbnail center-block" />
 
 	<markdown [data]="post.text"></markdown>
 
 	<div class="tags">
-		<span *ngFor="let tag of post.tags" class="badge">{{tag.name}}</span>
+		<span *ngFor="let tag of post.tags" class="badge">{{ tag.name }}</span>
 	</div>
-	<div *ngIf="ownedByCurrentUser">
-		<p>You created this post.</p>
-		<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-default">
-			<i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit
-		</a>
+
+	<div>
+		<p>Score: {{ post.votes }}</p>
+	</div>
+
+	<div *ngIf="loggedInUsername">
+
+		<div class="form-group">
+			<button type="button" class="btn btn-default" [ngClass]="{ 'btn-default': vote && vote.value !== -1, 'btn-primary': vote && vote.value === -1 }" (click)="changeVote(-1)" [disabled]="!vote || voting">
+				<i class="glyphicon glyphicon-thumbs-down"></i>
+			</button>
+			<button type="button" class="btn btn-default" [ngClass]="{ 'btn-default': vote && vote.value !== 1, 'btn-primary': vote && vote.value === 1 }" (click)="changeVote(1)" [disabled]="!vote || voting">
+				<i class="glyphicon glyphicon-thumbs-up"></i>
+			</button>
+		</div>
+
+		<div *ngIf="ownedByCurrentUser">
+			<p>You created this post.</p>
+			<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-default">
+				<i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit
+			</a>
+		</div>
+
 	</div>
 </div>

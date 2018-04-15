@@ -75,3 +75,4 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Delete scene and users (and make sure we do delete them)
 * CDN for site css/js/image files
 * Show the scenes you voted for
+* Track downloads (popularity)
