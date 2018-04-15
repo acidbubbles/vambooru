@@ -51,15 +51,6 @@ namespace VamBooru.Services
 				.FirstOrDefaultAsync(p => p.Id == id);
 		}
 
-		public Task<Post> LoadPostFilesAsync(Guid id)
-		{
-			return _context.Posts
-				.Include(p => p.Author)
-				.Include(p => p.Scenes)
-				.ThenInclude(s => s.Files)
-				.FirstOrDefaultAsync(p => p.Id == id);
-		}
-
 		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostedSince since, int page, int pageSize)
 		{
 			//TODO: Here we query the Post.Text field, and it's not being used. We should do a projection (.Select(x => new {})) or extract the text in another table.
@@ -142,6 +133,19 @@ namespace VamBooru.Services
 			}
 
 			return dbTags.ToArray();
+		}
+
+		public Task<SceneFile[]> LoadPostFilesAsync(Guid postId, bool includeBytes)
+		{
+			var query = _context.SceneFiles
+				.Include(sf => sf.Scene)
+				.Where(sf => sf.Scene.Post.Id == postId);
+
+			query = includeBytes
+				? query.Select(sf => new SceneFile {Filename = sf.Filename, Scene = sf.Scene, Bytes = sf.Bytes})
+				: query.Select(sf => new SceneFile {Filename = sf.Filename, Scene = sf.Scene});
+
+			return query.ToArrayAsync();
 		}
 
 		public async Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name)

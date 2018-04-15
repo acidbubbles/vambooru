@@ -16,6 +16,7 @@ namespace VamBooru.Models
 			return new SceneViewModel
 			{
 				Id = Id.ToString(),
+				Name = Name
 			};
 		}
 	}
@@ -23,5 +24,7 @@ namespace VamBooru.Models
 	public class SceneViewModel
 	{
 		public string Id { get; set; }
+		public string Name { get; set; }
+		public string ImageUrl { get; set; }
 	}
 }

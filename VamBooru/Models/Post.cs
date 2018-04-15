@@ -33,8 +33,14 @@ namespace VamBooru.Models
 				ImageUrl = ImageUrl,
 				Votes = Votes,
 				Tags = Tags?.Select(tag => tag.Tag.ToViewModel()).OrderBy(t => t.Name).ToArray(),
-				Author = Author?.ToViewModel()
+				Author = Author?.ToViewModel(),
+				Scenes = optimize ? null : Scenes.Select(s => s.ToViewModel()).ToArray()
 			};
+		}
+
+		public SceneFile[] GetAllFiles()
+		{
+			return Scenes.SelectMany(s => s.Files).ToArray();
 		}
 	}
 
@@ -45,8 +51,11 @@ namespace VamBooru.Models
 		public string Title { get; set; }
 		public string Text { get; set; }
 		public string ImageUrl { get; set; }
+		public string DownloadUrl { get; set; }
 		public int Votes { get; set; }
 		public TagViewModel[] Tags { get; set; }
 		public UserViewModel Author { get; set; }
+		public SceneViewModel[] Scenes { get; set; }
+		public SceneFileViewModel[] Files { get; set; }
 	}
 }

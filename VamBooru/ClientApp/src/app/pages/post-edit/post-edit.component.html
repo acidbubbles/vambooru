@@ -1,8 +1,12 @@
 <h1>Edit Scene</h1>
 
 <div *ngIf="post">
-	<div class="form-group">
-		<img src="{{ post.imageUrl }}" alt="Scene thumbnail" class="scene-thumbnail-small center-block" />
+	<div class="row">
+		<div class="col-md-3" *ngFor="let scene of post.scenes">
+			<div class="thumbnail">
+				<img src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
+			</div>
+		</div>
 	</div>
 
 	<div class="form-group">

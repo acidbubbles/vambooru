@@ -11,6 +11,8 @@ namespace VamBooru.Services
 		Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostedSince since, int page, int pageSize);
 		Task UpdatePostAsync(UserLoginInfo login, PostViewModel post);
 
+		Task<SceneFile[]> LoadPostFilesAsync(Guid postId, bool includeBytes);
+
 		Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name);
 		Task<User> LoadPrivateUserAsync(UserLoginInfo login);
 		Task<User> LoadPrivateUserAsync(string scheme, string id);
@@ -21,6 +23,5 @@ namespace VamBooru.Services
 
 		Task<UserPostVote> GetVoteAsync(UserLoginInfo login, Guid postId);
 		Task<int> VoteAsync(UserLoginInfo login, Guid postId, int votes);
-		Task<Post> LoadPostFilesAsync(Guid id);
 	}
 }

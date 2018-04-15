@@ -1,40 +1,73 @@
 <div *ngIf="post">
-	<h1>{{ post.title }}</h1>
-	<i>by {{ post.author.username }}</i>
-
-	<img src="{{ post.imageUrl }}" class="scene-thumbnail center-block" />
-
-	<markdown [data]="post.text"></markdown>
-
-	<div class="tags">
-		<span *ngFor="let tag of post.tags" class="badge">{{ tag.name }}</span>
-	</div>
-
-	<div>
-		<p>Score: {{ post.votes }}</p>
-	</div>
-
-	<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
-		<i class="glyphicon glyphicon-download-alt"></i>&nbsp;Download
-	</a>
-
-	<div *ngIf="loggedInUsername">
-
-		<div class="form-group">
-			<button type="button" class="btn btn-default" [ngClass]="{ 'btn-default': vote && vote.value !== -1, 'btn-primary': vote && vote.value === -1 }" (click)="changeVote(-1)" [disabled]="!vote || voting">
-				<i class="glyphicon glyphicon-thumbs-down"></i>
-			</button>
-			<button type="button" class="btn btn-default" [ngClass]="{ 'btn-default': vote && vote.value !== 1, 'btn-primary': vote && vote.value === 1 }" (click)="changeVote(1)" [disabled]="!vote || voting">
-				<i class="glyphicon glyphicon-thumbs-up"></i>
-			</button>
+	<h1></h1>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h2>{{ post.title }}</h2>
+			<i>by {{ post.author.username }}</i>
 		</div>
+		<div class="panel-body">
+			<img src="{{ post.imageUrl }}" class="scene-thumbnail center-block" />
 
-		<div *ngIf="ownedByCurrentUser">
+			<hr *ngIf="post.scenes && post.scenes.length > 1" />
+
+			<div class="row" *ngIf="post.scenes && post.scenes.length > 1">
+				<div class="col-md-3" *ngFor="let scene of post.scenes">
+					<div class="thumbnail">
+						<img src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
+					</div>
+				</div>
+			</div>
+
+			<hr />
+
+			<div class="row">
+				<div class="col-md-4">
+					<div class="btn-group">
+						<button type="button" class="btn" [ngClass]="{ 'btn-default': !vote, 'btn-danger': vote && vote.value !== -1, 'btn-danger': vote && vote.value === -1 }" (click)="changeVote(-1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
+							<i class="glyphicon glyphicon-thumbs-down"></i>
+						</button>
+						<button type="button" class="btn" [ngClass]="{ 'btn-default': !vote, 'btn-success': vote && vote.value !== 1, 'btn-success': vote && vote.value === 1 }" (click)="changeVote(1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
+							<i class="glyphicon glyphicon-thumbs-up"></i>
+						</button>
+						<button class="btn btn-default disabled">Score: {{ post.votes }}</button>
+					</div>
+				</div>
+				<div class="col-md-8 tags text-right">
+					<span *ngFor="let tag of post.tags" class="badge">{{ tag.name }}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="panel panel-default" *ngIf="post.text">
+		<div class="panel-body">
+			<markdown [data]="post.text"></markdown>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<p>
+				<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
+					<i class="glyphicon glyphicon-download-alt"></i>&nbsp;Download as .zip
+				</a>
+			</p>
+			<p>
+				This file will include:
+			</p>
+			<ul>
+				<li *ngFor="let file of post.files">{{file.filename}}</li>
+			</ul>
+		</div>
+	</div>
+
+
+	<div *ngIf="ownedByCurrentUser" class="panel panel-default">
+		<div class="panel-body">
 			<p>You created this post.</p>
 			<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-default">
 				<i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit
 			</a>
 		</div>
-
 	</div>
 </div>

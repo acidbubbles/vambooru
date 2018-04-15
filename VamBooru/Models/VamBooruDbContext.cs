@@ -32,6 +32,9 @@ namespace VamBooru.Models
 
 			modelBuilder.Entity<UserPostVote>()
 				.HasKey(t => new { t.UserId, t.PostId });
+
+			modelBuilder.Entity<SceneFile>()
+				.HasIndex(sf => sf.Filename);
 		}
 	}
 }
