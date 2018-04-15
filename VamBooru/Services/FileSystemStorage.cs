@@ -36,6 +36,11 @@ namespace VamBooru.Services
 			return Task.FromResult<Stream>(File.OpenRead(BuildThumbPath(sceneId)));
 		}
 
+		public Task<Stream> LoadSceneFileStreamAsync(Guid sceneId, string filename)
+		{
+			throw new NotImplementedException("Not implemented for File System Storage");
+		}
+
 		private string BuildJsonPath(Guid sceneId)
 		{
 			var filename = $"{sceneId}.json";

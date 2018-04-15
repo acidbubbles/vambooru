@@ -44,11 +44,20 @@ namespace VamBooru.Services
 		public Task<Post> LoadPostAsync(Guid id)
 		{
 			return _context.Posts
-				.Include(s => s.Author)
-				.Include(s => s.Tags)
+				.Include(p => p.Author)
+				.Include(p => p.Tags)
 				.ThenInclude(t => t.Tag)
-				.Include(s => s.Scenes)
-				.FirstOrDefaultAsync(s => s.Id == id);
+				.Include(p => p.Scenes)
+				.FirstOrDefaultAsync(p => p.Id == id);
+		}
+
+		public Task<Post> LoadPostFilesAsync(Guid id)
+		{
+			return _context.Posts
+				.Include(p => p.Author)
+				.Include(p => p.Scenes)
+				.ThenInclude(s => s.Files)
+				.FirstOrDefaultAsync(p => p.Id == id);
 		}
 
 		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostedSince since, int page, int pageSize)
@@ -56,15 +65,15 @@ namespace VamBooru.Services
 			//TODO: Here we query the Post.Text field, and it's not being used. We should do a projection (.Select(x => new {})) or extract the text in another table.
 			var baseQuery = _context.Posts
 				.AsNoTracking()
-				.Include(s => s.Author)
-				.Include(s => s.Tags)
+				.Include(p => p.Author)
+				.Include(p => p.Tags)
 				.ThenInclude(t => t.Tag)
-				.Include(s => s.Scenes)
-				.Where(s => s.Published);
+				.Include(p => p.Scenes)
+				.Where(p => p.Published);
 
 			baseQuery = baseQuery.OrderByDescending(p => p.DatePublished);
 			if (since != PostedSince.Forever)
-				baseQuery = baseQuery.Where(s => s.DatePublished >= DateTimeOffset.UtcNow.AddDays((int) since));
+				baseQuery = baseQuery.Where(p => p.DatePublished >= DateTimeOffset.UtcNow.AddDays((int) since));
 
 			switch (sortBy)
 			{

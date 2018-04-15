@@ -53,6 +53,13 @@ namespace VamBooru.Services
 			return file;
 		}
 
+		public async Task<Stream> LoadSceneFileStreamAsync(Guid sceneId, string filename)
+		{
+			var file = await _context.SceneFiles.FirstOrDefaultAsync(sf => sf.Scene.Id == sceneId && sf.Filename == filename);
+			if (file == null) return null;
+			return new MemoryStream(file.Bytes);
+		}
+
 		public async Task<Stream> LoadSceneThumbStreamAsync(Guid sceneId)
 		{
 			var file = await _context.SceneFiles.FirstOrDefaultAsync(sf => sf.Scene.Id == sceneId && sf.Extension == JpgExtension);

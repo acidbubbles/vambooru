@@ -10,5 +10,6 @@ namespace VamBooru.Services
 		Task<SceneFile> SaveSceneAsync(Scene scene, MemoryStream stream);
 		Task<SceneFile> SaveSceneThumbAsync(Scene scene, MemoryStream stream);
 		Task<Stream> LoadSceneThumbStreamAsync(Guid sceneId);
+		Task<Stream> LoadSceneFileStreamAsync(Guid sceneId, string filename);
 	}
 }

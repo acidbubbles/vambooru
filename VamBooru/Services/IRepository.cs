@@ -21,5 +21,6 @@ namespace VamBooru.Services
 
 		Task<UserPostVote> GetVoteAsync(UserLoginInfo login, Guid postId);
 		Task<int> VoteAsync(UserLoginInfo login, Guid postId, int votes);
+		Task<Post> LoadPostFilesAsync(Guid id);
 	}
 }

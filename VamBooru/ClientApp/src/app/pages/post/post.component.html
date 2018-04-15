@@ -14,6 +14,10 @@
 		<p>Score: {{ post.votes }}</p>
 	</div>
 
+	<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
+		<i class="glyphicon glyphicon-download-alt"></i>&nbsp;Download
+	</a>
+
 	<div *ngIf="loggedInUsername">
 
 		<div class="form-group">
