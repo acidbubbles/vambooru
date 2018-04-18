@@ -11,7 +11,7 @@ namespace VamBooru.Models
 	{
 		public Guid Id { get; set; }
 		public bool Published { get; set; }
-		public DateTimeOffset DateCreated { get; set; } = DateTimeOffset.UtcNow;
+		public DateTimeOffset DateCreated { get; set; }
 		public DateTimeOffset DatePublished { get; set; }
 		[Required] public string Title { get; set; }
 		[Required] [Column(TypeName = "text")] public string Text { get; set; }

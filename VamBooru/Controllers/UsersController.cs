@@ -32,7 +32,7 @@ namespace VamBooru.Controllers
 			}
 			else
 			{
-				user = await _repository.LoadPublicUserAsync(userId);
+				user = await _repository.LoadPublicUserAsync(Guid.Parse(userId));
 			}
 
 			if (user == null) return NotFound();

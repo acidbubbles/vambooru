@@ -6,7 +6,7 @@ namespace VamBooru.Repository
 {
 	public interface IRepository
 	{
-		Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes);
+		Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes, DateTimeOffset now);
 		Task<Post> LoadPostAsync(Guid id);
 		Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostedSince since, int page, int pageSize);
 		Task UpdatePostAsync(UserLoginInfo login, PostViewModel post);
@@ -16,7 +16,7 @@ namespace VamBooru.Repository
 		Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name, DateTimeOffset now);
 		Task<User> LoadPrivateUserAsync(UserLoginInfo login);
 		Task<User> LoadPrivateUserAsync(string scheme, string id);
-		Task<User> LoadPublicUserAsync(string userId);
+		Task<User> LoadPublicUserAsync(Guid userId);
 		Task<User> UpdateUserAsync(UserLoginInfo login, UserViewModel user);
 
 		Task<Tag[]> SearchTags(string q);

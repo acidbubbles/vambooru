@@ -52,7 +52,7 @@ namespace VamBooru.Controllers
 				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 			}
 
-			var post = await _repository.CreatePostAsync(this.GetUserLoginInfo(), scenes.First().Item1.Name, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray());
+			var post = await _repository.CreatePostAsync(this.GetUserLoginInfo(), scenes.First().Item1.Name, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray(), DateTimeOffset.UtcNow);
 
 			foreach (var sceneData in scenes)
 			{

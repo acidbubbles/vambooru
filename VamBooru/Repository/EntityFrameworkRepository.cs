@@ -16,7 +16,7 @@ namespace VamBooru.Repository
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		public async Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes)
+		public async Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes, DateTimeOffset now)
 		{
 			var user = await LoadPrivateUserAsync(login);
 
@@ -26,7 +26,8 @@ namespace VamBooru.Repository
 			{
 				Title = title,
 				Text = "",
-				Author = user
+				Author = user,
+				DateCreated = now
 			};
 
 			foreach (var scene in scenes)
@@ -121,9 +122,9 @@ namespace VamBooru.Repository
 			var newTags = tags.Where(t => !currentTags.Contains(t)).ToArray();
 			foreach (var newTag in await GetOrCreateTagsAsync(newTags))
 			{
-				var postTag = new PostTag { Post = post, Tag = newTag };
-				_context.PostTags.Add(postTag);
+				var postTag = new PostTag { Tag = newTag };
 				post.Tags.Add(postTag);
+				_context.PostTags.Add(postTag);
 			}
 		}
 
@@ -191,7 +192,7 @@ namespace VamBooru.Repository
 			return login?.User;
 		}
 
-		public Task<User> LoadPublicUserAsync(string userId)
+		public Task<User> LoadPublicUserAsync(Guid userId)
 		{
 			return _context.Users.FindAsync(userId);
 		}
