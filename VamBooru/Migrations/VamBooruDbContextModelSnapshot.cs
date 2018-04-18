@@ -183,7 +183,7 @@ namespace VamBooru.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("VamBooru.Models.Tag", "Tag")
-                        .WithMany("Scenes")
+                        .WithMany("Posts")
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

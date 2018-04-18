@@ -8,7 +8,6 @@ namespace VamBooru.Models
 	{
 		public Guid Id { get; set; }
 		[Required] public string Name { get; set; }
-		public ICollection<PostTag> Scenes { get; set; } = new List<PostTag>();
 
 		public TagViewModel ToViewModel()
 		{
@@ -24,5 +23,6 @@ namespace VamBooru.Models
 	{
 		public string Id { get;set; }
 		public string Name { get; set; }
+		public ICollection<PostTag> Posts { get; set; } = new List<PostTag>();
 	}
 }
