@@ -23,6 +23,9 @@ namespace VamBooru.Tests.Repository
 
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserLogins\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Users\"");
+			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostTags\"");
+			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Tags\"");
+			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Posts\"");
 
 			var login = await _repository.CreateUserFromLoginAsync("MyScheme", "john.1234", "John Doe", new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));
 			_loginInfo = new UserLoginInfo
@@ -133,6 +136,61 @@ namespace VamBooru.Tests.Repository
 				c.MembersToIgnore.Add("User.Scenes");
 				c.MembersToIgnore.Add("User.Logins");
 			});
+		}
+
+		[Test]
+		public async Task UpdatePost()
+		{
+			var saved = await _repository.CreatePostAsync(
+				_loginInfo,
+				"Old Title",
+				new[] {"tag1", "tag2"},
+				new Scene[0],
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero));
+
+			CreateDbContext();
+			var updated = await _repository.UpdatePostAsync(_loginInfo, new PostViewModel
+			{
+				Id = saved.Id.ToString(),
+				Author = new UserViewModel{Username = _user.Username},
+				Title = "New Title",
+				Text = "Markdown\nText",
+				Published = true,
+				Tags = new[] { new TagViewModel { Name = "tag2" }, new TagViewModel { Name = "tag3" } }
+			}, new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero));
+
+			CreateDbContext();
+			var post = await _repository.LoadPostAsync(saved.Id);
+
+			post.ShouldDeepEqual(new Post
+			{
+				Title = "New Title",
+				Text = "Markdown\nText",
+				Author = _user,
+				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
+				DatePublished = new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero),
+				Published = true,
+				Tags = new[]
+				{
+					new PostTag {Tag = new Tag {Name = "tag2"}},
+					new PostTag {Tag = new Tag {Name = "tag3"}}
+				}.ToList(),
+			}, c =>
+			{
+				c.MembersToIgnore.Add("*Id");
+				c.MembersToIgnore.Add("Post.Scenes");
+				c.MembersToIgnore.Add("UserLogin.User");
+				c.MembersToIgnore.Add("PostTag.PostId");
+				c.MembersToIgnore.Add("PostTag.TagId");
+				c.MembersToIgnore.Add("PostTag.Post");
+				c.MembersToIgnore.Add("Tag.Id");
+				c.MembersToIgnore.Add("Scene.Post");
+				c.MembersToIgnore.Add("SceneFile.Scene");
+				c.MembersToIgnore.Add("User.Scenes");
+				c.MembersToIgnore.Add("User.Logins");
+			});
+
+			Assert.That(updated.Tags.Single(t => t.Tag.Name == "tag2").TagId, Is.EqualTo(post.Tags.Single(t => t.Tag.Name == "tag2").TagId), "The Tag should be reused");
 		}
 
 		private void CreateDbContext()

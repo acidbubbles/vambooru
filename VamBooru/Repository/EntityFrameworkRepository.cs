@@ -93,7 +93,7 @@ namespace VamBooru.Repository
 				.ToArrayAsync();
 		}
 
-		public async Task UpdatePostAsync(UserLoginInfo login, PostViewModel post)
+		public async Task<Post> UpdatePostAsync(UserLoginInfo login, PostViewModel post, DateTimeOffset now)
 		{
 			var user = await LoadPrivateUserAsync(login);
 			var dbPost = await LoadPostAsync(Guid.Parse(post.Id));
@@ -101,11 +101,13 @@ namespace VamBooru.Repository
 
 			dbPost.Title = post.Title;
 			dbPost.Text = post.Text;
-			if (!dbPost.Published && post.Published) dbPost.DatePublished = DateTimeOffset.UtcNow;
+			if (!dbPost.Published && post.Published) dbPost.DatePublished = now;
 			dbPost.Published = post.Published;
 			await AssignTagsAsync(dbPost, post.Tags.Select(tag => tag.Name).ToArray());
 
 			await _context.SaveChangesAsync();
+
+			return dbPost;
 		}
 
 		private async Task AssignTagsAsync(Post post, string[] tags)
