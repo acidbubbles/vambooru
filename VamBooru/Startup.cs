@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using VamBooru.Middlewares;
 using VamBooru.Models;
 using VamBooru.Services;
 
@@ -178,14 +179,10 @@ namespace VamBooru
 		{
 			app.UseForwardedHeaders();
 
-			if (env.IsDevelopment())
+			app.UseExceptionHandler(new ExceptionHandlerOptions
 			{
-				app.UseDeveloperExceptionPage();
-			}
-			else
-			{
-				app.UseStatusCodePages("text/plain", "Something went wrong... (status code {0})");
-			}
+				ExceptionHandler = new JsonExceptionMiddleware(env).Invoke
+			});
 
 			if (Configuration["Web:Https"] == "True")
 			{
@@ -203,6 +200,16 @@ namespace VamBooru
 					name: "default",
 					template: "{controller}/{action=Index}/{id?}");
 			});
+
+			app.MapWhen(
+				context => context.Request.Path.StartsWithSegments("/api"),
+				appBuilder => appBuilder.Run(async c =>
+				{
+					c.Response.StatusCode = 404;
+					c.Response.ContentType = "text/plain";
+					await c.Response.WriteAsync("This route does not exist");
+				})
+			);
 
 			app.UseSpa(spa =>
 			{
