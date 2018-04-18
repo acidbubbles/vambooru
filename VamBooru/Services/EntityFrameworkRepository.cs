@@ -53,13 +53,26 @@ namespace VamBooru.Services
 
 		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostedSince since, int page, int pageSize)
 		{
-			//TODO: Here we query the Post.Text field, and it's not being used. We should do a projection (.Select(x => new {})) or extract the text in another table.
 			var baseQuery = _context.Posts
 				.AsNoTracking()
 				.Include(p => p.Author)
 				.Include(p => p.Tags)
 				.ThenInclude(t => t.Tag)
 				.Include(p => p.Scenes)
+				.Select(p => new Post
+				{
+					Id = p.Id,
+					Title = p.Title,
+					Author = p.Author,
+					Published = p.Published,
+					DateCreated = p.DateCreated,
+					DatePublished = p.DatePublished,
+					ImageUrl = p.ImageUrl,
+					Tags = p.Tags,
+					Votes = p.Votes,
+					//TODO: This is only required to populate the post's image URL. We should associate it upfront instead of always loading all scenes.
+					Scenes = p.Scenes
+				})
 				.Where(p => p.Published);
 
 			baseQuery = baseQuery.OrderByDescending(p => p.DatePublished);
