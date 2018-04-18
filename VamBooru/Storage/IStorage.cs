@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using VamBooru.Models;
 
-namespace VamBooru.Services
+namespace VamBooru.Storage
 {
 	public interface IStorage
 	{

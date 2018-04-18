@@ -19,7 +19,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VamBooru.Middlewares;
 using VamBooru.Models;
-using VamBooru.Services;
+using VamBooru.Repository;
+using VamBooru.Storage;
+using VamBooru.VamFormat;
 
 namespace VamBooru
 {
@@ -60,9 +62,6 @@ namespace VamBooru
 
 			switch (Configuration["Storage:Type"])
 			{
-				case "FileSystem":
-					services.AddTransient<IStorage, FileSystemStorage>();
-					break;
 				case "EFPostgres":
 					services.AddTransient<IStorage, EntityFrameworkStorage>();
 					break;
@@ -70,7 +69,7 @@ namespace VamBooru
 						throw new Exception($"Unknown storage type: {Configuration["Storage:Type"]}");
 			}
 
-			services.AddTransient<ISceneParser, JsonSceneParser>();
+			services.AddTransient<ISceneFormat, JsonSceneFormat>();
 
 			services.AddMemoryCache();
 

@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VamBooru.Models;
-using VamBooru.Services;
+using VamBooru.Repository;
+using VamBooru.Storage;
+using VamBooru.VamFormat;
 
 namespace VamBooru.Controllers
 {
@@ -17,13 +19,13 @@ namespace VamBooru.Controllers
 	{
 		private readonly IRepository _repository;
 		private readonly IStorage _storage;
-		private readonly ISceneParser _sceneParser;
+		private readonly ISceneFormat _sceneFormat;
 
-		public UploadController(IRepository repository, IStorage storage, ISceneParser sceneParser)
+		public UploadController(IRepository repository, IStorage storage, ISceneFormat sceneFormat)
 		{
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 			_storage = storage ?? throw new ArgumentNullException(nameof(storage));
-			_sceneParser = sceneParser ?? throw new ArgumentNullException(nameof(sceneParser));
+			_sceneFormat = sceneFormat ?? throw new ArgumentNullException(nameof(sceneFormat));
 		}
 
 		[HttpPost("")]
@@ -46,7 +48,7 @@ namespace VamBooru.Controllers
 			var tags = new List<string>();
 			foreach (var sceneData in scenes)
 			{
-				tags.AddRange(_sceneParser.GetTags(sceneData.Item3.ToArray()));
+				tags.AddRange(_sceneFormat.GetTags(sceneData.Item3.ToArray()));
 				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 			}
 

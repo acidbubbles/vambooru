@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using VamBooru.Models;
 
-namespace VamBooru.Services
+namespace VamBooru.Repository
 {
 	public interface IRepository
 	{

@@ -1,51 +1,55 @@
 using System.Text;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using VamBooru.Services;
+using VamBooru.VamFormat;
 
-namespace VamBooru.Tests.Services
+namespace VamBooru.Tests.VamFormat
 {
-	public class JsonSceneParserTests
+	public class JsonSceneFormatTests
 	{
 		public class Tags
 		{
-			private JsonSceneParser _parser;
+			private JsonSceneFormat _format;
 
 			[SetUp]
 			public void BeforeEach()
 			{
-				_parser = new JsonSceneParser();
+				_format = new JsonSceneFormat();
 			}
 
 			[Test]
 			public void HandlesInvalidProjects()
 			{
-				Assert.IsEmpty(_parser.GetTags(BytesOf(new
+				Assert.IsEmpty(_format.GetTags(Deserialize(BytesOf(new
 				{
 					atoms = new[] { new { storables = new[] { new {} } } }
-				})));
+				}))));
 
-				Assert.IsEmpty(_parser.GetTags(BytesOf(new
+				Assert.IsEmpty(_format.GetTags(Deserialize(BytesOf(new
 				{
 					atoms = new[] { new {} }
-				})));
+				}))));
 
-				Assert.IsEmpty(_parser.GetTags(BytesOf(new
+				Assert.IsEmpty(_format.GetTags(Deserialize(BytesOf(new
 				{
-				})));
+				}))));
+			}
+
+			private dynamic Deserialize(byte[] bytes)
+			{
+				return _format.Deserialize(bytes);
 			}
 
 			[Test]
 			public void CanFindNothing()
 			{
-				var tags = _parser.GetTags(BytesOf(new
+				var tags = _format.GetTags(Deserialize(BytesOf(new
 				{
 					atoms = new[]
 					{
 						new { storables = new[] { new { id = "geometry" } } }
 					}
-				}));
+				})));
 
 				Assert.That(tags, Is.Empty);
 			}
@@ -53,7 +57,7 @@ namespace VamBooru.Tests.Services
 			[Test]
 			public void CanFindOneMaleTwoFemales()
 			{
-				var tags = _parser.GetTags(BytesOf(new
+				var tags = _format.GetTags(Deserialize(BytesOf(new
 				{
 					atoms = new[]
 					{
@@ -61,7 +65,7 @@ namespace VamBooru.Tests.Services
 						new { storables = new[] { new { id = "geometry", character = "Female 2" } } },
 						new { storables = new[] { new { id = "geometry", character = "Female 10" } } },
 					}
-				}));
+				})));
 
 				Assert.That(tags, Is.EquivalentTo(new[] {"1-male", "2-females"}));
 			}
@@ -69,7 +73,7 @@ namespace VamBooru.Tests.Services
 			[Test]
 			public void CanFindOneFemaleTwoMales()
 			{
-				var tags = _parser.GetTags(BytesOf(new
+				var tags = _format.GetTags(Deserialize(BytesOf(new
 				{
 					atoms = new[]
 					{
@@ -77,7 +81,7 @@ namespace VamBooru.Tests.Services
 						new { storables = new[] { new { id = "geometry", character = "Male 1" } } },
 						new { storables = new[] { new { id = "geometry", character = "Female 3" } } },
 					}
-				}));
+				})));
 
 				Assert.That(tags, Is.EquivalentTo(new[] {"2-males", "1-female"}));
 			}

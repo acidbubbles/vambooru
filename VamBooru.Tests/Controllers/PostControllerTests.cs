@@ -5,18 +5,18 @@ using Moq;
 using NUnit.Framework;
 using VamBooru.Controllers;
 using VamBooru.Models;
-using VamBooru.Services;
+using VamBooru.Repository;
 
 namespace VamBooru.Tests.Controllers
 {
 	public class PostControllerTests
 	{
 		[Test]
-		public async Task Browse_NoFilters()
+		public async Task Browse_Defaults()
 		{
 			var repository = new Mock<IRepository>(MockBehavior.Strict);
 			repository
-				.Setup(mock => mock.BrowsePostsAsync(PostSortBy.Default, PostedSince.Default, 0, 10))
+				.Setup(mock => mock.BrowsePostsAsync(PostSortBy.Newest, PostedSince.Forever, 0, 16))
 				.ReturnsAsync(new[]
 				{
 					new Post
@@ -30,7 +30,7 @@ namespace VamBooru.Tests.Controllers
 						}
 					}
 				});
-			var cache = SetupCaching("posts:browse:(Newest;Default;0;10)");
+			var cache = SetupCaching("posts:browse:(Newest;Default;0;16)");
 			var controller = new PostsController(repository.Object, cache.Object);
 
 			var result = await controller.BrowseAsync();

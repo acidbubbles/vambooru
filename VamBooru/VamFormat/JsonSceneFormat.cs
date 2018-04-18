@@ -5,28 +5,26 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace VamBooru.Services
+namespace VamBooru.VamFormat
 {
-	public class JsonSceneParser : ISceneParser
+	public class JsonSceneFormat : ISceneFormat
 	{
-		public string[] GetTags(byte[] projectStream)
-		{
-			var project = ParseProjectJson(projectStream);
-
-			if (project == null) throw new NullReferenceException("Project was null after JSON parsing");
-
-			var tags = ((IEnumerable<string>)ExtractTagsFromProject(project)).ToArray();
-
-			return tags;
-		}
-
-		private static dynamic ParseProjectJson(byte[] jsonFile)
+		public object Deserialize(byte[] jsonFile)
 		{
 			var serializer = new JsonSerializer();
 			using (var jsonStream = new MemoryStream(jsonFile))
 			using (var streamReader = new StreamReader(jsonStream))
 			using (var jsonReader = new JsonTextReader(streamReader))
 				return serializer.Deserialize(jsonReader);
+		}
+
+		public string[] GetTags(dynamic project)
+		{
+			if (project == null) throw new NullReferenceException("Project was null after JSON parsing");
+
+			var tags = ((IEnumerable<string>)ExtractTagsFromProject(project)).ToArray();
+
+			return tags;
 		}
 
 		private static IEnumerable<string> ExtractTagsFromProject(dynamic project)

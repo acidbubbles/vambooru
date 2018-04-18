@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using VamBooru.Models;
-using VamBooru.Services;
+using VamBooru.Repository;
 
 namespace VamBooru.Controllers
 {
@@ -23,8 +23,8 @@ namespace VamBooru.Controllers
 		[HttpGet("")]
 		public async Task<PostViewModel[]> BrowseAsync([FromQuery] string sort = null, [FromQuery] string since = null, [FromQuery] int page = 0, [FromQuery] int pageSize = 0)
 		{
-			var sortParsed = sort != null ? Enum.Parse<PostSortBy>(sort, true) : PostSortBy.Default;
-			var sinceParsed = since != null ? Enum.Parse<PostedSince>(since, true) : PostedSince.Default;
+			var sortParsed = sort != null ? Enum.Parse<PostSortBy>(sort, true) : PostSortBy.Newest;
+			var sinceParsed = since != null ? Enum.Parse<PostedSince>(since, true) : PostedSince.Forever;
 			if (page < 0) page = 0;
 			if (pageSize <= 0) pageSize = 16;
 

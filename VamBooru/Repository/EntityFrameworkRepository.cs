@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VamBooru.Models;
 
-namespace VamBooru.Services
+namespace VamBooru.Repository
 {
 	public class EntityFrameworkRepository : IRepository
 	{
