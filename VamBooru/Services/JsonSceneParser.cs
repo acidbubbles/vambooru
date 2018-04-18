@@ -33,7 +33,6 @@ namespace VamBooru.Services
 		{
 			if (!(project.atoms is JArray atoms))
 			{
-				yield return "empty";
 				yield break;
 			}
 
