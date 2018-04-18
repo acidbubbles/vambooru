@@ -18,6 +18,15 @@ You'll also need to add a data folder (and create it) and the connection string 
 
 Tests are done using Karma and NUnit.
 
+Some tests require access to the database (testing of SQL queries). Create a new Postgres test database, and in Package Manager Console or PowerShell:
+
+```
+dotnet restore
+cd VamBooru.Tests
+dotnet user-secrets set "Repository:EFPostgres:ConnectionString" "your-test-conn-string"
+dotnet ef database update
+```
+
 Run C# unit tests with:
 
 ```
@@ -29,7 +38,7 @@ Run [unit](https://karma-runner.github.io) and [e2e](http://www.protractortest.o
 ```
 cd VamBooru/ClientApp
 ng test
-ng e2e
+ng e2e # Broken for now
 ```
 
 ## Scalability

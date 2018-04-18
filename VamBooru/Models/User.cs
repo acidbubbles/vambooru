@@ -8,7 +8,7 @@ namespace VamBooru.Models
 	{
 		public Guid Id { get; set; }
 		[Required] public string Username { get; set; }
-		public DateTimeOffset DateSubscribed { get; set; } = DateTimeOffset.UtcNow;
+		public DateTimeOffset DateSubscribed { get; set; }
 		public ICollection<Post> Scenes { get; set; } = new List<Post>();
 		public ICollection<UserLogin> Logins { get; set; } = new List<UserLogin>();
 

@@ -161,13 +161,13 @@ namespace VamBooru.Repository
 			return query.ToArrayAsync();
 		}
 
-		public async Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name)
+		public async Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name, DateTimeOffset now)
 		{
 			var login = await _context.UserLogins.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == id);
 
 			if (login != null) return login;
 
-			var user = new User {Username = name};
+			var user = new User { Username = name, DateSubscribed = now };
 			_context.Users.Add(user);
 
 			login = new UserLogin { User = user, Scheme = scheme, NameIdentifier = id };
@@ -246,7 +246,7 @@ namespace VamBooru.Repository
 
 			if (difference != 0)
 				//TODO: It is theoritically possible that the same user sends multiple upvotes VERY fast and create a few fake votes.
-				_context.Database.ExecuteSqlCommand($"UPDATE \"Posts\" SET \"Votes\" = \"Votes\" + {difference} WHERE \"Id\" = {postId:B}");
+				await _context.Database.ExecuteSqlCommandAsync($"UPDATE \"Posts\" SET \"Votes\" = \"Votes\" + {difference} WHERE \"Id\" = {postId:B}");
 
 			await _context.SaveChangesAsync();
 

@@ -13,7 +13,7 @@ namespace VamBooru.Repository
 
 		Task<SceneFile[]> LoadPostFilesAsync(Guid postId, bool includeBytes);
 
-		Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name);
+		Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name, DateTimeOffset now);
 		Task<User> LoadPrivateUserAsync(UserLoginInfo login);
 		Task<User> LoadPrivateUserAsync(string scheme, string id);
 		Task<User> LoadPublicUserAsync(string userId);
