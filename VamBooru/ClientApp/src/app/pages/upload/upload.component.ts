@@ -9,7 +9,7 @@ import { IUploadResponse } from "../../model/upload-response";
 })
 export class UploadComponent {
 	@ViewChild("filesInput") filesInput: ElementRef;
-	filenames: string[];
+	files: File[] = [];
 	errorMessage: string;
 	uploading: boolean;
 
@@ -18,13 +18,22 @@ export class UploadComponent {
 
 	updateSelection() {
 		this.errorMessage = null;
-		const filenames: string[] = [];
 		const files: FileList = this.filesInput.nativeElement.files;
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
-			filenames.push(file.name);
+			this.remove(file.name);
+			this.files.push(file);
 		}
-		this.filenames = filenames;
+	}
+
+	remove(filename) {
+		if (!filename) return;
+		for (let i = 0; i < this.files.length; i++) {
+			if (this.files[i].name === filename) {
+				this.files.splice(i, 1);
+				return;
+			}
+		}
 	}
 
 	upload() {
@@ -32,9 +41,8 @@ export class UploadComponent {
 		this.uploading = true;
 
 		const formData = new FormData();
-		const files = this.filesInput.nativeElement.files;
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i];
+		for (let i = 0; i < this.files.length; i++) {
+			const file = this.files[i];
 			formData.append("file", file, file.name);
 		}
 
@@ -43,7 +51,7 @@ export class UploadComponent {
 				this.router.navigate(["/posts", result.id, "edit"]);
 			},
 			error => {
-				this.errorMessage = error.error.code;
+				this.errorMessage = (error.error ? error.error.code : error.message) || "Upload failed";
 				this.uploading = false;
 			});
 	}

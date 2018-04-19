@@ -1,8 +1,10 @@
 <h1>Upload a Scene</h1>
 
-<p>Your scene will not be immediately visible. You'll have the opportunity to add a text and tags before publishing.</p>
+<p>Please select both the <code>.json</code> and <code>.jpg</code> files for the scene you want to upload. You can upload more than one scene at once.</p>
 
-<p>You can find the <code>.json</code> and <code>.jpg</code> file in <code>(VAM install folder)\Saves\scenes</code>.</p>
+<p>Your post will not be immediately visible. You'll have the opportunity to add a text and add/modify tags before publishing.</p>
+
+<p>You can find the <code>.json</code> and <code>.jpg</code> files in <code>(VAM install folder)\Saves\scenes</code>.</p>
 
 <div class="form-group">
 	<label class="btn btn-primary" for="filesInput">
@@ -11,14 +13,14 @@
 	</label>
 </div>
 
-<div *ngIf="filenames?.length">
-	<ul *ngFor="let filename of filenames">
-		<li>{{ filename }} </li>
+<div *ngIf="files?.length">
+	<ul *ngFor="let file of files">
+		<li>{{ file.name }} <button class="btn-xs btn-danger" (click)="remove(file.name)">remove</button></li>
 	</ul>
 </div>
 
 <div class="form-group">
-	<button type="button" class="btn btn-success" (click)="upload()" [disabled]="uploading">
+	<button type="button" class="btn btn-success" (click)="upload()" [disabled]="uploading || !files || !files.length">
 		<i class="glyphicon glyphicon-open-file"></i>&nbsp;Upload
 	</button>
 </div>
