@@ -50,11 +50,11 @@ namespace VamBooru.Controllers
 				return Redirect("/");
 
 			var scheme = User.Identity.AuthenticationType;
-			var id = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-			var name = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
+			var identifier = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value ?? throw new Exception($"There was no identifier for the logged in user with scheme '{scheme}'");
+			var username = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value ?? $"anon-{Guid.NewGuid()}";
 
 			//TODO: This should be replaced by a signup page when the user does not already exist
-			await _repository.CreateUserFromLoginAsync(scheme, id, name, DateTimeOffset.UtcNow);
+			await _repository.CreateUserFromLoginAsync(scheme, identifier, username, DateTimeOffset.UtcNow);
 
 			return Redirect("/");
 		}
