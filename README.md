@@ -56,32 +56,20 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Moderator role (ability to disable users and delete/merge tags)
 * Some e2e tests
 * Unit tests
-* Voting
-* Some browsing functionality (popular, votes)
-* Make an actual gallery (that shows the author, the date, votes, some tags and a link to view)
-* Ability to overwrite and existing scene (last updated) with maybe release notes? So we can have "new version" in VaM.
-* Max upload size (both json and image)
-* CDN / Storage for scene files
-* Max female/male count in tags
-* Tag autocomplete component (both find and add)
-* Upload support files (other images and sounds associated with a list of scenes)
-* Download as zip (with the right folder structure, including the author folder)
+* Review voting system
+* Paging
+* Improve the gallery (show more info with less spacing)
+* Ability to modify/overwrite existing scene files (last updated)
 * My Scenes
 * User Avatar
-* Error handling (global and per-page, e.g. httpclient.get())
 * Ensure username are unique
 * Implement queuing where possible (e.g. uploading)
-* Use a MemoryCache for the home page stuff
-* Use the database to test things on Heroku
-* Compress the JSON files before storing them in the database!
 * Update all dependencies (.NET, npm)
 * Contributing guide / license
 * Show the image in a lightbox when clicking
 * Full text search of post text and title and tags
 * Search by tag
-* Make the post view page at least not completely ugly
 * Privacy policy, terms of service
 * Delete scene and users (and make sure we do delete them)
-* CDN for site css/js/image files
 * Show the scenes you voted for
 * Track downloads (popularity)
