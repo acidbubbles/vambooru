@@ -25,6 +25,7 @@ namespace VamBooru.Tests.Repository
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Users\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostTags\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Tags\"");
+			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserPostVotes\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Posts\"");
 
 			var login = await _repository.CreateUserFromLoginAsync("MyScheme", "john.1234", "John Doe", new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));
@@ -99,7 +100,8 @@ namespace VamBooru.Tests.Repository
 							new SceneFile {Filename = "file.json", Extension = ".json", Bytes = new byte[] {1, 2, 3, 4}}
 						}
 					}
-				}, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero));
+				}, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
 
 			CreateDbContext();
 			var post = await _repository.LoadPostAsync(saved.Id);
@@ -139,6 +141,28 @@ namespace VamBooru.Tests.Repository
 		}
 
 		[Test]
+		public async Task NewPostsReuseTags()
+		{
+			var post1 = await _repository.CreatePostAsync(
+				_loginInfo,
+				"My Post 1",
+				new[] {"abc", "def"},
+				new Scene[0],
+				DateTimeOffset.MinValue
+			);
+
+			var post2 = await _repository.CreatePostAsync(
+				_loginInfo,
+				"My Post 1",
+				new[] {"def", "ghi"},
+				new Scene[0],
+				DateTimeOffset.MinValue
+			);
+
+			Assert.That(post1.Tags.Single(t => t.Tag.Name == "def").TagId, Is.EqualTo(post2.Tags.Single(t => t.Tag.Name == "def").TagId), "The Tag should be reused");
+		}
+
+		[Test]
 		public async Task UpdatePost()
 		{
 			var saved = await _repository.CreatePostAsync(
@@ -150,14 +174,15 @@ namespace VamBooru.Tests.Repository
 
 			CreateDbContext();
 			var updated = await _repository.UpdatePostAsync(_loginInfo, new PostViewModel
-			{
-				Id = saved.Id.ToString(),
-				Author = new UserViewModel{Username = _user.Username},
-				Title = "New Title",
-				Text = "Markdown\nText",
-				Published = true,
-				Tags = new[] { new TagViewModel { Name = "tag2" }, new TagViewModel { Name = "tag3" } }
-			}, new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero));
+				{
+					Id = saved.Id.ToString(),
+					Author = new UserViewModel {Username = _user.Username},
+					Title = "New Title",
+					Text = "Markdown\nText",
+					Published = true,
+					Tags = new[] {new TagViewModel {Name = "tag2"}, new TagViewModel {Name = "tag3"}}
+				}, new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
 
 			CreateDbContext();
 			var post = await _repository.LoadPostAsync(saved.Id);
@@ -191,6 +216,140 @@ namespace VamBooru.Tests.Repository
 			});
 
 			Assert.That(updated.Tags.Single(t => t.Tag.Name == "tag2").TagId, Is.EqualTo(post.Tags.Single(t => t.Tag.Name == "tag2").TagId), "The Tag should be reused");
+		}
+
+		[Test]
+		public async Task BrowsePostsExcludesNonPublishedPosts()
+		{
+			await _repository.CreatePostAsync(
+				_loginInfo,
+				"My Post",
+				new[] {"my-tag"},
+				new Scene[0],
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
+
+			CreateDbContext();
+			var posts = await _repository.BrowsePostsAsync(PostSortBy.Default, PostSortDirection.Default, PostedSince.Default, 0, 1, DateTimeOffset.MaxValue);
+
+			Assert.That(posts.Length, Is.EqualTo(0));
+		}
+
+		[Test]
+		public async Task BrowsePostsContainsExpectedFields()
+		{
+			var saved = await _repository.CreatePostAsync(
+				_loginInfo,
+				"My Post",
+				new[] {"my-tag"},
+				new[]
+				{
+					new Scene
+					{
+						Name = "My Scene",
+						Files = new[]
+						{
+							new SceneFile {Filename = "file.json", Extension = ".json", Bytes = new byte[] {1, 2, 3, 4}}
+						}
+					}
+				}, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
+			var viewModel = saved.ToViewModel(false);
+			viewModel.Published = true;
+			viewModel.Text = "Some text...";
+			await _repository.UpdatePostAsync(_loginInfo, viewModel, new DateTimeOffset(2005, 02, 03, 04, 05, 07, TimeSpan.Zero));
+
+			CreateDbContext();
+			var posts = await _repository.BrowsePostsAsync(PostSortBy.Default, PostSortDirection.Default, PostedSince.Default, 0, 1, DateTimeOffset.MaxValue);
+
+			Assert.That(posts.Length, Is.EqualTo(1));
+
+			posts[0].ShouldDeepEqual(new Post
+			{
+				Title = "My Post",
+				// Text should be excluded
+				Text = null,
+				Author = _user,
+				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
+				DatePublished = new DateTimeOffset(2005, 02, 03, 04, 05, 07, TimeSpan.Zero),
+				Published = true,
+				Tags = new[]
+				{
+					new PostTag {Tag = new Tag {Name = "my-tag"}}
+				}.ToList(),
+				Scenes = new[]
+				{
+					new Scene
+					{
+						Name = "My Scene",
+						// We don't need files
+						Files = null
+					}
+				}.ToList()
+			}, c =>
+			{
+				c.MembersToIgnore.Add("*Id");
+				c.MembersToIgnore.Add("UserLogin.User");
+				c.MembersToIgnore.Add("PostTag.PostId");
+				c.MembersToIgnore.Add("PostTag.TagId");
+				c.MembersToIgnore.Add("PostTag.Post");
+				c.MembersToIgnore.Add("Tag.Id");
+				c.MembersToIgnore.Add("Scene.Post");
+				c.MembersToIgnore.Add("SceneFile.Scene");
+				c.MembersToIgnore.Add("User.Scenes");
+				c.MembersToIgnore.Add("User.Logins");
+			});
+		}
+
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "23 hours ago, 30pts", "6 days ago, 90pts" })]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 1, 2, new[] { "3 weeks ago, 200pts", "11 months ago, 50pts" })]
+		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 0, 2, new[] { "2 years ago, 100pts", "11 months ago, 50pts" })]
+		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 1, 2, new[] { "3 weeks ago, 200pts", "6 days ago, 90pts" })]
+		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "3 weeks ago, 200pts", "2 years ago, 100pts" })]
+		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 1, 2, new[] { "6 days ago, 90pts", "11 months ago, 50pts" })]
+		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastYear, 0, 1, new[] { "11 months ago, 50pts" })]
+		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastMonth, 0, 1, new[] { "3 weeks ago, 200pts" })]
+		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastDay, 0, 1, new[] { "23 hours ago, 30pts" })]
+		public async Task BrowsePostsFilters(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] expected)
+		{
+			Scene[] CreateScenes() => new[]
+			{
+				new Scene
+				{
+					Name = "My Scene",
+					Files = new[] {new SceneFile {Filename = "file.json", Extension = ".json", Bytes = new byte[] {1, 2, 3, 4}}}
+				}
+			};
+
+			async Task CreatePost(string title, int votes, DateTimeOffset created)
+			{
+				var post = await _repository.CreatePostAsync(
+					_loginInfo,
+					title,
+					new[] {"my-tag"},
+					CreateScenes(),
+					created
+				);
+
+				var viewModel = post.ToViewModel(false);
+				viewModel.Published = true;
+				viewModel.Text = "Some text...";
+				await _repository.UpdatePostAsync(_loginInfo, viewModel, post.DateCreated.AddDays(1));
+
+				await _repository.VoteAsync(_loginInfo, post.Id, votes);
+			}
+
+			var now = new DateTimeOffset(2000, 01, 01, 01, 01, 01, TimeSpan.Zero);
+			await CreatePost("2 years ago, 100pts", 100, now.AddYears(-2));
+			await CreatePost("11 months ago, 50pts", 50, now.AddMonths(-11));
+			await CreatePost("3 weeks ago, 200pts", 200, now.AddDays(-7 * 3));
+			await CreatePost("6 days ago, 90pts", 90, now.AddDays(-6));
+			await CreatePost("23 hours ago, 30pts", 30, now.AddHours(-1));
+
+			CreateDbContext();
+			var posts = await _repository.BrowsePostsAsync(sortBy, sortDirection, since, page, pageSize, now);
+
+			CollectionAssert.AreEqual(expected, posts.Select(post => post.Title).ToArray());
 		}
 
 		private void CreateDbContext()

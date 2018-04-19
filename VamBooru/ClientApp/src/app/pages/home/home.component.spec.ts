@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 import { Observable } from "rxjs/Observable";
 import "rxjs/add/observable/of";
 
-import { PostsService, PostSortBy, PostedSince, IPostQuery } from "../../services/posts-service";
+import { PostsService, PostSortBy, PostSortDirection, PostedSince, IPostQuery } from "../../services/posts-service";
 import { IPost } from "../../model/post";
 
 import { RouterLinkDirectiveStub } from "../../../../test/stubs/angular/core/router-directives.stubs";
@@ -38,13 +38,14 @@ describe("HomeComponent", () => {
 
 	beforeEach(() => {
 		searchQueryResult = query => {
+			expect(query.direction).toEqual(PostSortDirection.down);
 			expect(query.since).toEqual(PostedSince.forever);
 			expect(query.page).toEqual(0);
 			expect(query.pageSize).toEqual(8);
 
 			if(query.sort === PostSortBy.highestRated)
 				return Observable.of([{ title: "Good post" } as IPost]);
-			else if (query.sort === PostSortBy.newest)
+			else if (query.sort === PostSortBy.created)
 				return Observable.of([{ title: "New post" } as IPost]);
 			else
 				throw new Error(`Unexpected sort: ${query.sort}`);
@@ -57,5 +58,4 @@ describe("HomeComponent", () => {
 	it("should show the home page", async(() => {
 		expect(fixture.nativeElement.querySelector("h1").textContent).toEqual("Virt-A-Mate");
 	}));
-
 });

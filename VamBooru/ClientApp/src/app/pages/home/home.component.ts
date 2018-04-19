@@ -1,5 +1,5 @@
 import { Component, OnInit  } from "@angular/core";
-import { PostsService, PostSortBy, PostedSince } from "../../services/posts-service";
+import { PostsService, PostSortBy, PostSortDirection, PostedSince } from "../../services/posts-service";
 import { IPost } from "../../model/post";
 
 @Component({
@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit {
 		this.postsService
 			.searchPosts({
 				sort: PostSortBy.highestRated,
+				direction: PostSortDirection.down,
 				since: PostedSince.forever,
 				page: 0,
 				pageSize: 8
@@ -26,7 +27,8 @@ export class HomeComponent implements OnInit {
 
 		this.postsService
 			.searchPosts({
-				sort: PostSortBy.newest,
+				sort: PostSortBy.created,
+				direction: PostSortDirection.down,
 				since: PostedSince.forever,
 				page: 0,
 				pageSize: 8

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using VamBooru.Migrations;
 using VamBooru.Models;
 
 namespace VamBooru.Repository
@@ -52,8 +53,11 @@ namespace VamBooru.Repository
 				.FirstOrDefaultAsync(p => p.Id == id);
 		}
 
-		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostedSince since, int page, int pageSize)
+		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, DateTimeOffset now)
 		{
+			if(page < 0) throw new ArgumentException("Page must be greater than or equal to 0");
+			if(pageSize < 1) throw new ArgumentException("Page must be greater than or equal to 1");
+
 			var baseQuery = _context.Posts
 				.AsNoTracking()
 				.Include(p => p.Author)
@@ -76,15 +80,33 @@ namespace VamBooru.Repository
 				})
 				.Where(p => p.Published);
 
-			baseQuery = baseQuery.OrderByDescending(p => p.DatePublished);
 			if (since != PostedSince.Forever)
-				baseQuery = baseQuery.Where(p => p.DatePublished >= DateTimeOffset.UtcNow.AddDays((int) since));
+			{
+				var dateTimeOffset = now.AddDays(-(int)since);
+				baseQuery = sortBy == PostSortBy.Updated
+					? baseQuery.Where(p => p.DatePublished >= dateTimeOffset)
+					: baseQuery.Where(p => p.DateCreated >= dateTimeOffset);
+			}
 
 			switch (sortBy)
 			{
-					case PostSortBy.HighestRated:
-						baseQuery = baseQuery.OrderByDescending(p => p.Votes);
-						break;
+				case PostSortBy.Votes:
+					baseQuery = sortDirection == PostSortDirection.Down
+						? baseQuery.OrderByDescending(p => p.Votes).ThenByDescending(p => p.DateCreated)
+						: baseQuery.OrderBy(p => p.Votes).ThenBy(p => p.DateCreated);
+					break;
+				case PostSortBy.Created:
+					baseQuery = sortDirection == PostSortDirection.Down
+						? baseQuery.OrderByDescending(p => p.DateCreated)
+						: baseQuery.OrderBy(p => p.DateCreated);
+					break;
+				case PostSortBy.Updated:
+					baseQuery = sortDirection == PostSortDirection.Down
+						? baseQuery.OrderByDescending(p => p.DatePublished)
+						: baseQuery.OrderBy(p => p.DatePublished);
+					break;
+				default:
+					throw new ArgumentException($"Unknown sort by: {sortBy}", nameof(sortBy));
 			}
 
 			return baseQuery
@@ -255,23 +277,6 @@ namespace VamBooru.Repository
 
 			return difference;
 		}
-	}
-
-	public enum PostSortBy
-	{
-		Default = Newest,
-		Newest = 0,
-		HighestRated = 1,
-	}
-
-	public enum PostedSince
-	{
-		Default = Forever,
-		Forever = 0,
-		LastDay = 1,
-		LastWeek = 7,
-		LastMonth = 30,
-		LastYear = 365,
 	}
 }
 

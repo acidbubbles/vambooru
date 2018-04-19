@@ -21,14 +21,21 @@ export class PostsService {
 
 export interface IPostQuery {
 	sort: string;
+	direction: string;
 	since: string;
 	page: number;
 	pageSize: number;
 }
 
 export class PostSortBy {
-	static newest = "newest";
+	static created = "created";
+	static updated = "updated";
 	static highestRated = "highestRated";
+}
+
+export class PostSortDirection {
+	static up = "up";
+	static down = "down";
 }
 
 export class PostedSince {

@@ -16,7 +16,7 @@ namespace VamBooru.Tests.Controllers
 		{
 			var repository = new Mock<IRepository>(MockBehavior.Strict);
 			repository
-				.Setup(mock => mock.BrowsePostsAsync(PostSortBy.Newest, PostedSince.Forever, 0, 16))
+				.Setup(mock => mock.BrowsePostsAsync(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 16, It.Is<DateTimeOffset>(d => d <= DateTimeOffset.UtcNow)))
 				.ReturnsAsync(new[]
 				{
 					new Post
@@ -30,7 +30,7 @@ namespace VamBooru.Tests.Controllers
 						}
 					}
 				});
-			var cache = SetupCaching("posts:browse:(Newest;Default;0;16)");
+			var cache = SetupCaching("posts:browse:(Created;Down;Default;0;16)");
 			var controller = new PostsController(repository.Object, cache.Object);
 
 			var result = await controller.BrowseAsync();
