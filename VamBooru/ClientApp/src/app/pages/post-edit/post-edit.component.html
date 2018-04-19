@@ -1,42 +1,78 @@
 <h1>Edit Post</h1>
 
 <div *ngIf="post">
-	<div class="row">
-		<div class="col-md-3" *ngFor="let scene of post.scenes">
-			<div class="thumbnail">
-				<img src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Scenes
+		</div>
+		<div class="panel-body">
+			<div class="col-md-3" *ngFor="let scene of post.scenes">
+				<div class="thumbnail">
+					<img src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
+					<div class="caption text-center">
+						<p>{{ scene.name }}</p>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="form-group">
-		<label for="title">Title:</label>
-		<input type="text" class="form-control" id="title" name="title" required [(ngModel)]="post.title" placeholder="Scene Title" />
-	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Post information
+		</div>
+		<div class="panel-body">
 
-	<div class="form-group">
-		<div class="row">
-			<div class="col-md-6">
-				<label for="comment">Text (markdown):</label>
-				<textarea class="form-control" rows="5" id="text" [(ngModel)]="post.text"></textarea>
+			<div class="form-group">
+				<label for="title">Title:</label>
+				<input type="text" class="form-control" id="title" name="title" required [(ngModel)]="post.title" placeholder="Scene Title" />
 			</div>
-			<div class="col-md-6">
-				<label for="comment">Preview:</label>
-				<markdown [(data)]="post.text"></markdown>
+
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-6">
+						<label for="comment">Text (markdown):</label>
+						<textarea class="form-control" rows="5" id="text" [(ngModel)]="post.text"></textarea>
+					</div>
+					<div class="col-md-6">
+						<label for="comment">Preview:</label>
+						<markdown [(data)]="post.text"></markdown>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label>Tags:</label>
+				<tag-input [(ngModel)]="post.tags" [identifyBy]="'id'" [displayBy]="'name'" theme="bootstrap3-info">
+					<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'id'" [displayBy]="'name'">
+						<ng-template let-item="item" let-index="index">
+							{{ item.name }}
+						</ng-template>
+					</tag-input-dropdown>
+				</tag-input>
 			</div>
 		</div>
 	</div>
 
-	<div class="form-group">
-		<label>Tags:</label>
-		<tag-input [(ngModel)]="post.tags" [identifyBy]="'id'" [displayBy]="'name'" theme="bootstrap3-info">
-			<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'id'" [displayBy]="'name'">
-				<ng-template let-item="item" let-index="index">
-					{{ item.name }}
-				</ng-template>
-			</tag-input-dropdown>
-		</tag-input>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Post files
+		</div>
+		<div class="panel-body">
+			<p>
+				<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
+					<i class="glyphicon glyphicon-download-alt"></i>&nbsp;Download as .zip
+				</a>
+			</p>
+			<p>
+				Files in this scene:
+			</p>
+			<ul>
+				<li *ngFor="let file of post.files">{{file.filename}}</li>
+			</ul>
+		</div>
 	</div>
+
 
 	<div class="form-group">
 		<button type="button" class="btn btn-default" (click)="save()" [disabled]="saving">
