@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using VamBooru.Models;
 using VamBooru.Repository;
+using VamBooru.ViewModels;
 
 namespace VamBooru.Tests.Repository
 {
@@ -197,8 +198,8 @@ namespace VamBooru.Tests.Repository
 				Published = true,
 				Tags = new[]
 				{
-					new PostTag {Tag = new Tag {Name = "tag2"}},
-					new PostTag {Tag = new Tag {Name = "tag3"}}
+					new PostTag {Tag = new Tag {Name = "tag2", PostsCount = 1}},
+					new PostTag {Tag = new Tag {Name = "tag3", PostsCount = 1}}
 				}.ToList(),
 			}, c =>
 			{
@@ -308,7 +309,7 @@ namespace VamBooru.Tests.Repository
 				Published = true,
 				Tags = new[]
 				{
-					new PostTag {Tag = new Tag {Name = "my-tag"}}
+					new PostTag {Tag = new Tag {Name = "my-tag", PostsCount = 1}}
 				}.ToList(),
 				Scenes = new[]
 				{
@@ -426,6 +427,79 @@ namespace VamBooru.Tests.Repository
 			});
 		}
 
+		[Test]
+		public async Task TagPostsCount()
+		{
+			var post1 = await _repository.CreatePostAsync(_loginInfo, "Post1", new[] { "tag1", "tag2" }, new Scene[0], DateTimeOffset.MinValue);
+			var post1ViewModel = PostViewModel.From(post1, false);
+			var post2 = await _repository.CreatePostAsync(_loginInfo, "Post2", new[] { "tag2", "tag3" }, new Scene[0], DateTimeOffset.MinValue);
+			var post2ViewModel = PostViewModel.From(post2, false);
+			var post3 = await _repository.CreatePostAsync(_loginInfo, "Post3", new[] { "tag4" }, new Scene[0], DateTimeOffset.MinValue);
+
+			// Zero by default
+			{
+				CreateDbContext();
+				var tags = await _repository.SearchTags("tag");
+				tags.Select(TagViewModel.From).OrderBy(t => t.Name).ToArray().ShouldDeepEqual(new[]
+				{
+					new TagViewModel {Name = "tag1", PostsCount = 0},
+					new TagViewModel {Name = "tag2", PostsCount = 0},
+					new TagViewModel {Name = "tag3", PostsCount = 0},
+					new TagViewModel {Name = "tag4", PostsCount = 0}
+				}, c => c.MembersToIgnore.Add("*Id"));
+			}
+
+			// Increase when published
+			{
+				post1ViewModel.Published = true;
+				await _repository.UpdatePostAsync(_loginInfo, post1ViewModel, DateTimeOffset.UtcNow);
+				post2ViewModel.Published = true;
+				await _repository.UpdatePostAsync(_loginInfo, post2ViewModel, DateTimeOffset.UtcNow);
+
+				CreateDbContext();
+				var tags = await _repository.SearchTags("tag");
+				tags.Select(TagViewModel.From).OrderBy(t => t.Name).ToArray().ShouldDeepEqual(new[]
+				{
+					new TagViewModel {Name = "tag1", PostsCount = 1},
+					new TagViewModel {Name = "tag2", PostsCount = 2},
+					new TagViewModel {Name = "tag3", PostsCount = 1},
+					new TagViewModel {Name = "tag4", PostsCount = 0}
+				}, c => c.MembersToIgnore.Add("*Id"));
+			}
+
+			// Track changes
+			{
+				post1ViewModel.Tags = new[] { new TagViewModel { Name = "tag2" }, new TagViewModel { Name = "tag3" } };
+				await _repository.UpdatePostAsync(_loginInfo, post1ViewModel, DateTimeOffset.UtcNow);
+
+				CreateDbContext();
+				var tags = await _repository.SearchTags("tag");
+				tags.Select(TagViewModel.From).OrderBy(t => t.Name).ToArray().ShouldDeepEqual(new[]
+				{
+					new TagViewModel {Name = "tag1", PostsCount = 0},
+					new TagViewModel {Name = "tag2", PostsCount = 2},
+					new TagViewModel {Name = "tag3", PostsCount = 2},
+					new TagViewModel {Name = "tag4", PostsCount = 0},
+				}, c => c.MembersToIgnore.Add("*Id"));
+			}
+
+			// Decrease when unpublished
+			{
+				post1ViewModel.Published = false;
+				await _repository.UpdatePostAsync(_loginInfo, post1ViewModel, DateTimeOffset.UtcNow);
+
+				CreateDbContext();
+				var tags = await _repository.SearchTags("tag");
+				tags.Select(TagViewModel.From).OrderBy(t => t.Name).ToArray().ShouldDeepEqual(new[]
+				{
+					new TagViewModel {Name = "tag1", PostsCount = 0},
+					new TagViewModel {Name = "tag2", PostsCount = 1},
+					new TagViewModel {Name = "tag3", PostsCount = 1},
+					new TagViewModel {Name = "tag4", PostsCount = 0},
+				}, c => c.MembersToIgnore.Add("*Id"));
+			}
+		}
+
 		private void CreateDbContext()
 		{
 			_context?.Dispose();
@@ -434,3 +508,6 @@ namespace VamBooru.Tests.Repository
 		}
 	}
 }
+
+
+

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using VamBooru.ViewModels;
 
 namespace VamBooru.Models
 {

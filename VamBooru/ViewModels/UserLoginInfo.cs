@@ -1,4 +1,4 @@
-namespace VamBooru.Models
+namespace VamBooru.ViewModels
 {
 	public class UserLoginInfo
 	{

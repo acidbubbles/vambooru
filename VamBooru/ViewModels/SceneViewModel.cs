@@ -1,4 +1,6 @@
-namespace VamBooru.Models
+using VamBooru.Models;
+
+namespace VamBooru.ViewModels
 {
 	public class SceneViewModel
 	{

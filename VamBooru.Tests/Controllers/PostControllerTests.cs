@@ -6,6 +6,7 @@ using NUnit.Framework;
 using VamBooru.Controllers;
 using VamBooru.Models;
 using VamBooru.Repository;
+using VamBooru.ViewModels;
 
 namespace VamBooru.Tests.Controllers
 {

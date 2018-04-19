@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using VamBooru.Migrations;
+using Npgsql;
+using NpgsqlTypes;
 using VamBooru.Models;
+using VamBooru.ViewModels;
 
 namespace VamBooru.Repository
 {
@@ -119,26 +123,63 @@ namespace VamBooru.Repository
 		{
 			var user = await LoadPrivateUserAsync(login);
 			var dbPost = await LoadPostAsync(Guid.Parse(post.Id));
+			var wasPublished = dbPost.Published;
 			if(dbPost.Author.Id != user.Id) throw new UnauthorizedAccessException();
 
 			dbPost.Title = post.Title;
 			dbPost.Text = post.Text;
-			if (!dbPost.Published && post.Published) dbPost.DatePublished = now;
+			if (!wasPublished && post.Published)
+				dbPost.DatePublished = now;
 			dbPost.Published = post.Published;
-			await AssignTagsAsync(dbPost, post.Tags.Select(tag => tag.Name).ToArray());
+			var tagsAssignationResult = await AssignTagsAsync(dbPost, post.Tags.Select(tag => tag.Name).ToArray());
 
 			await _context.SaveChangesAsync();
+
+			if (!wasPublished && post.Published)
+			{
+				// Just published: increment everything
+				await ChangeTagsPostsCount(dbPost.Tags.Select(tag => tag.Tag).ToArray(), 1);
+			}
+			else if (wasPublished && !post.Published)
+			{
+				// Unpublished: decrement everything
+				await ChangeTagsPostsCount(dbPost.Tags.Select(tag => tag.Tag).ToArray(), -1);
+			}
+			else if (post.Published)
+			{
+				// Changed
+				await ChangeTagsPostsCount(tagsAssignationResult.RemovedTags, -1);
+				await ChangeTagsPostsCount(tagsAssignationResult.AddedTags, 1);
+			}
 
 			return dbPost;
 		}
 
-		private async Task AssignTagsAsync(Post post, string[] tags)
+		private async Task ChangeTagsPostsCount(ICollection<Tag> tags, int increment)
 		{
+			if (tags.Count <= 0)
+				return;
+
+			var ids = tags.Select(tag => tag.Id).ToArray();
+			await _context.Database.ExecuteSqlCommandAsync(
+				"UPDATE \"Tags\" SET \"PostsCount\" = \"PostsCount\" + :increment WHERE \"Id\" = ANY(:ids)",
+				new NpgsqlParameter("increment", DbType.Int32) { Value = increment },
+				new NpgsqlParameter("ids", NpgsqlDbType.Array | NpgsqlDbType.Uuid) { Value = ids }
+			);
+		}
+
+		private async Task<TagsAssignationResult> AssignTagsAsync(Post post, string[] tags)
+		{
+			var result = new TagsAssignationResult();
+
 			// Remove tags
 			foreach (var tag in post.Tags.ToArray())
 			{
 				if (!tags.Contains(tag.Tag.Name))
+				{
 					post.Tags.Remove(tag);
+					result.RemovedTags.Add(tag.Tag);
+				}
 			}
 
 			// Add tags
@@ -149,7 +190,16 @@ namespace VamBooru.Repository
 				var postTag = new PostTag { Tag = newTag };
 				post.Tags.Add(postTag);
 				_context.PostTags.Add(postTag);
+				result.AddedTags.Add(newTag);
 			}
+
+			return result;
+		}
+
+		private class TagsAssignationResult
+		{
+			public ICollection<Tag> RemovedTags { get; } = new List<Tag>();
+			public ICollection<Tag> AddedTags { get; } = new List<Tag>();
 		}
 
 		private async Task<Tag[]> GetOrCreateTagsAsync(string[] tags)
@@ -291,7 +341,11 @@ namespace VamBooru.Repository
 
 			if (difference != 0)
 				//TODO: It is theoritically possible that the same user sends multiple upvotes VERY fast and create a few fake votes.
-				await _context.Database.ExecuteSqlCommandAsync($"UPDATE \"Posts\" SET \"Votes\" = \"Votes\" + {difference} WHERE \"Id\" = {postId:B}");
+				await _context.Database.ExecuteSqlCommandAsync(
+					"UPDATE \"Posts\" SET \"Votes\" = \"Votes\" + @difference WHERE \"Id\" = @postId",
+					new NpgsqlParameter("@difference", difference),
+					new NpgsqlParameter("@postId", postId)
+				);
 
 			await _context.SaveChangesAsync();
 

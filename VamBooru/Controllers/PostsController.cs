@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using VamBooru.Models;
 using VamBooru.Repository;
+using VamBooru.ViewModels;
 
 namespace VamBooru.Controllers
 {

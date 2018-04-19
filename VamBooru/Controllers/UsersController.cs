@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VamBooru.Models;
 using VamBooru.Repository;
+using VamBooru.ViewModels;
 
 namespace VamBooru.Controllers
 {

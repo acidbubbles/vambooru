@@ -1,6 +1,7 @@
 using System.Linq;
+using VamBooru.Models;
 
-namespace VamBooru.Models
+namespace VamBooru.ViewModels
 {
 	public class PostViewModel
 	{

@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using VamBooru.Models;
 
-namespace VamBooru.Models
+namespace VamBooru.ViewModels
 {
 	public class TagViewModel
 	{
 		public string Id { get;set; }
 		public string Name { get; set; }
-		public ICollection<PostTag> Posts { get; set; } = new List<PostTag>();
+		public int PostsCount { get; set; }
 
 		public static TagViewModel From(Tag from)
 		{
@@ -15,7 +16,8 @@ namespace VamBooru.Models
 			return new TagViewModel
 			{
 				Id = from.Id.ToString(),
-				Name = from.Name
+				Name = from.Name,
+				PostsCount = from.PostsCount
 			};
 		}
 	}

@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using VamBooru.Models;
+using VamBooru.ViewModels;
 
 namespace VamBooru.Controllers
 {
