@@ -10,21 +10,5 @@ namespace VamBooru.Models
 		[Required] public string Name { get; set; }
 		[Required] public Post Post { get; set; }
 		public ICollection<SceneFile> Files { get; set; }
-
-		public SceneViewModel ToViewModel()
-		{
-			return new SceneViewModel
-			{
-				Id = Id.ToString(),
-				Name = Name
-			};
-		}
-	}
-
-	public class SceneViewModel
-	{
-		public string Id { get; set; }
-		public string Name { get; set; }
-		public string ImageUrl { get; set; }
 	}
 }

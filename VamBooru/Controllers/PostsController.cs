@@ -62,7 +62,7 @@ namespace VamBooru.Controllers
 		public async Task<PostViewModel> GetPostAsync([FromRoute] Guid postId)
 		{
 			var viewModel = PrepareForDisplay(await _repository.LoadPostAsync(postId), false);
-			viewModel.Files = (await _repository.LoadPostFilesAsync(postId, false)).Select(sf => sf.ToViewModel()).ToArray();
+			viewModel.Files = (await _repository.LoadPostFilesAsync(postId, false)).Select(FileViewModel.From).ToArray();
 			return viewModel;
 		}
 
@@ -76,7 +76,7 @@ namespace VamBooru.Controllers
 
 		private PostViewModel PrepareForDisplay(Post post, bool optimize)
 		{
-			var viewModel = post.ToViewModel(optimize);
+			var viewModel = PostViewModel.From(post, optimize);
 
 			if (!optimize)
 			{

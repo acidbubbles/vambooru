@@ -37,7 +37,7 @@ namespace VamBooru.Controllers
 
 			if (user == null) return NotFound();
 
-			return Ok(user.ToViewModel());
+			return Ok(UserViewModel.From(user));
 		}
 
 		[HttpPut("{userId}")]
@@ -45,7 +45,7 @@ namespace VamBooru.Controllers
 		{
 			if (userId != Me || !User.Identity.IsAuthenticated) return Unauthorized();
 			var dbUser = await _repository.UpdateUserAsync(this.GetUserLoginInfo(), user);
-			return Ok(dbUser.ToViewModel());
+			return Ok(UserViewModel.From(dbUser));
 		}
 	}
 }

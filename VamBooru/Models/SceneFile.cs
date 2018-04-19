@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace VamBooru.Models
 {
-	public class SceneFile
+	public class SceneFile : IFileModel
 	{
 		public long Id { get; set; }
 		[Required] public string Filename { get; set; }
@@ -10,17 +10,12 @@ namespace VamBooru.Models
 		[Required] public byte[] Bytes { get; set; }
 		[Required] public Scene Scene { get; set; }
 
-		public SceneFileViewModel ToViewModel()
+		public FileViewModel ToViewModel()
 		{
-			return new SceneFileViewModel
+			return new FileViewModel
 			{
 				Filename = Filename
 			};
 		}
-	}
-
-	public class SceneFileViewModel
-	{
-		public string Filename { get; set; }
 	}
 }

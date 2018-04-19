@@ -17,6 +17,16 @@ namespace VamBooru.Controllers
 	[Route("api/upload")]
 	public class UploadController : Controller
 	{
+		private const int MaxFileSize = 5 * 1000 * 1000; // 5MB
+		private static readonly string[] SupportFilesExtensions = new[]
+		{
+			".wav",
+			".mp3",
+			".jpg",
+			".png",
+			".txt"
+		};
+
 		private readonly IRepository _repository;
 		private readonly IStorage _storage;
 		private readonly ISceneFormat _sceneFormat;
@@ -34,8 +44,6 @@ namespace VamBooru.Controllers
 		public async Task<IActionResult> Upload()
 		{
 			if(!OrganizeFiles(out var scenesFiles, out var supportFiles, out var errorCode)) return BadRequest(new UploadResponse {Success = false, Code = errorCode});
-			if (supportFiles.Any())
-				return BadRequest(new UploadResponse {Success = false, Code = "SupportFilesNotYetSupported"});
 
 			var scenes = await Task.WhenAll(scenesFiles.Select(async sf =>
 				new Tuple<Scene, SceneJsonAndJpg, MemoryStream, MemoryStream>(
@@ -53,12 +61,32 @@ namespace VamBooru.Controllers
 				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 			}
 
-			var post = await _repository.CreatePostAsync(this.GetUserLoginInfo(), scenes.First().Item1.Name, tags.Distinct().ToArray(), scenes.Select(s => s.Item1).ToArray(), DateTimeOffset.UtcNow);
+			var post = await _repository.CreatePostAsync(
+				this.GetUserLoginInfo(),
+				scenes.First().Item1.Name,
+				tags.Distinct().ToArray(),
+				scenes.Select(s => s.Item1).ToArray(),
+				DateTimeOffset.UtcNow
+			);
 
 			foreach (var sceneData in scenes)
 			{
 				await _storage.SaveSceneAsync(sceneData.Item1, sceneData.Item3);
+				sceneData.Item3.Dispose();
 				await _storage.SaveSceneThumbAsync(sceneData.Item1, sceneData.Item4);
+				sceneData.Item4.Dispose();
+			}
+
+			foreach (var supportFile in supportFiles)
+			{
+				var memoryStream = new MemoryStream();
+				using (var supportFileStream = supportFile.OpenReadStream())
+				{
+					await supportFileStream.CopyToAsync(memoryStream);
+				}
+				memoryStream.Seek(0, SeekOrigin.Begin);
+
+				await _storage.SaveSupportFileAsync(post, supportFile.FileName, memoryStream);
 			}
 
 			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });
@@ -86,6 +114,12 @@ namespace VamBooru.Controllers
 
 			foreach (var file in files)
 			{
+				if (file.Length > MaxFileSize)
+				{
+					errorCode = $"FileTooLarge:{MaxFileSize/1000/1000}MB";
+					return true;
+				}
+
 				var filename = file.FileName;
 				if (string.IsNullOrEmpty(filename))
 				{
@@ -105,7 +139,16 @@ namespace VamBooru.Controllers
 						continue;
 					}
 				}
-				supportFiles.Add(file);
+
+				if (SupportFilesExtensions.Contains(extension))
+				{
+					//TODO: We should validate these files
+					supportFiles.Add(file);
+					continue;
+				}
+
+				errorCode = $"UnsupportedExtension:{extension}";
+				return true;
 			}
 
 			errorCode = null;

@@ -9,7 +9,9 @@ namespace VamBooru.Storage
 	{
 		Task<SceneFile> SaveSceneAsync(Scene scene, MemoryStream stream);
 		Task<SceneFile> SaveSceneThumbAsync(Scene scene, MemoryStream stream);
+		Task<SupportFile> SaveSupportFileAsync(Post post, string filename, MemoryStream stream);
 		Task<Stream> LoadSceneThumbStreamAsync(Guid sceneId);
 		Task<Stream> LoadSceneFileStreamAsync(Guid sceneId, string filename);
+		Task<Stream> LoadSupportFileStreamAsync(Guid postId, string filename);
 	}
 }

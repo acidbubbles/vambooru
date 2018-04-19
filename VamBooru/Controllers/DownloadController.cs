@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using VamBooru.Models;
 using VamBooru.Repository;
 using VamBooru.Storage;
 
@@ -40,13 +41,33 @@ namespace VamBooru.Controllers
 				{
 					var filename = GetSanitizedFilename(file.Filename);
 					var entry = zip.CreateEntry($"scenes/{username}/{filename}");
-					using (var entryStream = entry.Open())
+					Stream stream = null;
+					try
 					{
-						var fileStream = await _storage.LoadSceneFileStreamAsync(file.Scene.Id, file.Filename);
-						if(fileStream == null)
-							throw new Exception($"The file {file.Filename} was missing from scene {file.Scene.Id} in post {postId}");
-						using (var content = fileStream)
-							await content.CopyToAsync(entryStream);
+						switch (file)
+						{
+							case SceneFile sf:
+								stream = await _storage.LoadSceneFileStreamAsync(sf.Scene.Id, sf.Filename);
+								if (stream == null)
+									throw new Exception($"The file {sf.Filename} was missing from scene {sf.Scene.Id} in post {postId}");
+								break;
+							case SupportFile sf:
+								stream = await _storage.LoadSupportFileStreamAsync(sf.Post.Id, sf.Filename);
+								if (stream == null)
+									throw new Exception($"The file {sf.Filename} was missing from post {postId}");
+								break;
+							default:
+								throw new Exception($"Unknown file type: {file.GetType()}");
+						}
+
+						using (var entryStream = entry.Open())
+						{
+							await stream.CopyToAsync(entryStream);
+						}
+					}
+					finally
+					{
+						stream?.Dispose();
 					}
 				}
 			}

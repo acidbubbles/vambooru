@@ -29,6 +29,19 @@ namespace VamBooru.Storage
 			return await SaveSceneFile(scene, stream, JpgExtension, false);
 		}
 
+		public async Task<SupportFile> SaveSupportFileAsync(Post post, string filename, MemoryStream stream)
+		{
+			var file = new SupportFile
+			{
+				Post = post,
+				Filename = filename,
+				Bytes = stream.ToArray()
+			};
+			_context.SupportFiles.Add(file);
+			await _context.SaveChangesAsync();
+			return file;
+		}
+
 		private async Task<SceneFile> SaveSceneFile(Scene scene, MemoryStream stream, string extension, bool compressed)
 		{
 			if (compressed)
@@ -38,6 +51,7 @@ namespace VamBooru.Storage
 				{
 					stream.CopyTo(gzip);
 				}
+				result.Seek(0, SeekOrigin.Begin);
 				stream = result;
 			}
 
@@ -57,12 +71,32 @@ namespace VamBooru.Storage
 		{
 			var file = await _context.SceneFiles.FirstOrDefaultAsync(sf => sf.Scene.Id == sceneId && sf.Filename == filename);
 			if (file == null) return null;
+
+			if (filename.EndsWith(".json"))
+			{
+				var compressed = new MemoryStream(file.Bytes);
+				var decompressed = new MemoryStream();
+				using (var gzip = new GZipStream(compressed, CompressionMode.Decompress, true))
+				{
+					gzip.CopyTo(decompressed);
+				}
+				decompressed.Seek(0, SeekOrigin.Begin);
+				return decompressed;
+			}
+
 			return new MemoryStream(file.Bytes);
 		}
 
 		public async Task<Stream> LoadSceneThumbStreamAsync(Guid sceneId)
 		{
 			var file = await _context.SceneFiles.FirstOrDefaultAsync(sf => sf.Scene.Id == sceneId && sf.Extension == JpgExtension);
+			if (file == null) return null;
+			return new MemoryStream(file.Bytes);
+		}
+
+		public async Task<Stream> LoadSupportFileStreamAsync(Guid postId, string filename)
+		{
+			var file = await _context.SupportFiles.FirstOrDefaultAsync(sf => sf.Post.Id == postId && sf.Filename == filename);
 			if (file == null) return null;
 			return new MemoryStream(file.Bytes);
 		}

@@ -173,7 +173,15 @@ namespace VamBooru.Repository
 			return dbTags.ToArray();
 		}
 
-		public Task<SceneFile[]> LoadPostFilesAsync(Guid postId, bool includeBytes)
+		public async Task<IFileModel[]> LoadPostFilesAsync(Guid postId, bool includeBytes)
+		{
+			var sceneFiles = await LoadSceneFilesAsync(postId, includeBytes);
+			var supportFiles = await LoadSupportFilesAsync(postId, includeBytes);
+
+			return sceneFiles.Concat<IFileModel>(supportFiles).ToArray();
+		}
+
+		private Task<SceneFile[]> LoadSceneFilesAsync(Guid postId, bool includeBytes)
 		{
 			var query = _context.SceneFiles
 				.Include(sf => sf.Scene)
@@ -182,6 +190,18 @@ namespace VamBooru.Repository
 			query = includeBytes
 				? query.Select(sf => new SceneFile {Filename = sf.Filename, Scene = sf.Scene, Bytes = sf.Bytes})
 				: query.Select(sf => new SceneFile {Filename = sf.Filename, Scene = sf.Scene});
+
+			return query.ToArrayAsync();
+		}
+
+		private Task<SupportFile[]> LoadSupportFilesAsync(Guid postId, bool includeBytes)
+		{
+			var query = _context.SupportFiles
+				.Where(sf => sf.Post.Id == postId);
+
+			query = includeBytes
+				? query.Select(sf => new SupportFile {Filename = sf.Filename, Post = new Post {Id = sf.Post.Id}, Bytes = sf.Bytes})
+				: query.Select(sf => new SupportFile {Filename = sf.Filename, Post = new Post {Id = sf.Post.Id}});
 
 			return query.ToArrayAsync();
 		}

@@ -291,7 +291,7 @@ namespace VamBooru.Tests.Repository
 					}
 				}, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
-			var viewModel = saved.ToViewModel(false);
+			var viewModel = PostViewModel.From(saved, false);
 			viewModel.Published = true;
 			viewModel.Text = "Some text...";
 			await _repository.UpdatePostAsync(_loginInfo, viewModel, new DateTimeOffset(2005, 02, 03, 04, 05, 07, TimeSpan.Zero));
@@ -368,7 +368,7 @@ namespace VamBooru.Tests.Repository
 					created
 				);
 
-				var viewModel = post.ToViewModel(false);
+				var viewModel = PostViewModel.From(post, false);
 				viewModel.Published = true;
 				viewModel.Text = "Some text...";
 				await _repository.UpdatePostAsync(_loginInfo, viewModel, post.DateCreated.AddDays(1));

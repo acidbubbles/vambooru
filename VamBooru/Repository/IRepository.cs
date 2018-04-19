@@ -11,7 +11,7 @@ namespace VamBooru.Repository
 		Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, DateTimeOffset now);
 		Task<Post> UpdatePostAsync(UserLoginInfo login, PostViewModel post, DateTimeOffset now);
 
-		Task<SceneFile[]> LoadPostFilesAsync(Guid postId, bool includeBytes);
+		Task<IFileModel[]> LoadPostFilesAsync(Guid postId, bool includeBytes);
 
 		Task<UserLogin> LoadOrCreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now);
 		Task<User> LoadPrivateUserAsync(UserLoginInfo login);

@@ -22,7 +22,7 @@ namespace VamBooru.Controllers
 		{
 			if (string.IsNullOrWhiteSpace(q)) return null;
 			var tags = await _repository.SearchTags(q);
-			return tags.Select(t => t.ToViewModel()).ToArray();
+			return tags.Select(TagViewModel.From).ToArray();
 		}
 	}
 }
