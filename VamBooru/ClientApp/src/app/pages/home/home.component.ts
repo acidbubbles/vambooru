@@ -8,11 +8,14 @@ import { IPost } from "../../model/post";
 })
 export class HomeComponent implements OnInit {
 	highestRated: IPost[];
+	highestRatedError: string;
 	recentlyCreated: IPost[];
+	recentlyCreatedError: string;
 
 	constructor(private readonly postsService: PostsService) {
 	}
 	ngOnInit() {
+		this.highestRatedError = null;
 		this.postsService
 			.searchPosts({
 				sort: PostSortBy.votes,
@@ -21,10 +24,16 @@ export class HomeComponent implements OnInit {
 				page: 0,
 				pageSize: 8
 			})
-			.subscribe(result => {
-				this.highestRated = result;
-			});
+			.subscribe(
+				result => {
+					this.highestRated = result;
+				},
+				error => {
+					this.highestRatedError = error.message;
+				}
+			);
 
+		this.recentlyCreatedError = null;
 		this.postsService
 			.searchPosts({
 				sort: PostSortBy.created,
@@ -33,8 +42,13 @@ export class HomeComponent implements OnInit {
 				page: 0,
 				pageSize: 8
 			})
-			.subscribe(result => {
-				this.recentlyCreated = result;
-			});
+			.subscribe(
+				result => {
+					this.recentlyCreated = result;
+				},
+				error => {
+					this.recentlyCreatedError = error.message;
+				}
+			);
 	}
 }

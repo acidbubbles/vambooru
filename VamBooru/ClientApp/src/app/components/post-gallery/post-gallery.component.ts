@@ -7,4 +7,5 @@ import { IPost } from "../../model/post";
 })
 export class PostGalleryComponent {
 	@Input() posts: IPost[];
+	@Input() error: string;
 }

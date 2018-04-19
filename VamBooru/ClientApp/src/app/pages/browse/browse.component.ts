@@ -8,6 +8,7 @@ import { IPost } from "../../model/post";
 })
 export class BrowseComponent implements OnInit {
 	posts: IPost[];
+	error: string;
 
 	constructor(private readonly postsService: PostsService) {
 	}
@@ -21,8 +22,13 @@ export class BrowseComponent implements OnInit {
 				page: 0,
 				pageSize: 0
 			})
-			.subscribe(result => {
-				this.posts = result;
-			});
+			.subscribe(
+				result => {
+					this.posts = result;
+				},
+				error => {
+					this.error = error.message;
+				}
+			);
 	}
 }

@@ -1,4 +1,5 @@
-<div *ngIf="!posts">Loading...</div>
+<div *ngIf="!posts && !error">Loading...</div>
+<div *ngIf="!posts && error">Error: {{ error }}</div>
 
 <div *ngIf="posts && !posts.length">There's nothing to see here yet!</div>
 
