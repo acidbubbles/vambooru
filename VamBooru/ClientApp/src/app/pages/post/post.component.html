@@ -6,11 +6,9 @@
 			<i>by {{ post.author.username }}</i>
 		</div>
 		<div class="panel-body">
-			<img src="{{ post.imageUrl }}" class="scene-thumbnail center-block" />
+			<img *ngIf="post.scenes && post.scenes.length == 1" src="{{ post.imageUrl }}" class="scene-thumbnail center-block" />
 
-			<hr *ngIf="post.scenes && post.scenes.length > 1" />
-
-			<div class="row" *ngIf="post.scenes && post.scenes.length > 1">
+			<div *ngIf="post.scenes && post.scenes.length > 1" class="row">
 				<div class="col-md-3" *ngFor="let scene of post.scenes">
 					<div class="thumbnail">
 						<img src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
