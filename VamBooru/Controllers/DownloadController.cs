@@ -74,7 +74,7 @@ namespace VamBooru.Controllers
 
 			zipStream.Seek(0, SeekOrigin.Begin);
 
-			return File(zipStream, "application/octet-stream", $"{username}-{post.Id}.zip");
+			return File(zipStream, "application/octet-stream", $"{username} - {GetSanitizedFilename(post.Title)}.zip");
 		}
 
 		private static string GetSanitizedFilename(string filename)
