@@ -283,11 +283,7 @@ namespace VamBooru.Tests.Repository
 				{
 					new Scene
 					{
-						Name = "My Scene",
-						Files = new[]
-						{
-							new SceneFile {Filename = "file.json", Extension = ".json", Bytes = new byte[] {1, 2, 3, 4}}
-						}
+						Name = "My Scene"
 					}
 				}, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
@@ -353,8 +349,7 @@ namespace VamBooru.Tests.Repository
 			{
 				new Scene
 				{
-					Name = "My Scene",
-					Files = new[] {new SceneFile {Filename = "file.json", Extension = ".json", Bytes = new byte[] {1, 2, 3, 4}}}
+					Name = "My Scene"
 				}
 			};
 
@@ -387,6 +382,48 @@ namespace VamBooru.Tests.Repository
 			var posts = await _repository.BrowsePostsAsync(sortBy, sortDirection, since, page, pageSize, now);
 
 			CollectionAssert.AreEqual(expected, posts.Select(post => post.Title).ToArray());
+		}
+
+		[TestCase(true)]
+		[TestCase(false)]
+		public async Task GetPostFiles(bool includeBytes)
+		{
+			var saved = await _repository.CreatePostAsync(
+				_loginInfo,
+				"My Post",
+				new[] {"my-tag"},
+				new[]
+				{
+					new Scene
+					{
+						Name = "My Scene"
+					}
+				}, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
+			var scene = saved.Scenes.First();
+			scene.Files = scene.Files ?? new List<SceneFile>();
+
+			//TODO: Right now we mix Storage and Repository a lot. Bytes should move out eventually
+			saved.SupportFiles.Add(new SupportFile { Filename = "sound.wav", Bytes = new byte[] { 1, 2, 3 } });
+			scene.Files.Add(new SceneFile {Filename = "My Scene.json", Extension = ".json", Bytes = new byte[] {5, 6}});
+			scene.Files.Add(new SceneFile {Filename = "My Scene.jpg", Extension = ".jpg", Bytes = new byte[] {7, 8}});
+			await _context.SaveChangesAsync();
+
+			CreateDbContext();
+			var files = await _repository.LoadPostFilesAsync(saved.Id, includeBytes);
+
+			files.ShouldDeepEqual(new IFileModel[]
+			{
+				new SceneFile {Filename = "My Scene.json", Bytes = includeBytes ? new byte[] {5, 6} : null},
+				new SceneFile {Filename = "My Scene.jpg", Bytes = includeBytes ? new byte[] {7, 8} : null},
+				new SupportFile {Filename = "sound.wav", Bytes = includeBytes ? new byte[] {1, 2, 3} : null}
+			}, c =>
+			{
+				c.IgnoreCollectionOrder = true;
+				c.MembersToIgnore.Add("*Id");
+				c.MembersToIgnore.Add("SupportFile.Post");
+				c.MembersToIgnore.Add("SceneFile.Scene");
+			});
 		}
 
 		private void CreateDbContext()
