@@ -2,8 +2,10 @@
 
 Find out what the Virt-A-Mate community has been creating, and share your own creations!
 
-<h2>High rated</h2>
+<h2>Highest rated</h2>
 <post-gallery [posts]="highestRated" [error]="highestRatedError"></post-gallery>
+<a [routerLink]="['browse']" [queryParams]="highestRatedQuery">Browse more highest rated...</a>
 
 <h2>Recently created</h2>
 <post-gallery [posts]="recentlyCreated" [error]="recentlyCreatedError"></post-gallery>
+<a [routerLink]="['browse']" [queryParams]="recentlyCreatedQuery">Browse more recently created...</a>
