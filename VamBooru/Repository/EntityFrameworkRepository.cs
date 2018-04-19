@@ -186,7 +186,7 @@ namespace VamBooru.Repository
 			return query.ToArrayAsync();
 		}
 
-		public async Task<UserLogin> CreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now)
+		public async Task<UserLogin> LoadOrCreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now)
 		{
 			var login = await _context.UserLogins.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == nameIdentifier);
 

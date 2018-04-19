@@ -28,7 +28,7 @@ namespace VamBooru.Tests.Repository
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserPostVotes\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Posts\"");
 
-			var login = await _repository.CreateUserFromLoginAsync("MyScheme", "john.1234", "John Doe", new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));
+			var login = await _repository.LoadOrCreateUserFromLoginAsync("MyScheme", "john.1234", "John Doe", new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero));
 			_loginInfo = new UserLoginInfo
 			{
 				Scheme = "MyScheme",
@@ -235,9 +235,9 @@ namespace VamBooru.Tests.Repository
 		[Test]
 		public async Task AddVotesToPost()
 		{
-			await _repository.CreateUserFromLoginAsync("Scheme1", "user1", "User 1", DateTimeOffset.UtcNow);
-			await _repository.CreateUserFromLoginAsync("Scheme1", "user2", "User 2", DateTimeOffset.UtcNow);
-			await _repository.CreateUserFromLoginAsync("Scheme1", "user3", "User 3", DateTimeOffset.UtcNow);
+			await _repository.LoadOrCreateUserFromLoginAsync("Scheme1", "user1", "User 1", DateTimeOffset.UtcNow);
+			await _repository.LoadOrCreateUserFromLoginAsync("Scheme1", "user2", "User 2", DateTimeOffset.UtcNow);
+			await _repository.LoadOrCreateUserFromLoginAsync("Scheme1", "user3", "User 3", DateTimeOffset.UtcNow);
 			var post = await _repository.CreatePostAsync(_loginInfo, "Some Title", new string[0], new Scene[0], DateTimeOffset.MinValue);
 
 			CreateDbContext();

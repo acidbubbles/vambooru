@@ -30,7 +30,7 @@ export interface IPostQuery {
 export class PostSortBy {
 	static created = "created";
 	static updated = "updated";
-	static highestRated = "highestRated";
+	static votes = "votes";
 }
 
 export class PostSortDirection {

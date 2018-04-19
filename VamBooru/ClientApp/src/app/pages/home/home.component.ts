@@ -8,14 +8,14 @@ import { IPost } from "../../model/post";
 })
 export class HomeComponent implements OnInit {
 	highestRated: IPost[];
-	newest: IPost[];
+	recentlyCreated: IPost[];
 
 	constructor(private readonly postsService: PostsService) {
 	}
 	ngOnInit() {
 		this.postsService
 			.searchPosts({
-				sort: PostSortBy.highestRated,
+				sort: PostSortBy.votes,
 				direction: PostSortDirection.down,
 				since: PostedSince.forever,
 				page: 0,
@@ -34,7 +34,7 @@ export class HomeComponent implements OnInit {
 				pageSize: 8
 			})
 			.subscribe(result => {
-				this.newest = result;
+				this.recentlyCreated = result;
 			});
 	}
 }

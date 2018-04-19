@@ -54,7 +54,7 @@ namespace VamBooru.Controllers
 			var username = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value ?? $"anon-{Guid.NewGuid()}";
 
 			//TODO: This should be replaced by a signup page when the user does not already exist
-			await _repository.CreateUserFromLoginAsync(scheme, identifier, username, DateTimeOffset.UtcNow);
+			await _repository.LoadOrCreateUserFromLoginAsync(scheme, identifier, username, DateTimeOffset.UtcNow);
 
 			return Redirect("/");
 		}

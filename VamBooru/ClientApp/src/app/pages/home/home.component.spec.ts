@@ -43,7 +43,7 @@ describe("HomeComponent", () => {
 			expect(query.page).toEqual(0);
 			expect(query.pageSize).toEqual(8);
 
-			if(query.sort === PostSortBy.highestRated)
+			if(query.sort === PostSortBy.votes)
 				return Observable.of([{ title: "Good post" } as IPost]);
 			else if (query.sort === PostSortBy.created)
 				return Observable.of([{ title: "New post" } as IPost]);
