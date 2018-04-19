@@ -48,7 +48,8 @@ namespace VamBooru.Controllers
 			var tags = new List<string>();
 			foreach (var sceneData in scenes)
 			{
-				tags.AddRange(_sceneFormat.GetTags(sceneData.Item3.ToArray()));
+				var project = _sceneFormat.Deserialize(sceneData.Item3.ToArray());
+				tags.AddRange(_sceneFormat.GetTags(project));
 				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 			}
 
