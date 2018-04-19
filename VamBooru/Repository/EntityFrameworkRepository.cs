@@ -186,16 +186,16 @@ namespace VamBooru.Repository
 			return query.ToArrayAsync();
 		}
 
-		public async Task<UserLogin> CreateUserFromLoginAsync(string scheme, string id, string name, DateTimeOffset now)
+		public async Task<UserLogin> CreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now)
 		{
-			var login = await _context.UserLogins.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == id);
+			var login = await _context.UserLogins.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == nameIdentifier);
 
 			if (login != null) return login;
 
-			var user = new User { Username = name, DateSubscribed = now };
+			var user = new User { Username = username, DateSubscribed = now };
 			_context.Users.Add(user);
 
-			login = new UserLogin { User = user, Scheme = scheme, NameIdentifier = id };
+			login = new UserLogin { User = user, Scheme = scheme, NameIdentifier = nameIdentifier };
 			_context.UserLogins.Add(login);
 
 			await _context.SaveChangesAsync();
@@ -277,6 +277,39 @@ namespace VamBooru.Repository
 
 			return difference;
 		}
+
+		public Task<UserPostVote[]> GetPostVotingUsers(Guid postId)
+		{
+			return _context.UserPostVotes
+				.AsNoTracking()
+				.Include(upv => upv.User)
+				.Where(upv => upv.PostId == postId)
+				.ToArrayAsync();
+		}
+
+		public async Task<UserPostVote[]> GetUserVotedPosts(UserLoginInfo login)
+		{
+			var dbUser = await LoadPrivateUserAsync(login) ?? throw new NullReferenceException("User does not exist");
+			return await _context.UserPostVotes
+				.AsNoTracking()
+				.Include(upv => upv.Post)
+				.Where(upv => upv.User == dbUser)
+				.Select(upv => new UserPostVote
+				{
+					Votes = upv.Votes,
+					PostId = upv.PostId,
+					UserId = upv.UserId,
+					Post = new Post
+					{
+						Id = upv.Post.Id,
+						Title = upv.Post.Title,
+						Votes = upv.Post.Votes
+					}
+				})
+				.ToArrayAsync();
+		}
 	}
 }
+
+
 

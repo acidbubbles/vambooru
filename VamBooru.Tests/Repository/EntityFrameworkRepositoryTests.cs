@@ -219,6 +219,43 @@ namespace VamBooru.Tests.Repository
 		}
 
 		[Test]
+		public async Task NoVotesByDefault()
+		{
+			var post = await _repository.CreatePostAsync(_loginInfo, "Some Title", new string[0], new Scene[0], DateTimeOffset.MinValue);
+
+			CreateDbContext();
+			var updated = await _repository.LoadPostAsync(post.Id);
+			var votes = updated.Votes;
+
+			Assert.That(votes, Is.EqualTo(0));
+			Assert.That(await _repository.GetPostVotingUsers(post.Id), Is.Empty);
+			Assert.That(await _repository.GetUserVotedPosts(_loginInfo), Is.Empty);
+		}
+
+		[Test]
+		public async Task AddVotesToPost()
+		{
+			await _repository.CreateUserFromLoginAsync("Scheme1", "user1", "User 1", DateTimeOffset.UtcNow);
+			await _repository.CreateUserFromLoginAsync("Scheme1", "user2", "User 2", DateTimeOffset.UtcNow);
+			await _repository.CreateUserFromLoginAsync("Scheme1", "user3", "User 3", DateTimeOffset.UtcNow);
+			var post = await _repository.CreatePostAsync(_loginInfo, "Some Title", new string[0], new Scene[0], DateTimeOffset.MinValue);
+
+			CreateDbContext();
+			await _repository.VoteAsync(new UserLoginInfo("Scheme1", "user1"), post.Id, 100);
+			await _repository.VoteAsync(new UserLoginInfo("Scheme1", "user2"), post.Id, -50);
+			await _repository.VoteAsync(new UserLoginInfo("Scheme1", "user3"), post.Id, 25);
+			await _repository.VoteAsync(new UserLoginInfo("Scheme1", "user1"), post.Id, 90);
+
+			CreateDbContext();
+			var updated = await _repository.LoadPostAsync(post.Id);
+			var votes = updated.Votes;
+
+			Assert.That(votes, Is.EqualTo(65));
+			Assert.That((await _repository.GetPostVotingUsers(post.Id)).Select(upv => upv.User.Username), Is.EquivalentTo(new[] { "User 1", "User 2", "User 3" }));
+			Assert.That((await _repository.GetUserVotedPosts(new UserLoginInfo("Scheme1", "user1"))).Select(upv => upv.PostId), Is.EquivalentTo(new[] { post.Id }));
+		}
+
+		[Test]
 		public async Task BrowsePostsExcludesNonPublishedPosts()
 		{
 			await _repository.CreatePostAsync(
