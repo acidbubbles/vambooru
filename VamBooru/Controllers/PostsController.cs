@@ -24,7 +24,7 @@ namespace VamBooru.Controllers
 		public async Task<PostViewModel[]> BrowseAsync([FromQuery] string sort = null, [FromQuery] string direction = null, [FromQuery] string since = null, [FromQuery] int page = 0, [FromQuery] int pageSize = 0)
 		{
 			var sortParsed = sort != null ? Enum.Parse<PostSortBy>(sort, true) : PostSortBy.Created;
-			var sortDirectionParsed = since != null ? Enum.Parse<PostSortDirection>(direction, true) : PostSortDirection.Down;
+			var sortDirectionParsed = direction != null ? Enum.Parse<PostSortDirection>(direction, true) : PostSortDirection.Down;
 			var sinceParsed = since != null ? Enum.Parse<PostedSince>(since, true) : PostedSince.Forever;
 			if (page < 0) page = 0;
 			if (pageSize <= 0) pageSize = 16;
