@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs/Subscription";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Observable } from "rxjs/Observable";
 import "rxjs/add/operator/map";
+import { PostsService } from "../../services/posts-service";
+import { TagsService } from "../../services/tags-service";
 import { IPost } from "../../model/post";
 import { ITag } from "../../model/tag";
 
@@ -17,13 +18,12 @@ export class PostEditComponent implements OnInit, OnDestroy {
 	errorMessage: string;
 	saving: boolean;
 
-	constructor(private readonly http: HttpClient, private readonly router: Router, private readonly route: ActivatedRoute, @Inject("BASE_URL") private readonly baseUrl: string) {
+	constructor(private readonly tagsService: TagsService, private readonly postsService: PostsService, private readonly router: Router, private readonly route: ActivatedRoute) {
 	}
 
 	ngOnInit() {
 		this.routeSub = this.route.params.subscribe(params => {
-			const id = params["id"];
-			this.http.get<IPost>(`${this.baseUrl}api/posts/${id}`).subscribe(result => {
+			this.postsService.getPost(params["id"]).subscribe(result => {
 				this.post = result;
 				if (!this.post.tags) this.post.tags = [];
 			});
@@ -40,11 +40,7 @@ export class PostEditComponent implements OnInit, OnDestroy {
 		this.saving = true;
 		this.errorMessage = null;
 
-		const httpOptions = {
-			headers: new HttpHeaders({ "Content-Type": "application/json" })
-		};
-
-		this.http.put(`/api/posts/${this.post.id}`, this.post, httpOptions).subscribe(
+		this.postsService.savePost(this.post).subscribe(
 			() => {
 				this.router.navigate(["/posts", this.post.id]);
 			},
@@ -60,9 +56,6 @@ export class PostEditComponent implements OnInit, OnDestroy {
 	}
 
 	autocompleteTags = (text: string): Observable<ITag[]> => {
-		const url = `/api/tags?q=${text}`;
-		return this.http
-			.get<ITag[]>(url)
-			.map(data => data.map(item => item));;
+		return this.tagsService.searchTags(text);
 	};
 }

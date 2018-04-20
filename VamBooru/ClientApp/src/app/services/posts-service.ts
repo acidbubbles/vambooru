@@ -1,5 +1,5 @@
 import { Injectable, Inject } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpParams, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs/Observable";
 import { IPost } from "../model/post";
 
@@ -17,6 +17,14 @@ export class PostsService {
 	getPost(postId: string): Observable<IPost> {
 		return this.http.get<IPost>(`${this.baseUrl}api/posts/${postId}`, {});
 	};
+
+	savePost(post: IPost): Observable<Object> {
+		const httpOptions = {
+			headers: new HttpHeaders({ "Content-Type": "application/json" })
+		};
+
+		return this.http.put(`/api/posts/${post.id}`, post, httpOptions);
+	}
 }
 
 export interface IPostQuery {
@@ -25,6 +33,7 @@ export interface IPostQuery {
 	since: string;
 	page: number;
 	pageSize: number;
+	tags: string[];
 }
 
 export class PostSortBy {

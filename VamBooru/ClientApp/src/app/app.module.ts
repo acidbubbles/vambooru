@@ -13,6 +13,7 @@ import { MarkdownModule } from "ngx-md";
 import { ConfigurationService } from "./services/configuration-service";
 import { PostsService } from "./services/posts-service";
 import { VotesService } from "./services/votes-service";
+import { TagsService } from "./services/tags-service";
 
 // Application
 import { AppComponent } from "./app.component";
@@ -71,7 +72,8 @@ import { AccountComponent } from "./pages/account/account.component";
 			multi: true
 		},
 		PostsService,
-		VotesService
+		VotesService,
+		TagsService
 	],
 	bootstrap: [AppComponent]
 })

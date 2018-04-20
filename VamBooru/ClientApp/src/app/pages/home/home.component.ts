@@ -8,22 +8,24 @@ import { IPost } from "../../model/post";
 })
 export class HomeComponent implements OnInit {
 	highestRatedQuery: IPostQuery = {
-				sort: PostSortBy.votes,
-				direction: PostSortDirection.down,
-				since: PostedSince.forever,
-				page: 0,
-				pageSize: 0
-			};
+		sort: PostSortBy.votes,
+		direction: PostSortDirection.down,
+		since: PostedSince.forever,
+		page: 0,
+		pageSize: 8,
+		tags: []
+	};
 	highestRated: IPost[];
 	highestRatedError: string;
 
 	recentlyCreatedQuery: IPostQuery = {
-				sort: PostSortBy.created,
-				direction: PostSortDirection.down,
-				since: PostedSince.forever,
-				page: 0,
-				pageSize: 0
-			};
+		sort: PostSortBy.created,
+		direction: PostSortDirection.down,
+		since: PostedSince.forever,
+		page: 0,
+		pageSize: 8,
+		tags: []
+	};
 	recentlyCreated: IPost[];
 	recentlyCreatedError: string;
 

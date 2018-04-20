@@ -26,5 +26,11 @@ export class RouterLinkActiveDirectiveStub {
 })
 export class RouterLinkActiveOptionsDirectiveStub {
 	@Input("routerLinkActiveOptions") linkParams: any;
-	navigatedTo: any = null;
+}
+
+@Directive({
+	selector: "[queryParams]",
+})
+export class QueryParamsDirectiveStub {
+	@Input("queryParams") linkParams: any;
 }

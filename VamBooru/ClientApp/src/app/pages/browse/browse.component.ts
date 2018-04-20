@@ -1,8 +1,11 @@
 import { Component, OnInit, OnDestroy  } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { Subscription } from "rxjs/Subscription";
+import { Observable } from "rxjs/Observable";
 import { PostsService, PostSortBy, PostSortDirection, PostedSince, IPostQuery } from "../../services/posts-service";
+import { TagsService } from "../../services/tags-service";
 import { IPost } from "../../model/post";
+import { ITag } from "../../model/tag";
 
 @Component({
 	selector: "browse",
@@ -13,6 +16,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
 	posts: IPost[];
 	error: string;
 	query: IPostQuery;
+	tags: ITag[] = [];
 
 	sortValues = [
 		{ value: PostSortBy.created, label: "Creation Date" },
@@ -33,7 +37,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
 		{ value: PostedSince.lastDay, label: "Last Day" },
 	];
 
-	constructor(private readonly postsService: PostsService, private readonly router: Router, private readonly route: ActivatedRoute) {
+	constructor(private readonly postsService: PostsService, private readonly tagsService: TagsService, private readonly router: Router, private readonly route: ActivatedRoute) {
 	}
 
 	ngOnInit() {
@@ -43,8 +47,9 @@ export class BrowseComponent implements OnInit, OnDestroy {
 				direction: params["direction"] || PostSortDirection.down,
 				since: params["since"] || PostedSince.forever,
 				page: params["page"] || 0,
-				pageSize: params["pageSize"] || 0
-			};
+				pageSize: params["pageSize"] || 0,
+				tags: this.tags.map(t => t.name)
+		};
 			this.go();
 		});
 	}
@@ -56,6 +61,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
 
 	go() {
 		delete this.posts;
+		this.query.tags = this.tags.map(t => t.name);
 		this.postsService
 			.searchPosts(this.query)
 			.subscribe(
@@ -67,4 +73,8 @@ export class BrowseComponent implements OnInit, OnDestroy {
 				}
 			);
 	}
+
+	autocompleteTags = (text: string): Observable<ITag[]> => {
+		return this.tagsService.searchTags(text);
+	};
 }

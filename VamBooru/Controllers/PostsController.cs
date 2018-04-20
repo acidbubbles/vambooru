@@ -29,6 +29,11 @@ namespace VamBooru.Controllers
 			var sinceParsed = since != null ? Enum.Parse<PostedSince>(since, true) : PostedSince.Forever;
 			if (page < 0) page = 0;
 			if (pageSize <= 0) pageSize = 16;
+			if (tags != null)
+			{
+				tags = tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToArray();
+				if (tags.Length == 0) tags = null;
+			}
 
 			if (!AllowsCaching(page, pageSize, tags))
 				return await BrowseInternalAsync(page, pageSize, sortParsed, sortDirectionParsed, sinceParsed, tags);
@@ -44,7 +49,7 @@ namespace VamBooru.Controllers
 
 		private static bool AllowsCaching(int page, int pageSize, string[] tags)
 		{
-			return page == 0 && pageSize < 16 && (tags == null || tags.Length == 0);
+			return page == 0 && pageSize < 16 && tags == null;
 		}
 
 		private async Task<PostViewModel[]> BrowseInternalAsync(int page, int pageSize, PostSortBy sortBy, PostSortDirection sortDirection, PostedSince postedSince, string[] tags)
