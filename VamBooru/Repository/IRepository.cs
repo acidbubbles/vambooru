@@ -9,7 +9,7 @@ namespace VamBooru.Repository
 	{
 		Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes, DateTimeOffset now);
 		Task<Post> LoadPostAsync(Guid id);
-		Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, DateTimeOffset now);
+		Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, DateTimeOffset now);
 		Task<Post> UpdatePostAsync(UserLoginInfo login, PostViewModel post, DateTimeOffset now);
 
 		Task<IFileModel[]> LoadPostFilesAsync(Guid postId, bool includeBytes);

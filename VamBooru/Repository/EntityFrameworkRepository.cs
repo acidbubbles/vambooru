@@ -57,7 +57,7 @@ namespace VamBooru.Repository
 				.FirstOrDefaultAsync(p => p.Id == id);
 		}
 
-		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, DateTimeOffset now)
+		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, DateTimeOffset now)
 		{
 			if(page < 0) throw new ArgumentException("Page must be greater than or equal to 0");
 			if(pageSize < 1) throw new ArgumentException("Page must be greater than or equal to 1");
@@ -90,6 +90,11 @@ namespace VamBooru.Repository
 				baseQuery = sortBy == PostSortBy.Updated
 					? baseQuery.Where(p => p.DatePublished >= dateTimeOffset)
 					: baseQuery.Where(p => p.DateCreated >= dateTimeOffset);
+			}
+
+			if (tags != null && tags.Length > 0)
+			{
+				baseQuery = baseQuery.Where(p => tags.All(t => p.Tags.Any(pt => pt.Tag.Name == t)));
 			}
 
 			switch (sortBy)

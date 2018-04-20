@@ -17,7 +17,7 @@ namespace VamBooru.Tests.Controllers
 		{
 			var repository = new Mock<IRepository>(MockBehavior.Strict);
 			repository
-				.Setup(mock => mock.BrowsePostsAsync(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 16, It.Is<DateTimeOffset>(d => d <= DateTimeOffset.UtcNow)))
+				.Setup(mock => mock.BrowsePostsAsync(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 16, null, It.Is<DateTimeOffset>(d => d <= DateTimeOffset.UtcNow)))
 				.ReturnsAsync(new[]
 				{
 					new Post

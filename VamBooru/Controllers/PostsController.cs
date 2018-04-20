@@ -22,7 +22,7 @@ namespace VamBooru.Controllers
 		}
 
 		[HttpGet("")]
-		public async Task<PostViewModel[]> BrowseAsync([FromQuery] string sort = null, [FromQuery] string direction = null, [FromQuery] string since = null, [FromQuery] int page = 0, [FromQuery] int pageSize = 0)
+		public async Task<PostViewModel[]> BrowseAsync([FromQuery] string sort = null, [FromQuery] string direction = null, [FromQuery] string since = null, [FromQuery] int page = 0, [FromQuery] int pageSize = 0, [FromQuery] string[] tags = null)
 		{
 			var sortParsed = sort != null ? Enum.Parse<PostSortBy>(sort, true) : PostSortBy.Created;
 			var sortDirectionParsed = direction != null ? Enum.Parse<PostSortDirection>(direction, true) : PostSortDirection.Down;
@@ -30,31 +30,33 @@ namespace VamBooru.Controllers
 			if (page < 0) page = 0;
 			if (pageSize <= 0) pageSize = 16;
 
-			if (!AllowsCaching(page, pageSize))
-				return await BrowseInternalAsync(page, pageSize, sortParsed, sortDirectionParsed, sinceParsed);
+			if (!AllowsCaching(page, pageSize, tags))
+				return await BrowseInternalAsync(page, pageSize, sortParsed, sortDirectionParsed, sinceParsed, tags);
 
 			var key = $"posts:browse:({sortParsed};{sortDirectionParsed};{sinceParsed};{page};{pageSize})";
 			var expirationMinutes = sortParsed == PostSortBy.Votes ? 10 : .5; // If you want to see the new stuff, you'll expect it to come fast
 			return await _cache.GetOrCreateAsync(key, entry =>
 			{
 				entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(expirationMinutes);
-				return BrowseInternalAsync(page, pageSize, sortParsed, sortDirectionParsed, sinceParsed);
+				return BrowseInternalAsync(page, pageSize, sortParsed, sortDirectionParsed, sinceParsed, tags);
 			});
 		}
 
-		private static bool AllowsCaching(int page, int pageSize)
+		private static bool AllowsCaching(int page, int pageSize, string[] tags)
 		{
-			return page == 0 && pageSize < 16;
+			return page == 0 && pageSize < 16 && (tags == null || tags.Length == 0);
 		}
 
-		private async Task<PostViewModel[]> BrowseInternalAsync(int page, int pageSize, PostSortBy sortBy, PostSortDirection sortDirection, PostedSince postedSince)
+		private async Task<PostViewModel[]> BrowseInternalAsync(int page, int pageSize, PostSortBy sortBy, PostSortDirection sortDirection, PostedSince postedSince, string[] tags)
 		{
 			var posts = await _repository.BrowsePostsAsync(
 				sortBy,
 				sortDirection,
 				postedSince,
 				page,
-				pageSize, DateTimeOffset.UtcNow
+				pageSize, 
+				tags,
+				DateTimeOffset.UtcNow
 			);
 			return posts.Select(post => PrepareForDisplay(post, true)).ToArray();
 		}
