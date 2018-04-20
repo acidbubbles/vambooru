@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -57,7 +56,7 @@ namespace VamBooru.Repository
 				.FirstOrDefaultAsync(p => p.Id == id);
 		}
 
-		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, DateTimeOffset now)
+		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, string q, DateTimeOffset now)
 		{
 			if(page < 0) throw new ArgumentException("Page must be greater than or equal to 0");
 			if(pageSize < 1) throw new ArgumentException("Page must be greater than or equal to 1");
@@ -68,20 +67,6 @@ namespace VamBooru.Repository
 				.Include(p => p.Tags)
 				.ThenInclude(t => t.Tag)
 				.Include(p => p.Scenes)
-				.Select(p => new Post
-				{
-					Id = p.Id,
-					Title = p.Title,
-					Author = p.Author,
-					Published = p.Published,
-					DateCreated = p.DateCreated,
-					DatePublished = p.DatePublished,
-					ImageUrl = p.ImageUrl,
-					Tags = p.Tags,
-					Votes = p.Votes,
-					//TODO: This is only required to populate the post's image URL. We should associate it upfront instead of always loading all scenes.
-					Scenes = p.Scenes
-				})
 				.Where(p => p.Published);
 
 			if (since != PostedSince.Forever)
@@ -90,6 +75,12 @@ namespace VamBooru.Repository
 				baseQuery = sortBy == PostSortBy.Updated
 					? baseQuery.Where(p => p.DatePublished >= dateTimeOffset)
 					: baseQuery.Where(p => p.DateCreated >= dateTimeOffset);
+			}
+
+			if (!string.IsNullOrEmpty(q))
+			{
+				//TODO: Replace with ts_vector full text search when available
+				baseQuery = baseQuery.Where(p => p.Text.Contains(q));
 			}
 
 			if (tags != null && tags.Length > 0)
@@ -121,6 +112,20 @@ namespace VamBooru.Repository
 			return baseQuery
 				.Skip(page * pageSize)
 				.Take(pageSize)
+				.Select(p => new Post
+				{
+					Id = p.Id,
+					Title = p.Title,
+					Author = p.Author,
+					Published = p.Published,
+					DateCreated = p.DateCreated,
+					DatePublished = p.DatePublished,
+					ImageUrl = p.ImageUrl,
+					Tags = p.Tags,
+					Votes = p.Votes,
+					//TODO: This is only required to populate the post's image URL. We should associate it upfront instead of always loading all scenes.
+					Scenes = p.Scenes
+				})
 				.ToArrayAsync();
 		}
 
