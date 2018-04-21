@@ -1,6 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { PostsService, PostSortBy, PostSortDirection, PostedSince, IPostQuery } from "../../services/posts-service";
+import { TagsService } from "../../services/tags-service";
 import { IPost } from "../../model/post";
+import { ITag } from "../../model/tag";
 
 @Component({
 	selector: "app-home",
@@ -18,6 +20,7 @@ export class HomeComponent implements OnInit {
 	};
 	highestRated: IPost[];
 	highestRatedError: string;
+	topTags: ITag[];
 
 	recentlyCreatedQuery: IPostQuery = {
 		sort: PostSortBy.created,
@@ -30,7 +33,7 @@ export class HomeComponent implements OnInit {
 	recentlyCreated: IPost[];
 	recentlyCreatedError: string;
 
-	constructor(private readonly postsService: PostsService) {
+	constructor(private readonly postsService: PostsService, private readonly tagsService: TagsService) {
 	}
 	ngOnInit() {
 		this.highestRatedError = null;
@@ -39,12 +42,12 @@ export class HomeComponent implements OnInit {
 		this.postsService
 			.searchPosts(this.highestRatedQuery)
 			.subscribe(
-			result => {
-				this.highestRated = result;
-			},
-			error => {
-				this.highestRatedError = error.message;
-			}
+				result => {
+					this.highestRated = result;
+				},
+				error => {
+					this.highestRatedError = error.message;
+				}
 			);
 
 		this.recentlyCreatedError = null;
@@ -53,12 +56,22 @@ export class HomeComponent implements OnInit {
 		this.postsService
 			.searchPosts(this.recentlyCreatedQuery)
 			.subscribe(
-			result => {
-				this.recentlyCreated = result;
-			},
-			error => {
-				this.recentlyCreatedError = error.message;
-			}
+				result => {
+					this.recentlyCreated = result;
+				},
+				error => {
+					this.recentlyCreatedError = error.message;
+				}
+			);
+
+		this.tagsService.loadTopTags()
+			.subscribe(
+				result => {
+					this.topTags = result;
+				},
+				error => {
+					this.topTags = [{ name: "error", id: "", postsCount: 0 }];
+				}
 			);
 	}
 }

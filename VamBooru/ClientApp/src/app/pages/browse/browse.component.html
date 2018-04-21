@@ -44,7 +44,7 @@
 
 		<label>Tags</label>
 		<div class="tags mb-2">
-			<span *ngFor="let tag of commonTags" class="badge badge-secondary" (click)="addTag(tag)" style="cursor: pointer;">+ {{ tag.name }} ({{ tag.postsCount }})</span>
+			<a [routerLink]="['/browse']" [queryParams]="{tag: [tag.name]}" *ngFor="let tag of commonTags" class="badge badge-secondary" (click)="addTag(tag)">+ {{ tag.name }} ({{ tag.postsCount }})</a>
 		</div>
 	</nav>
 	<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">

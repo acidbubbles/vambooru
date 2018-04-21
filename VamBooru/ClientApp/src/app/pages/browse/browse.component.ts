@@ -42,15 +42,22 @@ export class BrowseComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-		this.routeSub = this.route.params.subscribe(params => {
+		this.routeSub = this.route.queryParams.subscribe(params => {
+			let tagsParam: any = params["tags"];
+			if (typeof tagsParam === "string") {
+				tagsParam = [tagsParam];
+			}
 			this.query = {
 				sort: params["sort"] || PostSortBy.created,
 				direction: params["direction"] || PostSortDirection.down,
 				since: params["since"] || PostedSince.forever,
 				page: params["page"] || 0,
 				pageSize: params["pageSize"] || 12,
-				tags: this.tags.map(t => t.name)
+				tags: tagsParam
 		};
+			if (this.query.tags) {
+				this.tags = this.query.tags.map<ITag>(t => ({ id: t, name: t } as ITag));
+			}
 			this.go();
 		});
 	}

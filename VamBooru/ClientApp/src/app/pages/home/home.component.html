@@ -1,15 +1,26 @@
-<p>
-	Find out what the <a href="https://www.patreon.com/meshedvr">Virt-A-Mate</a> community has been creating, and share your own creations!
-</p>
+<div class="row">
+	<nav class="col-md-2 d-none d-md-block bg-light sidebar">
+		<label>Popular tags</label>
+		<div class="tags">
+			<a *ngFor="let tag of topTags" class="badge badge-secondary" [routerLink]="['/browse']" [queryParams]="{ tags: [tag.name] }">{{ tag.name }} ({{ tag.postsCount }})</a>
+		</div>
+	</nav>
 
-<h2>Highest rated</h2>
-<post-gallery [posts]="highestRated" [error]="highestRatedError"></post-gallery>
-<div class="text-right">
-	<a class="btn btn-sm btn-primary" [routerLink]="['browse']" [queryParams]="highestRatedQuery"><i class="fa fa-play"></i> Browse more highest rated...</a>
-</div>
+	<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+		<p>
+			Find out what the <a href="https://www.patreon.com/meshedvr">Virt-A-Mate</a> community has been creating, and share your own creations!
+		</p>
 
-<h2>Recently created</h2>
-<post-gallery [posts]="recentlyCreated" [error]="recentlyCreatedError"></post-gallery>
-<div class="text-right">
-	<a class="btn btn-sm btn-primary" [routerLink]="['browse']" [queryParams]="recentlyCreatedQuery"><i class="fa fa-play"></i> Browse more recently created...</a>
+		<h2>Highest rated</h2>
+		<post-gallery [posts]="highestRated" [error]="highestRatedError"></post-gallery>
+		<div class="text-right">
+			<a class="btn btn-sm btn-primary" [routerLink]="['/browse']" [queryParams]="highestRatedQuery"><i class="fa fa-play"></i> Browse more highest rated...</a>
+		</div>
+
+		<h2>Recently created</h2>
+		<post-gallery [posts]="recentlyCreated" [error]="recentlyCreatedError"></post-gallery>
+		<div class="text-right">
+			<a class="btn btn-sm btn-primary" [routerLink]="['/browse']" [queryParams]="recentlyCreatedQuery"><i class="fa fa-play"></i> Browse more recently created...</a>
+		</div>
+	</main>
 </div>

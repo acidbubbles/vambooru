@@ -24,5 +24,13 @@ namespace VamBooru.Controllers
 			var tags = await _repository.SearchTags(q);
 			return tags.Select(TagViewModel.From).ToArray();
 		}
+
+
+		[HttpGet("top")]
+		public async Task<TagViewModel[]> LoadTopTags()
+		{
+			var tags = await _repository.LoadTopTags(16);
+			return tags.Select(TagViewModel.From).ToArray();
+		}
 	}
 }
