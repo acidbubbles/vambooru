@@ -17,6 +17,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
 	error: string;
 	query: IPostQuery;
 	tags: ITag[] = [];
+	commonTags: ITag[] = [];
 
 	sortValues = [
 		{ value: PostSortBy.created, label: "Creation Date" },
@@ -67,11 +68,36 @@ export class BrowseComponent implements OnInit, OnDestroy {
 			.subscribe(
 				result => {
 					this.posts = result;
+					this.refreshCommonTags(this.posts);
 				},
 				error => {
 					this.error = error.message;
 				}
 			);
+	}
+
+	refreshCommonTags(posts) {
+		if (!posts || !posts.length) return;
+		const commonTags: ITag[] = [];
+		const commonTagNames: string[] = [];
+		for (let i = 0; i < posts.length; i++) {
+			const post = posts[i];
+			if (!post.tags || !post.tags.length) return;
+			for (let tagIndex = 0; tagIndex < post.tags.length; tagIndex++) {
+				const tag = post.tags[tagIndex];
+				if (commonTagNames.indexOf(tag.name) === -1) {
+					commonTags.push(tag);
+					commonTagNames.push(tag.name);
+				}
+			}
+		}
+		this.commonTags = commonTags;
+	}
+
+	addTag(tag: ITag) {
+		if (!this.posts) return;
+		this.tags.push(tag);
+		this.go();
 	}
 
 	autocompleteTags = (text: string): Observable<ITag[]> => {

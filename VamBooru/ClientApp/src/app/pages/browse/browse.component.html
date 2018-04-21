@@ -22,6 +22,7 @@
 		</div>
 
 		<div class="form-group mb-2">
+			<label>Containing tags</label>
 			<tag-input [(ngModel)]="tags" [identifyBy]="'id'" [displayBy]="'name'" [onlyFromAutocomplete]="true" [placeholder]="'+'" [secondaryPlaceholder]="'Search tags'" theme="bootstrap">
 				<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'id'" [displayBy]="'name'">
 					<ng-template let-item="item" let-index="index">
@@ -37,6 +38,13 @@
 					<i class="fa fa-play"></i>&nbsp;Search
 				</button>
 			</div>
+		</div>
+
+		<hr />
+
+		<label>Tags</label>
+		<div class="tags mb-2">
+			<span *ngFor="let tag of commonTags" class="badge badge-secondary" (click)="addTag(tag)" style="cursor: pointer;">+ {{ tag.name }} ({{ tag.postsCount }})</span>
 		</div>
 	</nav>
 	<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
