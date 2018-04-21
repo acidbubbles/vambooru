@@ -174,6 +174,7 @@ namespace VamBooru.Repository
 			await _context.Database.ExecuteSqlCommandAsync(
 				"UPDATE \"Tags\" SET \"PostsCount\" = \"PostsCount\" + :increment WHERE \"Id\" = ANY(:ids)",
 				new NpgsqlParameter("increment", DbType.Int32) { Value = increment },
+				// ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
 				new NpgsqlParameter("ids", NpgsqlDbType.Array | NpgsqlDbType.Uuid) { Value = ids }
 			);
 		}

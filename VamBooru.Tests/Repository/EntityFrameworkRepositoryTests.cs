@@ -440,7 +440,7 @@ namespace VamBooru.Tests.Repository
 			var post1ViewModel = PostViewModel.From(post1, false);
 			var post2 = await _repository.CreatePostAsync(_loginInfo, "Post2", new[] { "tag2", "tag3" }, new Scene[0], DateTimeOffset.MinValue);
 			var post2ViewModel = PostViewModel.From(post2, false);
-			var post3 = await _repository.CreatePostAsync(_loginInfo, "Post3", new[] { "tag4" }, new Scene[0], DateTimeOffset.MinValue);
+			await _repository.CreatePostAsync(_loginInfo, "Post3", new[] { "tag4" }, new Scene[0], DateTimeOffset.MinValue);
 
 			// Zero by default
 			{

@@ -29,9 +29,9 @@ namespace VamBooru.ViewModels
 				Text = from.Text,
 				ImageUrl = from.ImageUrl,
 				Votes = from.Votes,
-				Tags = from.Tags?.Select(tag => TagViewModel.From(tag.Tag)).OrderBy(t => t.Name).ToArray(),
+				Tags = from.Tags?.Select(tag => TagViewModel.From(tag.Tag)).OrderByDescending(t => t.PostsCount).ThenBy(t => t.Name).ToArray(),
 				Author = UserViewModel.From(from.Author),
-				Scenes = optimize ? null : from.Scenes.Select(s => SceneViewModel.From(s)).ToArray()
+				Scenes = optimize ? null : from.Scenes.Select(SceneViewModel.From).ToArray()
 			};
 		}
 	}
