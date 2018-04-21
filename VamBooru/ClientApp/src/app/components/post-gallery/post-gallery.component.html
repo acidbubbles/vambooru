@@ -4,17 +4,17 @@
 <div *ngIf="posts && !posts.length">There's nothing to see here yet!</div>
 
 <div class="row" *ngIf="posts && posts.length">
-	<div class="col-md-3" *ngFor="let post of posts">
-		<div class="card mb-4">
+	<div class="col-md-2 col-sm-4 px-1" *ngFor="let post of posts">
+		<div class="card mb-2 mx-0">
 			<a [routerLink]="['/posts', post.id]">
 				<img class="card-img-top" src="{{ post.imageUrl }}" alt="{{ post.title }}" />
 			</a>
+			<div class="card-img-overlay text-right"><span class="badge badge-success" [ngClass]="{ 'badge-secondary': post.votes == 0, 'badge-success': post.votes > 0, 'badge-danger': post.votes < 0 }"><i class="fa fa-thumbs-up"></i>&nbsp;{{ post.votes }}</span></div>
 			<div class="card-body">
-				<b class="card-title"><span class="badge badge-success"><i class="fa fa-thumbs-up"></i>&nbsp;{{ post.votes }}</span> {{ post.title }}</b>
-				<p class="card-text">by {{ post.author?.username }}</p>
-				<div class="tags">
-					<span *ngFor="let tag of post.tags" class="badge badge-secondary">{{tag.name}}</span>
-				</div>
+				<b class="card-title">
+					<a [routerLink]="['/posts', post.id]"> {{ post.title }}</a>
+				</b>
+				<p class="card-text text-muted">by {{ post.author?.username }}</p>
 			</div>
 		</div>
 	</div>

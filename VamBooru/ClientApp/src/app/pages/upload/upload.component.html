@@ -1,36 +1,34 @@
-<div class="container">
-	<h1>Upload a Scene</h1>
+<h1>Upload a Scene</h1>
 
-	<p>Please select both the <code>.json</code> and <code>.jpg</code> files for the scene you want to upload. You can upload more than one scene at once.</p>
+<p>Please select both the <code>.json</code> and <code>.jpg</code> files for the scene you want to upload. You can upload more than one scene at once.</p>
 
-	<p>Your post will not be immediately visible. You'll have the opportunity to add a text and add/modify tags before publishing.</p>
+<p>Your post will not be immediately visible. You'll have the opportunity to add a text and add/modify tags before publishing.</p>
 
-	<p>You can find the <code>.json</code> and <code>.jpg</code> files in <code>(VAM install folder)\Saves\scenes</code>.</p>
+<p>You can find the <code>.json</code> and <code>.jpg</code> files in <code>(VAM install folder)\Saves\scenes</code>.</p>
 
-	<div class="form-group">
-		<label class="btn btn-primary" for="filesInput">
-			<input id="filesInput" #filesInput type="file" style="display: none;" (change)="updateSelection()" multiple />
-			<i class="fa fa-folder-open"></i>&nbsp;Browse files...
-		</label>
-	</div>
+<div class="form-group">
+	<label class="btn btn-primary" for="filesInput">
+		<input id="filesInput" #filesInput type="file" style="display: none;" (change)="updateSelection()" multiple />
+		<i class="fa fa-folder-open"></i>&nbsp;Browse files...
+	</label>
+</div>
 
-	<div *ngIf="files?.length">
-		<ul *ngFor="let file of files">
-			<li>{{ file.name }} <button class="btn btn-sm btn-danger" (click)="remove(file.name)">remove</button></li>
-		</ul>
-	</div>
+<div *ngIf="files?.length">
+	<ul *ngFor="let file of files">
+		<li>{{ file.name }} <button class="btn btn-sm btn-danger" (click)="remove(file.name)">remove</button></li>
+	</ul>
+</div>
 
-	<div class="form-group">
-		<button type="button" class="btn btn-success" (click)="upload()" [disabled]="uploading || !files || !files.length">
-			<i class="fa fa-open-file"></i>&nbsp;Upload
-		</button>
-	</div>
+<div class="form-group">
+	<button type="button" class="btn btn-success" (click)="upload()" [disabled]="uploading || !files || !files.length">
+		<i class="fa fa-open-file"></i>&nbsp;Upload
+	</button>
+</div>
 
-	<div class="alert alert-info" role="alert" *ngIf="uploading">
-		Uploading and processing files, please wait, this may take some time...
-	</div>
+<div class="alert alert-info" role="alert" *ngIf="uploading">
+	Uploading and processing files, please wait, this may take some time...
+</div>
 
-	<div class="alert alert-danger" role="alert" *ngIf="errorMessage">
-		Upload failed: {{ errorMessage }}
-	</div>
+<div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+	Upload failed: {{ errorMessage }}
 </div>

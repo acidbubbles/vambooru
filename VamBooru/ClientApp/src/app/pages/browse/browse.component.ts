@@ -47,7 +47,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
 				direction: params["direction"] || PostSortDirection.down,
 				since: params["since"] || PostedSince.forever,
 				page: params["page"] || 0,
-				pageSize: params["pageSize"] || 0,
+				pageSize: params["pageSize"] || 12,
 				tags: this.tags.map(t => t.name)
 		};
 			this.go();

@@ -1,5 +1,7 @@
-.container {
-	margin-top: 64px;
+.container-fluid {
+	margin-top: 4rem;
+	margin-bottom: .5rem;
+	max-width: 1400px;
 }
 
 .tags .badge {

@@ -1,16 +1,15 @@
-<div class="container">
-	<div class="jumbotron">
-		<h1 class="display-3">Virt-A-Mate Community</h1>
-		<p class="lead">
-			Find out what the <a href="https://www.patreon.com/meshedvr">Virt-A-Mate</a> community has been creating, and share your own creations!
-		</p>
-	</div>
+<p>
+	Find out what the <a href="https://www.patreon.com/meshedvr">Virt-A-Mate</a> community has been creating, and share your own creations!
+</p>
 
-	<h2>Highest rated</h2>
-	<post-gallery [posts]="highestRated" [error]="highestRatedError"></post-gallery>
-	<a [routerLink]="['browse']" [queryParams]="highestRatedQuery">Browse more highest rated...</a>
+<h2>Highest rated</h2>
+<post-gallery [posts]="highestRated" [error]="highestRatedError"></post-gallery>
+<div class="text-right">
+	<a class="btn btn-sm btn-primary" [routerLink]="['browse']" [queryParams]="highestRatedQuery"><i class="fa fa-play"></i> Browse more highest rated...</a>
+</div>
 
-	<h2>Recently created</h2>
-	<post-gallery [posts]="recentlyCreated" [error]="recentlyCreatedError"></post-gallery>
-	<a [routerLink]="['browse']" [queryParams]="recentlyCreatedQuery">Browse more recently created...</a>
+<h2>Recently created</h2>
+<post-gallery [posts]="recentlyCreated" [error]="recentlyCreatedError"></post-gallery>
+<div class="text-right">
+	<a class="btn btn-sm btn-primary" [routerLink]="['browse']" [queryParams]="recentlyCreatedQuery"><i class="fa fa-play"></i> Browse more recently created...</a>
 </div>

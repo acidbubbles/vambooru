@@ -1,51 +1,49 @@
-<div class="container">
-	<div class="card">
-		<div class="card-header">
-			Browse
-		</div>
-		<div class="card-body">
-			<div class="form-inline">
+<div class="card">
+	<div class="card-header">
+		Browse
+	</div>
+	<div class="card-body">
+		<div class="form-inline">
+			<div class="form-group mb-2">
+				<select class="form-control" [(ngModel)]="query.sort" id="sort">
+					<option *ngFor="let item of sortValues" [value]="item.value">{{ item.label }}</option>
+				</select>
+			</div>
+
+			<div class="form-group mx-sm-3 mb-2">
+				<select class="form-control" [(ngModel)]="query.direction" id="direction">
+					<option *ngFor="let item of directionValues" [value]="item.value">{{ item.label }}</option>
+				</select>
+			</div>
+
+			<div class="form-group mb-2">
+				<select class="form-control" [(ngModel)]="query.since" id="since">
+					<option *ngFor="let item of sinceValues" [value]="item.value">{{ item.label }}</option>
+				</select>
+			</div>
+
+			<div class="form-group mx-sm-3 mb-2">
+				<tag-input [(ngModel)]="tags" [identifyBy]="'id'" [displayBy]="'name'" [onlyFromAutocomplete]="true" [placeholder]="'Search tags'" theme="bootstrap">
+					<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'id'" [displayBy]="'name'">
+						<ng-template let-item="item" let-index="index">
+							{{ item.name }}
+						</ng-template>
+					</tag-input-dropdown>
+				</tag-input>
+			</div>
+
+			<div class="form-group">
 				<div class="form-group mb-2">
-					<select class="form-control" [(ngModel)]="query.sort" id="sort">
-						<option *ngFor="let item of sortValues" [value]="item.value">{{ item.label }}</option>
-					</select>
-				</div>
-
-				<div class="form-group mx-sm-3 mb-2">
-					<select class="form-control" [(ngModel)]="query.direction" id="direction">
-						<option *ngFor="let item of directionValues" [value]="item.value">{{ item.label }}</option>
-					</select>
-				</div>
-
-				<div class="form-group mb-2">
-					<select class="form-control" [(ngModel)]="query.since" id="since">
-						<option *ngFor="let item of sinceValues" [value]="item.value">{{ item.label }}</option>
-					</select>
-				</div>
-
-				<div class="form-group mx-sm-3 mb-2">
-					<tag-input [(ngModel)]="tags" [identifyBy]="'id'" [displayBy]="'name'" [onlyFromAutocomplete]="true" [placeholder]="'Search tags'" theme="bootstrap">
-						<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'id'" [displayBy]="'name'">
-							<ng-template let-item="item" let-index="index">
-								{{ item.name }}
-							</ng-template>
-						</tag-input-dropdown>
-					</tag-input>
-				</div>
-
-				<div class="form-group">
-					<div class="form-group mb-2">
-						<button type="button" class="btn btn-secondary" (click)="go()" [disabled]="!posts && !error">
-							<i class="fa fa-glyphicon-refresh"></i>&nbsp;Go
-						</button>
-					</div>
+					<button type="button" class="btn btn-secondary" (click)="go()" [disabled]="!posts && !error">
+						<i class="fa fa-glyphicon-refresh"></i>&nbsp;Go
+					</button>
 				</div>
 			</div>
 		</div>
 	</div>
-
-
-	<hr />
-
-	<post-gallery [posts]="posts" [error]="error"></post-gallery>
 </div>
+
+
+<hr />
+
+<post-gallery [posts]="posts" [error]="error"></post-gallery>

@@ -13,7 +13,7 @@ export class HomeComponent implements OnInit {
 		direction: PostSortDirection.down,
 		since: PostedSince.forever,
 		page: 0,
-		pageSize: 8,
+		pageSize: 6,
 		tags: []
 	};
 	highestRated: IPost[];
@@ -24,7 +24,7 @@ export class HomeComponent implements OnInit {
 		direction: PostSortDirection.down,
 		since: PostedSince.forever,
 		page: 0,
-		pageSize: 8,
+		pageSize: 6,
 		tags: []
 	};
 	recentlyCreated: IPost[];
