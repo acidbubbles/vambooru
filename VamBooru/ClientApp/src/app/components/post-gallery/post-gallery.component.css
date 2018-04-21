@@ -1,0 +1,12 @@
+.card p {
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.card .tags {
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+}

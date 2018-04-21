@@ -1,11 +1,16 @@
-<h1>Virt-A-Mate</h1>
+<div class="container">
+	<div class="jumbotron">
+		<h1 class="display-3">Virt-A-Mate Community</h1>
+		<p class="lead">
+			Find out what the <a href="https://www.patreon.com/meshedvr">Virt-A-Mate</a> community has been creating, and share your own creations!
+		</p>
+	</div>
 
-Find out what the Virt-A-Mate community has been creating, and share your own creations!
+	<h2>Highest rated</h2>
+	<post-gallery [posts]="highestRated" [error]="highestRatedError"></post-gallery>
+	<a [routerLink]="['browse']" [queryParams]="highestRatedQuery">Browse more highest rated...</a>
 
-<h2>Highest rated</h2>
-<post-gallery [posts]="highestRated" [error]="highestRatedError"></post-gallery>
-<a [routerLink]="['browse']" [queryParams]="highestRatedQuery">Browse more highest rated...</a>
-
-<h2>Recently created</h2>
-<post-gallery [posts]="recentlyCreated" [error]="recentlyCreatedError"></post-gallery>
-<a [routerLink]="['browse']" [queryParams]="recentlyCreatedQuery">Browse more recently created...</a>
+	<h2>Recently created</h2>
+	<post-gallery [posts]="recentlyCreated" [error]="recentlyCreatedError"></post-gallery>
+	<a [routerLink]="['browse']" [queryParams]="recentlyCreatedQuery">Browse more recently created...</a>
+</div>

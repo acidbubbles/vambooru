@@ -3,7 +3,8 @@ import { IPost } from "../../model/post";
 
 @Component({
 	selector: "post-gallery",
-	templateUrl: "./post-gallery.component.html"
+	templateUrl: "./post-gallery.component.html",
+	styleUrls: ["./post-gallery.component.css"]
 })
 export class PostGalleryComponent {
 	@Input() posts: IPost[];

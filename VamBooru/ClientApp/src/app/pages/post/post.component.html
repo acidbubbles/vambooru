@@ -1,17 +1,18 @@
-<div *ngIf="post">
-	<h1></h1>
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<h2>{{ post.title }}</h2>
+<div class="container" *ngIf="post">
+	<div class="card mb-4">
+		<div class="card-header">
+			<h2>{{ post.title }} <span class="badge badge-danger" *ngIf="!post.published">Not published</span></h2>
 			<i>by {{ post.author.username }}</i>
 		</div>
-		<div class="panel-body">
-			<img *ngIf="post.scenes && post.scenes.length == 1" src="{{ post.imageUrl }}" class="scene-thumbnail center-block" />
+		<div class="card-body">
+			<div class="mx-auto text-center">
+				<img *ngIf="post.scenes && post.scenes.length == 1" src="{{ post.imageUrl }}" />
+			</div>
 
 			<div *ngIf="post.scenes && post.scenes.length > 1" class="row">
 				<div class="col-md-3" *ngFor="let scene of post.scenes">
-					<div class="thumbnail">
-						<img src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
+					<div class="card">
+						<img class="card-img-top" src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
 					</div>
 				</div>
 			</div>
@@ -21,50 +22,46 @@
 			<div class="row">
 				<div class="col-md-4">
 					<div class="btn-group">
-						<button type="button" class="btn" [ngClass]="{ 'btn-default': !vote, 'btn-danger': vote && vote.value !== -1, 'btn-danger': vote && vote.value === -1 }" (click)="changeVote(-1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
-							<i class="glyphicon glyphicon-thumbs-down"></i>
+						<button type="button" class="btn" [ngClass]="{ 'btn-secondary': !vote, 'btn-danger': vote && vote.value !== -1, 'btn-danger': vote && vote.value === -1 }" (click)="changeVote(-1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
+							<i class="fa fa-thumbs-down"></i>
 						</button>
-						<button type="button" class="btn" [ngClass]="{ 'btn-default': !vote, 'btn-success': vote && vote.value !== 1, 'btn-success': vote && vote.value === 1 }" (click)="changeVote(1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
-							<i class="glyphicon glyphicon-thumbs-up"></i>
+						<button type="button" class="btn" [ngClass]="{ 'btn-secondary': !vote, 'btn-success': vote && vote.value !== 1, 'btn-success': vote && vote.value === 1 }" (click)="changeVote(1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
+							<i class="fa fa-thumbs-up"></i>
 						</button>
-						<button class="btn btn-default disabled">Score: {{ post.votes }}</button>
+						<button class="btn btn-secondary disabled">Score: {{ post.votes }}</button>
 					</div>
 				</div>
 				<div class="col-md-8 tags text-right">
-					<span *ngFor="let tag of post.tags" class="badge">{{ tag.name }}</span>
+					<span *ngFor="let tag of post.tags" class="badge badge-secondary">{{ tag.name }}</span>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="panel panel-default" *ngIf="post.text">
-		<div class="panel-body">
+	<div class="card mb-4" *ngIf="post.text">
+		<div class="card-body">
 			<markdown [data]="post.text"></markdown>
 		</div>
 	</div>
 
-	<div class="panel panel-default">
-		<div class="panel-body">
-			<p>
-				<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
-					<i class="glyphicon glyphicon-download-alt"></i>&nbsp;Download as .zip
-				</a>
-			</p>
-			<p>
-				This file will include:
-			</p>
+	<div class="card mb-4">
+		<div class="card-header">
+			<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
+				<i class="fa fa-download-alt"></i>&nbsp;Download as .zip
+			</a>
+		</div>
+		<div class="card-body">
 			<ul>
 				<li *ngFor="let file of post.files">{{file.filename}}</li>
 			</ul>
 		</div>
 	</div>
 
-
-	<div *ngIf="ownedByCurrentUser" class="panel panel-default">
-		<div class="panel-body">
+	<div *ngIf="ownedByCurrentUser" class="card mb-4">
+		<div class="card-body">
 			<p>You created this post.</p>
-			<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-default">
-				<i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit
+			<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-secondary">
+				<i class="fa fa-pencil"></i>&nbsp;Edit
 			</a>
 		</div>
 	</div>

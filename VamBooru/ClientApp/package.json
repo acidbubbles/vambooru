@@ -28,7 +28,7 @@
     "@angular/router": "^5.2.0",
     "@nguniversal/module-map-ngfactory-loader": "^5.0.0-beta.5",
     "aspnet-prerendering": "^3.0.1",
-    "bootstrap": "^3.3.7",
+    "bootstrap": "^4.1.0",
     "core-js": "^2.4.1",
     "ngx-chips": "^1.8.0",
     "ngx-md": "^3.1.1",
@@ -41,18 +41,18 @@
     "@angular/language-service": "^5.2.0",
     "@types/jasmine": "~2.8.3",
     "@types/jasminewd2": "~2.0.2",
-    "@types/node": "~6.0.60",
+    "@types/node": "~9.6.6",
     "codelyzer": "^4.0.1",
-    "jasmine-core": "~2.8.0",
+    "jasmine-core": "~3.1.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~2.0.0",
     "karma-chrome-launcher": "~2.2.0",
     "karma-coverage-istanbul-reporter": "^1.2.1",
     "karma-jasmine": "~1.1.0",
-    "karma-jasmine-html-reporter": "^0.2.2",
-    "protractor": "~5.1.2",
-    "ts-node": "~4.1.0",
+    "karma-jasmine-html-reporter": "^1.0.0",
+    "protractor": "~5.3.1",
+    "ts-node": "~6.0.0",
     "tslint": "~5.9.1",
-    "typescript": "~2.5.3"
+    "typescript": "~2.8.3"
   }
 }

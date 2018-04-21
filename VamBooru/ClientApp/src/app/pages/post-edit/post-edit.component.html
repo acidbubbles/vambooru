@@ -1,96 +1,99 @@
-<h1>Edit Post</h1>
+<div class="container">
+	<h1>Edit Post</h1>
 
-<div *ngIf="post">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			Scenes
-		</div>
-		<div class="panel-body">
-			<div class="col-md-3" *ngFor="let scene of post.scenes">
-				<div class="thumbnail">
-					<img src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
-					<div class="caption text-center">
-						<p>{{ scene.name }}</p>
-					</div>
-				</div>
+	<div *ngIf="post">
+		<div class="card mb-4">
+			<div class="card-header">
+				Scenes
 			</div>
-		</div>
-	</div>
-
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			Post information
-		</div>
-		<div class="panel-body">
-
-			<div class="form-group">
-				<label for="title">Title:</label>
-				<input type="text" class="form-control" id="title" name="title" required [(ngModel)]="post.title" placeholder="Scene Title" />
-			</div>
-
-			<div class="form-group">
+			<div class="card-body">
 				<div class="row">
-					<div class="col-md-6">
-						<label for="comment">Text (markdown):</label>
-						<textarea class="form-control" rows="5" id="text" [(ngModel)]="post.text"></textarea>
-					</div>
-					<div class="col-md-6">
-						<label for="comment">Preview:</label>
-						<markdown [(data)]="post.text"></markdown>
+					<div class="col-md-3" *ngFor="let scene of post.scenes">
+						<div class="card text-center">
+							<img class="card-img-top" src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
+							<div class="card-body">
+								<p>{{ scene.name }}.json</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<div class="form-group">
-				<label>Tags:</label>
-				<tag-input [(ngModel)]="post.tags" [identifyBy]="'id'" [displayBy]="'name'" theme="bootstrap3-info">
-					<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'id'" [displayBy]="'name'">
-						<ng-template let-item="item" let-index="index">
-							{{ item.name }}
-						</ng-template>
-					</tag-input-dropdown>
-				</tag-input>
+		<div class="card mb-4">
+			<div class="card-header">
+				Information
+			</div>
+			<div class="card-body">
+
+				<div class="form-group">
+					<label for="title">Title:</label>
+					<input type="text" class="form-control" id="title" name="title" required [(ngModel)]="post.title" placeholder="Scene Title" />
+				</div>
+
+				<div class="form-group">
+					<div class="row">
+						<div class="col-md-6">
+							<label for="comment">Text (markdown):</label>
+							<textarea class="form-control" rows="5" id="text" [(ngModel)]="post.text"></textarea>
+						</div>
+						<div class="col-md-6">
+							<label for="comment">Preview:</label>
+							<markdown [(data)]="post.text"></markdown>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label>Tags (press enter to add one):</label>
+					<tag-input [(ngModel)]="post.tags" [identifyBy]="'id'" [displayBy]="'name'" theme="bootstrap">
+						<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'id'" [displayBy]="'name'">
+							<ng-template let-item="item" let-index="index">
+								{{ item.name }}
+							</ng-template>
+						</tag-input-dropdown>
+					</tag-input>
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			Post files
+		<div class="card mb-4">
+			<div class="card-header">
+				Files
+			</div>
+			<div class="card-body">
+				<p>
+					<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
+						<i class="fa fa-download-alt"></i>&nbsp;Download as .zip
+					</a>
+				</p>
+				<p>
+					Files in this scene:
+				</p>
+				<ul>
+					<li *ngFor="let file of post.files">{{file.filename}}</li>
+				</ul>
+			</div>
 		</div>
-		<div class="panel-body">
-			<p>
-				<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
-					<i class="glyphicon glyphicon-download-alt"></i>&nbsp;Download as .zip
-				</a>
-			</p>
-			<p>
-				Files in this scene:
-			</p>
-			<ul>
-				<li *ngFor="let file of post.files">{{file.filename}}</li>
-			</ul>
+
+		<div class="form-group">
+			<button type="button" class="btn btn-secondary" (click)="save()" [disabled]="saving">
+				<i class="fa fa-floppy-disk"></i>&nbsp;Save
+			</button>
+			<button type="button" class="btn btn-success" (click)="publish(true)" [disabled]="saving" *ngIf="!post.published">
+				<i class="fa fa-send"></i>&nbsp;Publish
+			</button>
+			<button type="button" class="btn btn-danger" (click)="publish(false)" [disabled]="saving" *ngIf="post.published">
+				<i class="fa fa-eye-close"></i>&nbsp;Unpublish
+			</button>
 		</div>
-	</div>
 
+		<div class="alert alert-info" role="alert" *ngIf="saving">
+			Saving your changes...
+		</div>
 
-	<div class="form-group">
-		<button type="button" class="btn btn-default" (click)="save()" [disabled]="saving">
-			<i class="glyphicon glyphicon-floppy-disk"></i>&nbsp;Save
-		</button>
-		<button type="button" class="btn btn-success" (click)="publish(true)" [disabled]="saving" *ngIf="!post.published">
-			<i class="glyphicon glyphicon-send"></i>&nbsp;Publish
-		</button>
-		<button type="button" class="btn btn-danger" (click)="publish(false)" [disabled]="saving" *ngIf="post.published">
-			<i class="glyphicon glyphicon-eye-close"></i>&nbsp;Unpublish
-		</button>
-	</div>
-
-	<div class="alert alert-info" role="alert" *ngIf="saving">
-		Saving your changes...
-	</div>
-
-	<div class="alert alert-danger" role="alert" *ngIf="errorMessage">
-		Upload failed: {{ errorMessage }}
+		<div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+			Upload failed: {{ errorMessage }}
+		</div>
 	</div>
 </div>

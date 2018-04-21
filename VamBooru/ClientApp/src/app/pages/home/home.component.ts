@@ -1,10 +1,11 @@
-import { Component, OnInit  } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { PostsService, PostSortBy, PostSortDirection, PostedSince, IPostQuery } from "../../services/posts-service";
 import { IPost } from "../../model/post";
 
 @Component({
-  selector: "app-home",
-  templateUrl: "./home.component.html",
+	selector: "app-home",
+	templateUrl: "./home.component.html",
+	styleUrls: ["./home.component.css"]
 })
 export class HomeComponent implements OnInit {
 	highestRatedQuery: IPostQuery = {
@@ -38,12 +39,12 @@ export class HomeComponent implements OnInit {
 		this.postsService
 			.searchPosts(this.highestRatedQuery)
 			.subscribe(
-				result => {
-					this.highestRated = result;
-				},
-				error => {
-					this.highestRatedError = error.message;
-				}
+			result => {
+				this.highestRated = result;
+			},
+			error => {
+				this.highestRatedError = error.message;
+			}
 			);
 
 		this.recentlyCreatedError = null;
@@ -52,12 +53,12 @@ export class HomeComponent implements OnInit {
 		this.postsService
 			.searchPosts(this.recentlyCreatedQuery)
 			.subscribe(
-				result => {
-					this.recentlyCreated = result;
-				},
-				error => {
-					this.recentlyCreatedError = error.message;
-				}
+			result => {
+				this.recentlyCreated = result;
+			},
+			error => {
+				this.recentlyCreatedError = error.message;
+			}
 			);
 	}
 }
