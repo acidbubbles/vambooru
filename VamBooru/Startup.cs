@@ -46,6 +46,8 @@ namespace VamBooru
 				options.KnownProxies.Clear();
 			});
 
+			services.AddResponseCompression();
+
 			services
 				.AddMvc(options =>
 				{
@@ -177,6 +179,7 @@ namespace VamBooru
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
 			app.UseForwardedHeaders();
+			app.UseResponseCompression();
 
 			app.UseExceptionHandler(new ExceptionHandlerOptions
 			{
