@@ -315,9 +315,17 @@ namespace VamBooru.Repository
 
 		public Task<Tag[]> SearchTags(string q)
 		{
-			//TODO: We should use full text search here
 			return _context.Tags
 				.Where(t => t.Name.Contains(q))
+				.ToArrayAsync();
+		}
+
+		public Task<Tag[]> LoadTopTags(int max)
+		{
+			return _context.Tags
+				.Where(t => t.PostsCount > 0)
+				.OrderByDescending(t => t.PostsCount)
+				.ThenBy(t => t.Name)
 				.ToArrayAsync();
 		}
 

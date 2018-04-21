@@ -473,6 +473,17 @@ namespace VamBooru.Tests.Repository
 				}, c => c.MembersToIgnore.Add("*Id"));
 			}
 
+			// Sort by usage
+			{
+				var tags = await _repository.LoadTopTags(4);
+				tags.Select(TagViewModel.From).ToArray().ShouldDeepEqual(new[]
+						{
+						new TagViewModel {Name = "tag2", PostsCount = 2},
+						new TagViewModel {Name = "tag1", PostsCount = 1},
+						new TagViewModel {Name = "tag3", PostsCount = 1}
+						}, c => c.MembersToIgnore.Add("*Id"));
+			}
+
 			// Track changes
 			{
 				post1ViewModel.Tags = new[] { new TagViewModel { Name = "tag2" }, new TagViewModel { Name = "tag3" } };
