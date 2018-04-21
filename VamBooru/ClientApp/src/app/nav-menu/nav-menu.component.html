@@ -18,7 +18,7 @@
 			</li>
 			<li *ngIf="config?.isAuthenticated" class="nav-item" [routerLinkActive]='["active"]'>
 				<a class="nav-link" [routerLink]='["/upload"]' (click)='collapse()'>
-					<span class='fa fa-cloud-upload'></span> Upload
+					<span class='fa fa-upload'></span> Upload
 				</a>
 			</li>
 			<li *ngIf="!config?.isAuthenticated" class="nav-item">
