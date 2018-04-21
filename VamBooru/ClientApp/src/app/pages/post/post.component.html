@@ -6,7 +6,7 @@
 		</div>
 		<div class="card-body">
 			<div class="mx-auto text-center">
-				<img *ngIf="post.scenes && post.scenes.length == 1" src="{{ post.imageUrl }}" />
+				<img class="card-img-top" *ngIf="post.scenes && post.scenes.length == 1" src="{{ post.imageUrl }}" />
 			</div>
 
 			<div *ngIf="post.scenes && post.scenes.length > 1" class="row">
