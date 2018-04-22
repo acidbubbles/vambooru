@@ -21,6 +21,19 @@ namespace VamBooru.Models
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			modelBuilder.Entity<Post>()
+				.HasIndex(post => post.DateCreated);
+
+			modelBuilder.Entity<Post>()
+				.HasIndex(post => post.DatePublished);
+
+			modelBuilder.Entity<Post>()
+				.HasIndex(post => post.Votes);
+
+			modelBuilder.Entity<User>()
+				.HasIndex(user => user.Username)
+				.IsUnique();
+
 			modelBuilder.Entity<UserLogin>()
 				.HasKey(l => new {l.Scheme, Username = l.NameIdentifier});
 
@@ -31,11 +44,17 @@ namespace VamBooru.Models
 				.HasIndex(tag => tag.Name)
 				.IsUnique();
 
+			modelBuilder.Entity<Tag>()
+				.HasIndex(tag => tag.PostsCount);
+
 			modelBuilder.Entity<UserPostVote>()
 				.HasKey(t => new { t.UserId, t.PostId });
 
 			modelBuilder.Entity<SceneFile>()
 				.HasIndex(sf => sf.Filename);
+
+			modelBuilder.Entity<SceneFile>()
+				.HasIndex(sf => sf.Extension);
 
 			modelBuilder.Entity<SupportFile>()
 				.HasIndex(sf => sf.Filename);
