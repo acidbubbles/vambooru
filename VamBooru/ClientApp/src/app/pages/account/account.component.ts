@@ -10,6 +10,8 @@ import { ConfigurationService } from "../../services/configuration-service";
 })
 export class AccountComponent implements OnInit {
 	user: IUser;
+	errorMessage: string;
+	saving: boolean = false;
 	saved: boolean = false;
 
 	constructor(@Inject(DOCUMENT) private readonly document: any, private readonly http: HttpClient, @Inject("BASE_URL") private readonly baseUrl: string, private readonly configService: ConfigurationService) { }
@@ -21,14 +23,27 @@ export class AccountComponent implements OnInit {
 	}
 
 	save() {
+		if(this.saving) return;
+
+		this.saved = false;
+		this.saving = true;
+		this.errorMessage = null;
+
 		const httpOptions = {
 			headers: new HttpHeaders({ "Content-Type": "application/json" })
 		};
 
-		this.http.put<IUser>("/api/users/me", this.user, httpOptions).subscribe(result => {
-			this.user.username = result.username;
-			this.configService.config.username = this.user.username;
-			this.saved = true;
-		});
+		this.http.put<IUser>("/api/users/me", this.user, httpOptions).subscribe(
+			result => {
+				this.saving = false;
+				this.user.username = result.username;
+				this.configService.config.username = this.user.username;
+				this.saved = true;
+			},
+			error => {
+				this.errorMessage = error.toString();
+				this.saving = false;
+				this.saved = true;
+			});
 	}
 }

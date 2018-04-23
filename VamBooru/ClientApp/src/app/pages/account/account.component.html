@@ -15,8 +15,12 @@
 	</div>
 
 	<div class="form-group">
-		<button class="btn btn-secondary" (click)="save()">
+		<button class="btn btn-secondary" (click)="save()" [disabled]="saving">
 			<i class="glyphicon" [ngClass]="{ 'glyphicon-floppy-disk': !saved, 'glyphicon-floppy-saved': saved }"></i>&nbsp;Save
 		</button>
+	</div>
+
+	<div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+		Could not save: {{ errorMessage }}
 	</div>
 </div>

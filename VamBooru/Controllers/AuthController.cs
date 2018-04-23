@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -51,9 +52,11 @@ namespace VamBooru.Controllers
 
 			var scheme = User.Identity.AuthenticationType;
 			var identifier = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value ?? throw new Exception($"There was no identifier for the logged in user with scheme '{scheme}'");
-			var username = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value ?? $"anon-{Guid.NewGuid()}";
+			var uid = GetUniqueUsername("user");
+			var username = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value ?? $"anon.{uid}";
 
 			//TODO: This should be replaced by a signup page when the user does not already exist
+			//TODO: Retry more than once if conflict
 			await _repository.LoadOrCreateUserFromLoginAsync(scheme, identifier, username, DateTimeOffset.UtcNow);
 
 			return Redirect("/");
@@ -63,12 +66,11 @@ namespace VamBooru.Controllers
 		{
 			// This is a method used for development only
 
-			var guestId = Guid.NewGuid().ToString();
-			var userId = $"anon-{guestId}";
+			var userId = GetUniqueUsername("anon");
 			var claims = new List<Claim>
 			{
 				new Claim(ClaimTypes.NameIdentifier, userId),
-				new Claim(ClaimTypes.Name, $"Anonymous User ({guestId})"),
+				new Claim(ClaimTypes.Name, userId),
 			};
 
 			var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -86,6 +88,11 @@ namespace VamBooru.Controllers
 			);
 
 			return Redirect(returnUrl);
+		}
+
+		private static string GetUniqueUsername(string prefix)
+		{
+			return prefix + "." + Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
 		}
 	}
 }

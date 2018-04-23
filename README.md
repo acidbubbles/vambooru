@@ -62,7 +62,6 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Ability to modify/overwrite existing scene files (last updated)
 * My Scenes
 * User Avatar
-* Ensure username are unique
 * Implement queuing where possible (e.g. uploading)
 * Update all dependencies (.NET, npm)
 * Contributing guide / license
@@ -75,3 +74,11 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Track downloads (popularity)
 * Upload a different "Cover" image (or suggest a way to reference imgur or other sharing sites)
 * GZip json/js/css responses
+* Index of Tags.PostsCount
+
+## Refresh calculated columns
+
+```
+UPDATE "Tags" SET "PostsCount" = COALESCE((SELECT COUNT(*) FROM "PostTags" WHERE "PostTags"."TagId" = "Tags"."Id"), 0)
+UPDATE "Posts" SET "Votes" = (SELECT COALESCE(SUM("UserPostVotes"."Votes"), 0) FROM "UserPostVotes" WHERE "UserPostVotes"."PostId" = "Posts"."Id")
+```

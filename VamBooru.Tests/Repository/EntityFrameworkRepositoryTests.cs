@@ -70,6 +70,40 @@ namespace VamBooru.Tests.Repository
 		}
 
 		[Test]
+		public void UsernamesAreUnique()
+		{
+			var exc = Assert.ThrowsAsync<DbUpdateException>(() => _repository.LoadOrCreateUserFromLoginAsync("MyScheme", "some.other.john", "John Doe", DateTimeOffset.UtcNow));
+			StringAssert.Contains("IX_Users_Username", exc.ToString());
+		}
+
+		[Test]
+		public async Task UpdateUser()
+		{
+			var user = await _repository.UpdateUserAsync(
+				_loginInfo,
+				new UserViewModel
+				{
+					Username = "Happy Panda"
+				}
+			);
+
+			user.ShouldDeepEqual(new User
+			{
+				// We don't want to load the user logins for public access
+				Logins = new[]
+				{
+					new UserLogin {Scheme = _loginInfo.Scheme, NameIdentifier = _loginInfo.NameIdentifier}
+				}.ToList(),
+				Username = "Happy Panda",
+				DateSubscribed = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			}, c =>
+			{
+				c.MembersToIgnore.Add("*Id");
+				c.MembersToIgnore.Add("UserLogin.User");
+			});
+		}
+
+		[Test]
 		public async Task LoadUserById()
 		{
 			var user = await _repository.LoadPublicUserAsync(_user.Id);
