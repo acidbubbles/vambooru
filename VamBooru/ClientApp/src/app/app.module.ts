@@ -12,6 +12,7 @@ import { MarkdownModule } from "ngx-md";
 // Services
 import { ConfigurationService } from "./services/configuration-service";
 import { PostsService } from "./services/posts-service";
+import { UsersService } from "./services/users-service";
 import { VotesService } from "./services/votes-service";
 import { TagsService } from "./services/tags-service";
 
@@ -30,6 +31,7 @@ import { PostComponent } from "./pages/post/post.component";
 import { PostEditComponent } from "./pages/post-edit/post-edit.component";
 import { UploadComponent } from "./pages/upload/upload.component";
 import { AccountComponent } from "./pages/account/account.component";
+import { UserComponent } from "./pages/user/user.component";
 
 @NgModule({
 	declarations: [
@@ -42,7 +44,8 @@ import { AccountComponent } from "./pages/account/account.component";
 		PostComponent,
 		PostEditComponent,
 		UploadComponent,
-		AccountComponent
+		AccountComponent,
+		UserComponent
 	],
 	imports: [
 		BrowserModule.withServerTransition({ appId: "ng-cli-universal" }),
@@ -60,6 +63,7 @@ import { AccountComponent } from "./pages/account/account.component";
 			{ path: "posts/:id/edit", component: PostEditComponent },
 			{ path: "upload", component: UploadComponent },
 			{ path: "account", component: AccountComponent },
+			{ path: "users/:id", component: UserComponent },
 			{ path: "**", redirectTo: "error" }
 		])
 	],
@@ -72,6 +76,7 @@ import { AccountComponent } from "./pages/account/account.component";
 			multi: true
 		},
 		PostsService,
+		UsersService,
 		VotesService,
 		TagsService
 	],

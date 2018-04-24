@@ -1,7 +1,6 @@
-import { Component, OnInit, Inject } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { DOCUMENT } from "@angular/common";
+import { Component, OnInit } from "@angular/core";
 import { IUser } from "../../model/user";
+import { UsersService } from "../../services/users-service";
 import { ConfigurationService } from "../../services/configuration-service";
 
 @Component({
@@ -14,10 +13,10 @@ export class AccountComponent implements OnInit {
 	saving: boolean = false;
 	saved: boolean = false;
 
-	constructor(@Inject(DOCUMENT) private readonly document: any, private readonly http: HttpClient, @Inject("BASE_URL") private readonly baseUrl: string, private readonly configService: ConfigurationService) { }
+	constructor(private readonly usersService: UsersService, private readonly configService: ConfigurationService) { }
 
 	ngOnInit() {
-		this.http.get<IUser>(`${this.baseUrl}api/users/me`).subscribe(result => {
+		this.usersService.getUser("me").subscribe(result => {
 			this.user = result;
 		});
 	}
@@ -29,11 +28,7 @@ export class AccountComponent implements OnInit {
 		this.saving = true;
 		this.errorMessage = null;
 
-		const httpOptions = {
-			headers: new HttpHeaders({ "Content-Type": "application/json" })
-		};
-
-		this.http.put<IUser>("/api/users/me", this.user, httpOptions).subscribe(
+		this.usersService.saveUser(this.user).subscribe(
 			result => {
 				this.saving = false;
 				this.user.username = result.username;

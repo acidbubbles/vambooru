@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs/Subscription";
 import { ActivatedRoute } from "@angular/router";
 import { IPost } from "../../model/post";
