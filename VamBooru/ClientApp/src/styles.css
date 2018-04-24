@@ -7,3 +7,7 @@
 .tags .badge {
 	margin-right: 5px;
 }
+
+.scene-thumbnail {
+	max-width: 512px;
+}

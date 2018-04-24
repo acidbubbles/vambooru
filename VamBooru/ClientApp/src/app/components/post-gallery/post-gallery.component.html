@@ -7,7 +7,7 @@
 	<div class="col-md-2 col-sm-4 px-1" *ngFor="let post of posts">
 		<div class="card mb-2 mx-0">
 			<a [routerLink]="['/posts', post.id]">
-				<img class="card-img-top" src="{{ post.imageUrl }}" alt="{{ post.title }}" />
+				<img class="card-img-top scene-thumbnail" src="{{ post.imageUrl }}" alt="{{ post.title }}" />
 			</a>
 			<div class="card-img-overlay text-right"><span class="badge badge-success" [ngClass]="{ 'badge-secondary': post.votes == 0, 'badge-success': post.votes > 0, 'badge-danger': post.votes < 0 }"><i class="fa fa-thumbs-up"></i>&nbsp;{{ post.votes }}</span></div>
 			<div class="card-body">
