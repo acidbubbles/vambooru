@@ -21,11 +21,11 @@ namespace VamBooru.Controllers
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 		}
 
-		[HttpGet("{userId}")]
-		public async Task<IActionResult> Get([FromRoute] string userId)
+		[HttpGet("{username}")]
+		public async Task<IActionResult> Get([FromRoute] string username)
 		{
 			User user;
-			if (userId == Me)
+			if (username == Me)
 			{
 				if (!User.Identity.IsAuthenticated) return Unauthorized();
 
@@ -33,21 +33,12 @@ namespace VamBooru.Controllers
 			}
 			else
 			{
-				user = await _repository.LoadPublicUserAsync(Guid.Parse(userId));
+				user = await _repository.LoadPublicUserAsync(username);
 			}
 
 			if (user == null) return NotFound();
 
 			return Ok(UserViewModel.From(user));
-		}
-
-		[HttpPut("{userId}")]
-		public async Task<IActionResult> Put([FromRoute] string userId, [FromBody] UserViewModel user)
-		{
-			if (userId != Me || !User.Identity.IsAuthenticated) return Unauthorized();
-			//TODO: Handle username conflicts
-			var dbUser = await _repository.UpdateUserAsync(this.GetUserLoginInfo(), user);
-			return Ok(UserViewModel.From(dbUser));
 		}
 	}
 }

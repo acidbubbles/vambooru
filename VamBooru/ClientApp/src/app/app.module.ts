@@ -13,6 +13,7 @@ import { MarkdownModule } from "ngx-md";
 import { ConfigurationService } from "./services/configuration-service";
 import { PostsService } from "./services/posts-service";
 import { UsersService } from "./services/users-service";
+import { MyAccountService } from "./services/my-account-service";
 import { VotesService } from "./services/votes-service";
 import { TagsService } from "./services/tags-service";
 
@@ -30,7 +31,7 @@ import { BrowseComponent } from "./pages/browse/browse.component";
 import { PostComponent } from "./pages/post/post.component";
 import { PostEditComponent } from "./pages/post-edit/post-edit.component";
 import { UploadComponent } from "./pages/upload/upload.component";
-import { AccountComponent } from "./pages/account/account.component";
+import { MyAccountComponent } from "./pages/my-account/my-account.component";
 import { UserComponent } from "./pages/user/user.component";
 
 @NgModule({
@@ -44,7 +45,7 @@ import { UserComponent } from "./pages/user/user.component";
 		PostComponent,
 		PostEditComponent,
 		UploadComponent,
-		AccountComponent,
+		MyAccountComponent,
 		UserComponent
 	],
 	imports: [
@@ -62,7 +63,7 @@ import { UserComponent } from "./pages/user/user.component";
 			{ path: "posts/:id", component: PostComponent },
 			{ path: "posts/:id/edit", component: PostEditComponent },
 			{ path: "upload", component: UploadComponent },
-			{ path: "account", component: AccountComponent },
+			{ path: "me", component: MyAccountComponent },
 			{ path: "users/:id", component: UserComponent },
 			{ path: "**", redirectTo: "error" }
 		])
@@ -77,6 +78,7 @@ import { UserComponent } from "./pages/user/user.component";
 		},
 		PostsService,
 		UsersService,
+		MyAccountService,
 		VotesService,
 		TagsService
 	],

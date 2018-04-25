@@ -27,7 +27,7 @@
 				</a>
 			</li>
 			<li *ngIf="config?.isAuthenticated" class="nav-item" [routerLinkActive]='["active"]'>
-				<a class="nav-link nav-link-username" [routerLink]='["/account"]' (click)='collapse()'>
+				<a class="nav-link nav-link-username" [routerLink]='["/me"]' (click)='collapse()'>
 					<span class='fa fa-user'></span> @{{ config.username || '(no username)' }}
 				</a>
 			</li>

@@ -72,8 +72,7 @@ namespace VamBooru.Tests.Repository
 		[Test]
 		public void UsernamesAreUnique()
 		{
-			var exc = Assert.ThrowsAsync<DbUpdateException>(() => _repository.LoadOrCreateUserFromLoginAsync("MyScheme", "some.other.john", "John Doe", DateTimeOffset.UtcNow));
-			StringAssert.Contains("IX_Users_Username", exc.ToString());
+			Assert.ThrowsAsync<UsernameConflictException>(() => _repository.LoadOrCreateUserFromLoginAsync("MyScheme", "some.other.john", "John Doe", DateTimeOffset.UtcNow));
 		}
 
 		[Test]
@@ -81,10 +80,7 @@ namespace VamBooru.Tests.Repository
 		{
 			var user = await _repository.UpdateUserAsync(
 				_loginInfo,
-				new UserViewModel
-				{
-					Username = "Happy Panda"
-				}
+				"Happy Panda"
 			);
 
 			user.ShouldDeepEqual(new User
@@ -104,9 +100,9 @@ namespace VamBooru.Tests.Repository
 		}
 
 		[Test]
-		public async Task LoadUserById()
+		public async Task LoadUserByUsername()
 		{
-			var user = await _repository.LoadPublicUserAsync(_user.Id);
+			var user = await _repository.LoadPublicUserAsync(_user.Username);
 
 			user.ShouldDeepEqual(new User
 			{
@@ -305,7 +301,7 @@ namespace VamBooru.Tests.Repository
 			);
 
 			CreateDbContext();
-			var posts = await _repository.BrowsePostsAsync(PostSortBy.Default, PostSortDirection.Default, PostedSince.Default, 0, 1, null, null, DateTimeOffset.MaxValue);
+			var posts = await _repository.BrowsePostsAsync(PostSortBy.Default, PostSortDirection.Default, PostedSince.Default, 0, 1, null, null, null, DateTimeOffset.MaxValue);
 
 			Assert.That(posts.Length, Is.EqualTo(0));
 		}
@@ -331,7 +327,7 @@ namespace VamBooru.Tests.Repository
 			await _repository.UpdatePostAsync(_loginInfo, viewModel, new DateTimeOffset(2005, 02, 03, 04, 05, 07, TimeSpan.Zero));
 
 			CreateDbContext();
-			var posts = await _repository.BrowsePostsAsync(PostSortBy.Default, PostSortDirection.Default, PostedSince.Default, 0, 1, null, null, DateTimeOffset.MaxValue);
+			var posts = await _repository.BrowsePostsAsync(PostSortBy.Default, PostSortDirection.Default, PostedSince.Default, 0, 1, null, null, null, DateTimeOffset.MaxValue);
 
 			Assert.That(posts.Length, Is.EqualTo(1));
 
@@ -372,19 +368,22 @@ namespace VamBooru.Tests.Repository
 			});
 		}
 
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, new[] { "23 hours ago, 30pts", "6 days ago, 90pts" }, TestName = "Sort by created, page 1")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 1, 2, null, null, new[] { "3 weeks ago, 200pts", "11 months ago, 50pts" }, TestName = "Sort by created, page 2")]
-		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 0, 2, null, null, new[] { "2 years ago, 100pts", "11 months ago, 50pts" }, TestName = "Sort by least recently updated, page 1")]
-		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 1, 2, null, null, new[] { "3 weeks ago, 200pts", "6 days ago, 90pts" }, TestName = "Sort by least recently updated, page 2")]
-		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, new[] { "3 weeks ago, 200pts", "2 years ago, 100pts" }, TestName = "Sort by votes, page 1")]
-		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 1, 2, null, null, new[] { "6 days ago, 90pts", "11 months ago, 50pts" }, TestName = "Sort by votes, page 2")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastYear, 0, 1, null, null, new[] { "11 months ago, 50pts" }, TestName = "Since last year")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastMonth, 0, 1, null, null, new[] { "3 weeks ago, 200pts" }, TestName = "Since last month")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastDay, 0, 1, null, null, new[] { "23 hours ago, 30pts" }, TestName = "Since yesterday")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "tag1" }, null, new[] { "3 weeks ago, 200pts", "2 years ago, 100pts" }, TestName = "Search by one tag")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "tag1", "tag2" }, null, new[] { "3 weeks ago, 200pts" }, TestName = "Search by two tags")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, "cool", new[] { "6 days ago, 90pts" }, TestName = "Full text search")]
-		public async Task BrowsePostsFilters(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, string search, string[] expected)
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, null, new[] { "23 hours ago, 30pts", "6 days ago, 90pts" }, TestName = "Sort by created, page 1")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 1, 2, null, null, null, new[] { "3 weeks ago, 200pts", "11 months ago, 50pts" }, TestName = "Sort by created, page 2")]
+		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 0, 2, null, null, null, new[] { "2 years ago, 100pts", "11 months ago, 50pts" }, TestName = "Sort by least recently updated, page 1")]
+		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 1, 2, null, null, null, new[] { "3 weeks ago, 200pts", "6 days ago, 90pts" }, TestName = "Sort by least recently updated, page 2")]
+		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, null, new[] { "3 weeks ago, 200pts", "2 years ago, 100pts" }, TestName = "Sort by votes, page 1")]
+		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 1, 2, null, null, null, new[] { "6 days ago, 90pts", "11 months ago, 50pts" }, TestName = "Sort by votes, page 2")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastYear, 0, 1, null, null, null, new[] { "11 months ago, 50pts" }, TestName = "Since last year")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastMonth, 0, 1, null, null, null, new[] { "3 weeks ago, 200pts" }, TestName = "Since last month")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastDay, 0, 1, null, null, null, new[] { "23 hours ago, 30pts" }, TestName = "Since yesterday")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "tag1" }, null, null, new[] { "3 weeks ago, 200pts", "2 years ago, 100pts" }, TestName = "Search by one tag")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "tag1", "tag2" }, null, null, new[] { "3 weeks ago, 200pts" }, TestName = "Search by two tags")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, "cool", new[] { "6 days ago, 90pts" }, TestName = "Text search in post text")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, "weeks", new[] { "3 weeks ago, 200pts" }, TestName = "Text search in post title")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 1, null, "John Doe", null, new[] { "23 hours ago, 30pts" }, TestName = "Filter by current user")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 1, null, "Abbie Bibbo", null, new string[0], TestName = "Filter by non-existent user")]
+		public async Task BrowsePostsFilters(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, string author, string text, string[] expected)
 		{
 			Scene[] CreateScenes() => new[]
 			{
@@ -394,11 +393,11 @@ namespace VamBooru.Tests.Repository
 				}
 			};
 
-			async Task CreatePost(string title, string text, int votes, DateTimeOffset created, params string[] postTags)
+			async Task CreatePost(string postTitle, string postText, int votes, DateTimeOffset created, params string[] postTags)
 			{
 				var post = await _repository.CreatePostAsync(
 					_loginInfo,
-					title,
+					postTitle,
 					postTags,
 					CreateScenes(),
 					created
@@ -406,7 +405,7 @@ namespace VamBooru.Tests.Repository
 
 				var viewModel = PostViewModel.From(post, false);
 				viewModel.Published = true;
-				viewModel.Text = text;
+				viewModel.Text = postText;
 				await _repository.UpdatePostAsync(_loginInfo, viewModel, post.DateCreated.AddDays(1));
 
 				await _repository.VoteAsync(_loginInfo, post.Id, votes);
@@ -420,9 +419,26 @@ namespace VamBooru.Tests.Repository
 			await CreatePost("23 hours ago, 30pts", "", 30, now.AddHours(-1));
 
 			CreateDbContext();
-			var posts = await _repository.BrowsePostsAsync(sortBy, sortDirection, since, page, pageSize, tags, search, now);
+			var posts = await _repository.BrowsePostsAsync(sortBy, sortDirection, since, page, pageSize, tags, author, text, now);
 
 			CollectionAssert.AreEqual(expected, posts.Select(post => post.Title).ToArray());
+		}
+
+		[Test]
+		public async Task MyPostsIncludesNonPublishedPosts()
+		{
+			await _repository.CreatePostAsync(
+				_loginInfo,
+				"My Post",
+				new[] {"my-tag"},
+				new Scene[0],
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
+
+			CreateDbContext();
+			var posts = await _repository.BrowseMyPostsAsync(_loginInfo);
+
+			CollectionAssert.AreEqual(new[] { "My Post" }, posts.Select(post => post.Title).ToArray());
 		}
 
 		[TestCase(true)]

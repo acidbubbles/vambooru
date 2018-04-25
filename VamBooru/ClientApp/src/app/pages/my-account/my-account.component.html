@@ -1,0 +1,34 @@
+<h1>My Account</h1>
+
+<div *ngIf="account && editable">
+	<div class="form-group">
+		<a href="/auth/logout" class="btn btn-secondary">
+			<i class="fa fa-sign-out-alt"></i>&nbsp;Sign out
+		</a>
+	</div>
+
+	<h2>Information</h2>
+
+	<div class="form-group">
+		<label for="username">Username:</label>
+		<input type="text" class="form-control" id="username" name="username" [(ngModel)]="editable.username" required placeholder="Username" />
+	</div>
+
+	<div class="form-group">
+		<button class="btn btn-secondary" (click)="save()" [disabled]="saving">
+			<i class="fa" [ngClass]="{ 'fa-spinner': saving, 'fa-save': !saved, 'fa-check': saved }"></i>&nbsp;Save
+		</button>
+	</div>
+
+	<div class="alert alert-danger" role="alert" *ngIf="errorMessage">
+		Could not save: {{ errorMessage }}
+	</div>
+
+	<h2>My Posts</h2>
+	<p *ngIf="!account.myPosts || !account.myPosts.length">You didn't create anything yet! <a [routerLink]='["/upload"]'>Upload something?</a></p>
+	<ul *ngIf="account.myPosts && account.myPosts.length">
+		<li *ngFor="let post of account.myPosts">
+			<a [routerLink]='["/posts", post.id]'>{{post.title}} <span *ngIf="!post.published" class="text-danger">(<span class="fa fa-eye-slash"></span>&nbsp;not published)</span></a>
+		</li>
+	</ul>
+</div>

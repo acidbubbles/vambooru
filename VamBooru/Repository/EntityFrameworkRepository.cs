@@ -56,7 +56,7 @@ namespace VamBooru.Repository
 				.FirstOrDefaultAsync(p => p.Id == id);
 		}
 
-		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, string q, DateTimeOffset now)
+		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, string author, string text, DateTimeOffset now)
 		{
 			if(page < 0) throw new ArgumentException("Page must be greater than or equal to 0");
 			if(pageSize < 1) throw new ArgumentException("Page must be greater than or equal to 1");
@@ -77,10 +77,15 @@ namespace VamBooru.Repository
 					: baseQuery.Where(p => p.DateCreated >= dateTimeOffset);
 			}
 
-			if (!string.IsNullOrEmpty(q))
+			if (!string.IsNullOrWhiteSpace(author))
+			{
+				baseQuery = baseQuery.Where(p => p.Author.Username == author);
+			}
+
+			if (!string.IsNullOrWhiteSpace(text))
 			{
 				//TODO: Replace with ts_vector full text search when available
-				baseQuery = baseQuery.Where(p => p.Text.Contains(q));
+				baseQuery = baseQuery.Where(p => p.Text.Contains(text) || p.Title.Contains(text));
 			}
 
 			if (tags != null && tags.Length > 0)
@@ -126,6 +131,21 @@ namespace VamBooru.Repository
 					//TODO: This is only required to populate the post's image URL. We should associate it upfront instead of always loading all scenes.
 					Scenes = p.Scenes
 				})
+				.ToArrayAsync();
+		}
+
+		public async Task<Post[]> BrowseMyPostsAsync(UserLoginInfo login)
+		{
+			var user = await LoadPrivateUserAsync(login);
+
+			return await _context.Posts
+				.AsNoTracking()
+				.Include(p => p.Author)
+				.Include(p => p.Tags)
+				.ThenInclude(t => t.Tag)
+				.Include(p => p.Scenes)
+				.Where(p => p.Author == user)
+				.OrderByDescending(p => p.DatePublished)
 				.ToArrayAsync();
 		}
 
@@ -279,7 +299,17 @@ namespace VamBooru.Repository
 			login = new UserLogin { User = user, Scheme = scheme, NameIdentifier = nameIdentifier };
 			_context.UserLogins.Add(login);
 
-			await _context.SaveChangesAsync();
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateException exc)
+			{
+				var inner = exc.InnerException as NpgsqlException;
+				if (inner?.Message?.Contains("IX_Users_Username") ?? false)
+					throw new UsernameConflictException();
+			}
+
 			return login;
 		}
 
@@ -297,18 +327,27 @@ namespace VamBooru.Repository
 			return login?.User;
 		}
 
-		public Task<User> LoadPublicUserAsync(Guid userId)
+		public Task<User> LoadPublicUserAsync(string username)
 		{
-			return _context.Users.FindAsync(userId);
+			return _context.Users.FirstOrDefaultAsync(u => u.Username == username);
 		}
 
-		public async Task<User> UpdateUserAsync(UserLoginInfo login, UserViewModel user)
+		public async Task<User> UpdateUserAsync(UserLoginInfo login, string username)
 		{
 			var dbUser = await LoadPrivateUserAsync(login) ?? throw new NullReferenceException("User does not exist");
 
-			dbUser.Username = user.Username;
+			dbUser.Username = username;
 
-			await _context.SaveChangesAsync();
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateException exc)
+			{
+				var inner = exc.InnerException as NpgsqlException;
+				if (inner?.Message?.Contains("IX_Users_Username") ?? false)
+					throw new UsernameConflictException();
+			}
 
 			return dbUser;
 		}

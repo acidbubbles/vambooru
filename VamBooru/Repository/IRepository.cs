@@ -9,7 +9,8 @@ namespace VamBooru.Repository
 	{
 		Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes, DateTimeOffset now);
 		Task<Post> LoadPostAsync(Guid id);
-		Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, string q, DateTimeOffset now);
+		Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, string author, string text, DateTimeOffset now);
+		Task<Post[]> BrowseMyPostsAsync(UserLoginInfo login);
 		Task<Post> UpdatePostAsync(UserLoginInfo login, PostViewModel post, DateTimeOffset now);
 
 		Task<IFileModel[]> LoadPostFilesAsync(Guid postId, bool includeBytes);
@@ -17,8 +18,8 @@ namespace VamBooru.Repository
 		Task<UserLogin> LoadOrCreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now);
 		Task<User> LoadPrivateUserAsync(UserLoginInfo login);
 		Task<User> LoadPrivateUserAsync(string scheme, string id);
-		Task<User> LoadPublicUserAsync(Guid userId);
-		Task<User> UpdateUserAsync(UserLoginInfo login, UserViewModel user);
+		Task<User> LoadPublicUserAsync(string username);
+		Task<User> UpdateUserAsync(UserLoginInfo login, string user);
 
 		Task<Tag[]> SearchTags(string q);
 		Task<Tag[]> LoadTopTags(int max);

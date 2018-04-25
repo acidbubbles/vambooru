@@ -16,7 +16,9 @@ export class HomeComponent implements OnInit {
 		since: PostedSince.forever,
 		page: 0,
 		pageSize: 6,
-		tags: []
+		tags: [],
+		author: "",
+		text: ""
 	};
 	highestRated: IPost[];
 	highestRatedError: string;
@@ -28,7 +30,9 @@ export class HomeComponent implements OnInit {
 		since: PostedSince.forever,
 		page: 0,
 		pageSize: 6,
-		tags: []
+		tags: [],
+		author: "",
+		text: ""
 	};
 	recentlyCreated: IPost[];
 	recentlyCreatedError: string;

@@ -53,7 +53,9 @@ export class BrowseComponent implements OnInit, OnDestroy {
 				since: params["since"] || PostedSince.forever,
 				page: params["page"] || 0,
 				pageSize: params["pageSize"] || 12,
-				tags: tagsParam
+				tags: tagsParam,
+				author: params["author"] || "",
+				text: params["text"] || ""
 		};
 			if (this.query.tags) {
 				this.tags = this.query.tags.map<ITag>(t => ({ id: t, name: t } as ITag));

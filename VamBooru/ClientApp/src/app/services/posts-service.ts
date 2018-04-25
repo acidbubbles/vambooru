@@ -34,6 +34,8 @@ export interface IPostQuery {
 	page: number;
 	pageSize: number;
 	tags: string[];
+	author: string;
+	text: string;
 }
 
 export class PostSortBy {
