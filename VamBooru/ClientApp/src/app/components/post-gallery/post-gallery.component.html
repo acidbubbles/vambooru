@@ -14,7 +14,7 @@
 				<b class="card-title">
 					<a [routerLink]="['/posts', post.id]"> {{ post.title }}</a>
 				</b>
-				<p class="card-text text-muted">by {{ post.author?.username }}</p>
+				<p class="card-text text-muted">by <a [routerLink]="['/users', post.author.username]">{{ post.author?.username }}</a></p>
 			</div>
 		</div>
 	</div>
