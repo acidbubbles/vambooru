@@ -9,7 +9,7 @@ using NpgsqlTypes;
 using VamBooru.Models;
 using VamBooru.ViewModels;
 
-namespace VamBooru.Repository
+namespace VamBooru.Repository.EFPostgres
 {
 	public class EntityFrameworkRepository : IRepository
 	{

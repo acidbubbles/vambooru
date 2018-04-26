@@ -20,8 +20,11 @@ using Newtonsoft.Json.Linq;
 using VamBooru.Middlewares;
 using VamBooru.Models;
 using VamBooru.Repository;
+using VamBooru.Repository.EFPostgres;
 using VamBooru.Storage;
+using VamBooru.Storage.EFPostgres;
 using VamBooru.VamFormat;
+using EFPostgresStorageServicesExtensions = VamBooru.Repository.EFPostgres.EFPostgresStorageServicesExtensions;
 
 namespace VamBooru
 {
@@ -60,22 +63,39 @@ namespace VamBooru
 
 			ConfigureAngular(services);
 
-			services.AddTransient<IRepository, EntityFrameworkRepository>();
+			ConfigureRepository(services);
 
-			switch (Configuration["Storage:Type"])
-			{
-				case "EFPostgres":
-					services.AddTransient<IStorage, EntityFrameworkStorage>();
-					break;
-					default:
-						throw new Exception($"Unknown storage type: {Configuration["Storage:Type"]}");
-			}
+			ConfigureStorage(services);
 
 			services.AddTransient<ISceneFormat, JsonSceneFormat>();
 
 			services.AddMemoryCache();
 
 			ConfigureAuthentication(services);
+		}
+
+		private void ConfigureRepository(IServiceCollection services)
+		{
+			switch (Configuration["Repository:Type"])
+			{
+				case "EFPostgres":
+					services.AddEFPostgresRepository();
+					break;
+				default:
+					throw new Exception($"Unknown repository type: {Configuration["Repository:Type"]}");
+			}
+		}
+
+		private void ConfigureStorage(IServiceCollection services)
+		{
+			switch (Configuration["Storage:Type"])
+			{
+				case "EFPostgres":
+					services.AddEFPostgresStorage();
+					break;
+				default:
+					throw new Exception($"Unknown storage type: {Configuration["Storage:Type"]}");
+			}
 		}
 
 		private void ConfigureDatabase(IServiceCollection services)

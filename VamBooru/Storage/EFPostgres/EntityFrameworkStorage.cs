@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VamBooru.Models;
 
-namespace VamBooru.Storage
+namespace VamBooru.Storage.EFPostgres
 {
 	public class EntityFrameworkStorage : IStorage
 	{

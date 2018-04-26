@@ -6,9 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using VamBooru.Models;
 using VamBooru.Repository;
+using VamBooru.Repository.EFPostgres;
 using VamBooru.ViewModels;
 
-namespace VamBooru.Tests.Repository
+namespace VamBooru.Tests.Repository.EFPostgres
 {
 	public class EntityFrameworkRepositoryTests
 	{
