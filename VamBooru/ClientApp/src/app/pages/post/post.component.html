@@ -1,7 +1,7 @@
 <div *ngIf="post">
 	<div class="card mb-4">
 		<div class="card-header">
-			<h2>{{ post.title }} <span class="badge badge-danger" *ngIf="!post.published"><span class="fab fa-eye-slash"></span>&nbsp;Not published</span></h2>
+			<h2>{{ post.title }} <span class="badge badge-danger" *ngIf="!post.published"><span class="fa fa-eye-slash"></span>&nbsp;Not published</span></h2>
 			<i>by <a [routerLink]="['/users', post.author.username]">{{ post.author.username }}</a></i>
 		</div>
 		<div class="card-body">
@@ -23,10 +23,10 @@
 				<div class="col-md-4">
 					<div class="btn-group">
 						<button type="button" class="btn" [ngClass]="{ 'btn-secondary': !vote, 'btn-danger': vote && vote.value !== -1, 'btn-danger': vote && vote.value === -1 }" (click)="changeVote(-1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
-							<i class="fab fa-thumbs-down"></i>
+							<i class="fa fa-thumbs-down"></i>
 						</button>
 						<button type="button" class="btn" [ngClass]="{ 'btn-secondary': !vote, 'btn-success': vote && vote.value !== 1, 'btn-success': vote && vote.value === 1 }" (click)="changeVote(1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
-							<i class="fab fa-thumbs-up"></i>
+							<i class="fa fa-thumbs-up"></i>
 						</button>
 						<button class="btn btn-secondary disabled">Score: {{ post.votes }}</button>
 					</div>

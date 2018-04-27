@@ -14,13 +14,13 @@
 		<h2>Highest rated</h2>
 		<post-gallery [posts]="highestRated" [error]="highestRatedError"></post-gallery>
 		<div class="text-right">
-			<a class="btn btn-sm btn-primary" [routerLink]="['/browse']" [queryParams]="highestRatedQuery"><i class="fab fa-play"></i> Browse more highest rated...</a>
+			<a class="btn btn-sm btn-primary" [routerLink]="['/browse']" [queryParams]="highestRatedQuery"><i class="fa fa-play"></i> Browse more highest rated...</a>
 		</div>
 
 		<h2>Recently created</h2>
 		<post-gallery [posts]="recentlyCreated" [error]="recentlyCreatedError"></post-gallery>
 		<div class="text-right">
-			<a class="btn btn-sm btn-primary" [routerLink]="['/browse']" [queryParams]="recentlyCreatedQuery"><i class="fab fa-play"></i> Browse more recently created...</a>
+			<a class="btn btn-sm btn-primary" [routerLink]="['/browse']" [queryParams]="recentlyCreatedQuery"><i class="fa fa-play"></i> Browse more recently created...</a>
 		</div>
 	</main>
 </div>

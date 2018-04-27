@@ -4,6 +4,17 @@
 	max-width: 1400px;
 }
 
+.nav-container {
+	max-width: 1400px;
+	flex-wrap: nowrap;
+	align-items: center;
+	width: 100%;
+	padding-right: 15px;
+	padding-left: 15px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
 .tags .badge {
 	margin-right: 5px;
 }

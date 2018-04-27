@@ -9,7 +9,7 @@
 			<a [routerLink]="['/posts', post.id]">
 				<img class="card-img-top scene-thumbnail" src="{{ post.imageUrl }}" alt="{{ post.title }}" />
 			</a>
-			<div class="card-img-overlay text-right"><span class="badge badge-success" [ngClass]="{ 'badge-secondary': post.votes == 0, 'badge-success': post.votes > 0, 'badge-danger': post.votes < 0 }"><i class="fab fa-thumbs-up"></i>&nbsp;{{ post.votes }}</span></div>
+			<div class="card-img-overlay text-right"><span class="badge badge-success" [ngClass]="{ 'badge-secondary': post.votes == 0, 'badge-success': post.votes > 0, 'badge-danger': post.votes < 0 }"><i class="fa fa-thumbs-up"></i>&nbsp;{{ post.votes }}</span></div>
 			<div class="card-body">
 				<b class="card-title">
 					<a [routerLink]="['/posts', post.id]"> {{ post.title }}</a>

@@ -9,7 +9,7 @@
 <div class="form-group">
 	<label class="btn btn-primary" for="filesInput">
 		<input id="filesInput" #filesInput type="file" style="display: none;" (change)="updateSelection()" multiple />
-		<i class="fab fa-folder-open"></i>&nbsp;Browse files...
+		<i class="fa fa-folder-open"></i>&nbsp;Browse files...
 	</label>
 </div>
 
@@ -21,14 +21,14 @@
 
 <div class="form-group">
 	<button type="button" class="btn btn-success" (click)="upload()" [disabled]="uploading || !files || !files.length">
-		<i class="fab fa-open-file"></i>&nbsp;Upload
+		<i class="fas fa-upload"></i>&nbsp;Upload
 	</button>
 </div>
 
 <div class="alert alert-info" role="alert" *ngIf="uploading">
-	Uploading and processing files, please wait, this may take some time...
+	<i class="fas fa-spinner"></i>&nbsp;Uploading and processing files, please wait, this may take some time...
 </div>
 
 <div class="alert alert-danger" role="alert" *ngIf="errorMessage">
-	Upload failed: {{ errorMessage }}
+	<i class="fas fa-exclamation-triangle"></i>&nbsp;Upload failed: {{ errorMessage }}
 </div>

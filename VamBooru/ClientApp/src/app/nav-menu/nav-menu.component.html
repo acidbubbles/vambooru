@@ -1,36 +1,38 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-	<a class="navbar-brand" [routerLink]='["/"]'>VamBooru</a>
-	<button class="navbar-toggler" type="button" data-toggle="collapse" [attr.aria-expanded]="isExpanded" (click)="toggle()" aria-label="Toggle navigation">
-		<span class="navbar-toggler-icon"></span>
-	</button>
+	<div class="nav-container d-flex justify-content-between">
+		<a class="navbar-brand" [routerLink]='["/"]'>VamBooru</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" [attr.aria-expanded]="isExpanded" (click)="toggle()" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
 
-	<div class="navbar-collapse" [ngClass]='{ "collapse": !isExpanded }'>
-		<ul class="navbar-nav mr-auto">
-			<li class="nav-item" [routerLinkActive]='["active"]' [routerLinkActiveOptions]='{ exact: true }'>
-				<a class="nav-link" [routerLink]='["/"]' (click)='collapse()'>
-					<span class='fa fa-home'></span> Home
-				</a>
-			</li>
-			<li class="nav-item" [routerLinkActive]='["active"]'>
-				<a class="nav-link" [routerLink]='["/browse"]' (click)='collapse()'>
-					<span class='fa fa-film'></span> Browse
-				</a>
-			</li>
-			<li *ngIf="config?.isAuthenticated" class="nav-item" [routerLinkActive]='["active"]'>
-				<a class="nav-link" [routerLink]='["/upload"]' (click)='collapse()'>
-					<span class='fa fa-upload'></span> Upload
-				</a>
-			</li>
-			<li *ngIf="!config?.isAuthenticated" class="nav-item">
-				<a class="nav-link" [routerLink]='["/signin"]'>
-					<span class='fa fa-sign-in-alt'></span> Sign in
-				</a>
-			</li>
-			<li *ngIf="config?.isAuthenticated" class="nav-item" [routerLinkActive]='["active"]'>
-				<a class="nav-link nav-link-username" [routerLink]='["/me"]' (click)='collapse()'>
-					<span class='fa fa-user'></span> @{{ config.username || '(no username)' }}
-				</a>
-			</li>
-		</ul>
+		<div class="navbar-collapse" [ngClass]='{ "collapse": !isExpanded }'>
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item" [routerLinkActive]='["active"]' [routerLinkActiveOptions]='{ exact: true }'>
+					<a class="nav-link" [routerLink]='["/"]' (click)='collapse()'>
+						<span class='fa fa-home'></span> Home
+					</a>
+				</li>
+				<li class="nav-item" [routerLinkActive]='["active"]'>
+					<a class="nav-link" [routerLink]='["/browse"]' (click)='collapse()'>
+						<span class='fa fa-film'></span> Browse
+					</a>
+				</li>
+				<li *ngIf="config?.isAuthenticated" class="nav-item" [routerLinkActive]='["active"]'>
+					<a class="nav-link" [routerLink]='["/upload"]' (click)='collapse()'>
+						<span class='fa fa-upload'></span> Upload
+					</a>
+				</li>
+				<li *ngIf="!config?.isAuthenticated" class="nav-item">
+					<a class="nav-link" [routerLink]='["/signin"]'>
+						<span class='fa fa-sign-in-alt'></span> Sign in
+					</a>
+				</li>
+				<li *ngIf="config?.isAuthenticated" class="nav-item" [routerLinkActive]='["active"]'>
+					<a class="nav-link nav-link-username" [routerLink]='["/me"]' (click)='collapse()'>
+						<span class='fa fa-user'></span> @{{ config.username || '(no username)' }}
+					</a>
+				</li>
+			</ul>
+		</div>
 	</div>
 </nav>

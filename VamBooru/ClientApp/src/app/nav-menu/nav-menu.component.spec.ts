@@ -36,7 +36,8 @@ describe("NavMenuComponent", () => {
 		beforeEach(() => {
 			startupConfiguration = {
 				isAuthenticated: false,
-				username: null
+				username: null,
+				authSchemes: ["SomeOAuth2Provider"]
 			};
 			fixture = TestBed.createComponent(NavMenuComponent);
 			component = fixture.componentInstance;
@@ -57,7 +58,8 @@ describe("NavMenuComponent", () => {
 		beforeEach(() => {
 			startupConfiguration = {
 				isAuthenticated: true,
-				username: "john.doe"
+				username: "john.doe",
+				authSchemes: ["SomeOAuth2Provider"]
 			};
 			fixture = TestBed.createComponent(NavMenuComponent);
 			component = fixture.componentInstance;
