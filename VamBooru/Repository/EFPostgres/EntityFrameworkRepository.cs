@@ -287,11 +287,15 @@ namespace VamBooru.Repository.EFPostgres
 			return query.ToArrayAsync();
 		}
 
-		public async Task<UserLogin> LoadOrCreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now)
+		public async Task<LoadOrCreateUserFromLoginResult> LoadOrCreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now)
 		{
 			var login = await _context.UserLogins.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == nameIdentifier);
 
-			if (login != null) return login;
+			if (login != null) return new LoadOrCreateUserFromLoginResult
+			{
+				Login = login,
+				Result = LoadOrCreateUserFromLoginResultTypes.ExistingUser
+			};
 
 			var user = new User { Username = username, DateSubscribed = now };
 			_context.Users.Add(user);
@@ -310,7 +314,11 @@ namespace VamBooru.Repository.EFPostgres
 					throw new UsernameConflictException();
 			}
 
-			return login;
+			return new LoadOrCreateUserFromLoginResult
+			{
+				Login = login,
+				Result = LoadOrCreateUserFromLoginResultTypes.NewUser
+			};
 		}
 
 		public Task<User> LoadPrivateUserAsync(UserLoginInfo info)

@@ -39,7 +39,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				Scheme = "MyScheme",
 				NameIdentifier = "john.1234"
 			};
-			_user = login.User;
+			_user = login.Login.User;
 
 			CreateDbContext();
 		}

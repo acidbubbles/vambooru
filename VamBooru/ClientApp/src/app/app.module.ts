@@ -28,6 +28,7 @@ import { PostGalleryComponent } from"./components/post-gallery/post-gallery.comp
 import { HomeComponent } from "./pages/home/home.component";
 import { ErrorComponent } from "./pages/error/error.component";
 import { SignInComponent } from "./pages/signin/signin.component";
+import { WelcomeComponent } from "./pages/welcome/welcome.component";
 import { BrowseComponent } from "./pages/browse/browse.component";
 import { PostComponent } from "./pages/post/post.component";
 import { PostEditComponent } from "./pages/post-edit/post-edit.component";
@@ -43,6 +44,7 @@ import { UserComponent } from "./pages/user/user.component";
 		HomeComponent,
 		ErrorComponent,
 		SignInComponent,
+		WelcomeComponent,
 		BrowseComponent,
 		PostComponent,
 		PostEditComponent,
@@ -61,7 +63,8 @@ import { UserComponent } from "./pages/user/user.component";
 		RouterModule.forRoot([
 			{ path: "", component: HomeComponent, pathMatch: "full" },
 			{ path: "error", component: ErrorComponent,  },
-			{ path: "signin", component: SignInComponent,  },
+			{ path: "signin", component: SignInComponent, },
+			{ path: "welcome", component: WelcomeComponent, },
 			{ path: "browse", component: BrowseComponent },
 			{ path: "posts/:id", component: PostComponent },
 			{ path: "posts/:id/edit", component: PostEditComponent },

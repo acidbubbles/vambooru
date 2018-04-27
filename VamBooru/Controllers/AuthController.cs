@@ -57,9 +57,17 @@ namespace VamBooru.Controllers
 
 			//TODO: This should be replaced by a signup page when the user does not already exist
 			//TODO: Retry more than once if conflict
-			await _repository.LoadOrCreateUserFromLoginAsync(scheme, identifier, username, DateTimeOffset.UtcNow);
+			var result = await _repository.LoadOrCreateUserFromLoginAsync(scheme, identifier, username, DateTimeOffset.UtcNow);
 
-			return Redirect("/");
+			switch (result.Result)
+			{
+				case LoadOrCreateUserFromLoginResultTypes.NewUser:
+					return Redirect("/welcome");
+				case LoadOrCreateUserFromLoginResultTypes.ExistingUser:
+					return Redirect($"/users/{result.Login.User.Username}");
+				default:
+					return Redirect("/");
+			}
 		}
 
 		public async Task<IActionResult> AnonymousGuestLoginAsync()
