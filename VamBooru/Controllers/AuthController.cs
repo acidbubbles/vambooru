@@ -64,7 +64,11 @@ namespace VamBooru.Controllers
 				case LoadOrCreateUserFromLoginResultTypes.NewUser:
 					return Redirect("/welcome");
 				case LoadOrCreateUserFromLoginResultTypes.ExistingUser:
-					return Redirect($"/users/{result.Login.User.Username}");
+					if (result.Login?.User?.Username != null)
+						//TODO: This does not work
+						return Redirect($"/users/{result.Login.User.Username}");
+					else
+						return Redirect("/");
 				default:
 					return Redirect("/");
 			}
