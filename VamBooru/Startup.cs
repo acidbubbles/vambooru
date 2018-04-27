@@ -19,12 +19,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VamBooru.Middlewares;
 using VamBooru.Models;
-using VamBooru.Repository;
 using VamBooru.Repository.EFPostgres;
-using VamBooru.Storage;
 using VamBooru.Storage.EFPostgres;
 using VamBooru.VamFormat;
-using EFPostgresStorageServicesExtensions = VamBooru.Repository.EFPostgres.EFPostgresStorageServicesExtensions;
 
 namespace VamBooru
 {
