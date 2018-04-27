@@ -3,7 +3,7 @@
 <div *ngIf="account && editable">
 	<div class="form-group">
 		<a href="/auth/logout" class="btn btn-secondary">
-			<i class="fa fa-sign-out-alt"></i>&nbsp;Sign out
+			<i class="fab fa-sign-out-alt"></i>&nbsp;Sign out
 		</a>
 	</div>
 
@@ -28,7 +28,7 @@
 	<p *ngIf="!account.myPosts || !account.myPosts.length">You didn't create anything yet! <a [routerLink]='["/upload"]'>Upload something?</a></p>
 	<ul *ngIf="account.myPosts && account.myPosts.length">
 		<li *ngFor="let post of account.myPosts">
-			<a [routerLink]='["/posts", post.id]'>{{post.title}} <span *ngIf="!post.published" class="text-danger">(<span class="fa fa-eye-slash"></span>&nbsp;not published)</span></a>
+			<a [routerLink]='["/posts", post.id]'>{{post.title}} <span *ngIf="!post.published" class="text-danger">(<span class="fab fa-eye-slash"></span>&nbsp;not published)</span></a>
 		</li>
 	</ul>
 </div>

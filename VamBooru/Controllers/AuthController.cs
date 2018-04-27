@@ -24,9 +24,9 @@ namespace VamBooru.Controllers
 			_defaultScheme = configuration["Authentication:Scheme"] ?? throw new ArgumentException("Scheme was not configured", nameof(configuration));
 		}
 
-		[HttpGet("login")]
+		[HttpGet("{scheme}/login")]
 		[ResponseCache(NoStore = true, Duration = 0)]
-		public async Task<IActionResult> Login()
+		public async Task<IActionResult> Login([FromRoute] string scheme)
 		{
 			if (_defaultScheme == "AnonymousGuest")
 				return await AnonymousGuestLoginAsync();

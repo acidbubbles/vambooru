@@ -22,8 +22,8 @@
 				</a>
 			</li>
 			<li *ngIf="!config?.isAuthenticated" class="nav-item">
-				<a class="nav-link" href="/auth/login">
-					<span class='fa fa-sign-in'></span> Sign in
+				<a class="nav-link" [routerLink]='["/signin"]'>
+					<span class='fa fa-sign-in-alt'></span> Sign in
 				</a>
 			</li>
 			<li *ngIf="config?.isAuthenticated" class="nav-item" [routerLinkActive]='["active"]'>

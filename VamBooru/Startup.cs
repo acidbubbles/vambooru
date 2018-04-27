@@ -223,15 +223,8 @@ namespace VamBooru
 					template: "{controller}/{action=Index}/{id?}");
 			});
 
-			app.MapWhen(
-				context => context.Request.Path.StartsWithSegments("/api"),
-				appBuilder => appBuilder.Run(async c =>
-				{
-					c.Response.StatusCode = 404;
-					c.Response.ContentType = "text/plain";
-					await c.Response.WriteAsync("This route does not exist");
-				})
-			);
+			app.MapWhen(context => context.Request.Path.StartsWithSegments("/api"), Return404);
+			app.MapWhen(context => context.Request.Path.StartsWithSegments("/auth"), Return404);
 
 			app.UseSpa(spa =>
 			{
@@ -241,6 +234,16 @@ namespace VamBooru
 				{
 					spa.UseAngularCliServer(npmScript: "start");
 				}
+			});
+		}
+
+		private static void Return404(IApplicationBuilder appBuilder)
+		{
+			appBuilder.Run(async c =>
+			{
+				c.Response.StatusCode = 404;
+				c.Response.ContentType = "text/plain";
+				await c.Response.WriteAsync("This route does not exist");
 			});
 		}
 	}

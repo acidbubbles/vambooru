@@ -9,7 +9,7 @@
 <div class="form-group">
 	<label class="btn btn-primary" for="filesInput">
 		<input id="filesInput" #filesInput type="file" style="display: none;" (change)="updateSelection()" multiple />
-		<i class="fa fa-folder-open"></i>&nbsp;Browse files...
+		<i class="fab fa-folder-open"></i>&nbsp;Browse files...
 	</label>
 </div>
 
@@ -21,7 +21,7 @@
 
 <div class="form-group">
 	<button type="button" class="btn btn-success" (click)="upload()" [disabled]="uploading || !files || !files.length">
-		<i class="fa fa-open-file"></i>&nbsp;Upload
+		<i class="fab fa-open-file"></i>&nbsp;Upload
 	</button>
 </div>
 
