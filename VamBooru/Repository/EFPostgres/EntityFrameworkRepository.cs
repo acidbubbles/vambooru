@@ -289,7 +289,9 @@ namespace VamBooru.Repository.EFPostgres
 
 		public async Task<LoadOrCreateUserFromLoginResult> LoadOrCreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now)
 		{
-			var login = await _context.UserLogins.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == nameIdentifier);
+			var login = await _context.UserLogins
+				.Include(ul => ul.User)
+				.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == nameIdentifier);
 
 			if (login != null) return new LoadOrCreateUserFromLoginResult
 			{
