@@ -11,9 +11,10 @@ using VamBooru.Models;
 namespace VamBooru.Migrations
 {
     [DbContext(typeof(VamBooruDbContext))]
-    partial class VamBooruDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180429175529_ExtractStorage")]
+    partial class ExtractStorage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

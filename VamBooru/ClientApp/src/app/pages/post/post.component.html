@@ -6,13 +6,13 @@
 		</div>
 		<div class="card-body">
 			<div class="mx-auto text-center">
-				<img class="card-img-top scene-thumbnail" *ngIf="post.scenes && post.scenes.length == 1" src="{{ post.imageUrl }}" />
+				<img class="card-img-top scene-thumbnail" *ngIf="post.scenes && post.scenes.length == 1" src="{{ post.thumbnailUrl }}" />
 			</div>
 
 			<div *ngIf="post.scenes && post.scenes.length > 1" class="row">
 				<div class="col-md-3" *ngFor="let scene of post.scenes">
 					<div class="card">
-						<img class="card-img-top scene-thumbnail" src="{{ scene.imageUrl }}" alt="{{ scene.name }}" />
+						<img class="card-img-top scene-thumbnail" src="{{ scene.thumbnailUrl }}" alt="{{ scene.name }}" />
 					</div>
 				</div>
 			</div>

@@ -1,4 +1,5 @@
 using System.Linq;
+using Newtonsoft.Json;
 using VamBooru.Models;
 
 namespace VamBooru.ViewModels
@@ -9,7 +10,8 @@ namespace VamBooru.ViewModels
 		public bool Published { get; set; }
 		public string Title { get; set; }
 		public string Text { get; set; }
-		public string ImageUrl { get; set; }
+		[JsonIgnore] public string ThumbnailUrn { get; set; }
+		public string ThumbnailUrl { get; set; }
 		public string DownloadUrl { get; set; }
 		public int Votes { get; set; }
 		public TagViewModel[] Tags { get; set; }
@@ -27,7 +29,7 @@ namespace VamBooru.ViewModels
 				Published = from.Published,
 				Title = from.Title,
 				Text = from.Text,
-				ImageUrl = from.ImageUrl,
+				ThumbnailUrn = from.ThumbnailUrn,
 				Votes = from.Votes,
 				Tags = from.Tags?.Select(tag => TagViewModel.From(tag.Tag)).OrderByDescending(t => t.PostsCount).ThenBy(t => t.Name).ToArray(),
 				Author = UserViewModel.From(from.Author),

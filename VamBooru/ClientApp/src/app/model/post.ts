@@ -7,7 +7,7 @@ export interface IPost {
 	id: string;
 	title: string;
 	text: string;
-	imageUrl: string;
+	thumbnailUrl: string;
 	published: boolean;
 	tags: ITag[];
 	author: IUser;

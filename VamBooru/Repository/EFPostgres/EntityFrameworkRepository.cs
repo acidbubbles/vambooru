@@ -20,7 +20,8 @@ namespace VamBooru.Repository.EFPostgres
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		public async Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes, DateTimeOffset now)
+		public async Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes,
+			PostFile[] files, string thumbnailUrn, DateTimeOffset now)
 		{
 			var user = await LoadPrivateUserAsync(login);
 
@@ -31,15 +32,24 @@ namespace VamBooru.Repository.EFPostgres
 				Title = title,
 				Text = "",
 				Author = user,
+				ThumbnailUrn = thumbnailUrn,
 				DateCreated = now
 			};
 
 			foreach (var scene in scenes)
 			{
+				if(scene.Id != Guid.Empty) throw new UnauthorizedAccessException("Cannot assign an existing scene to a new post");
 				_context.Scenes.Add(scene);
 				post.Scenes.Add(scene);
 			}
 			await AssignTagsAsync(post, tags);
+
+			foreach (var file in files)
+			{
+				if(file.Id != 0) throw new UnauthorizedAccessException("Cannot assign an existing file to a new post");
+				_context.PostFiles.Add(file);
+				post.PostFiles.Add(file);
+			}
 
 			_context.Posts.Add(post);
 			await _context.SaveChangesAsync();
@@ -66,7 +76,6 @@ namespace VamBooru.Repository.EFPostgres
 				.Include(p => p.Author)
 				.Include(p => p.Tags)
 				.ThenInclude(t => t.Tag)
-				.Include(p => p.Scenes)
 				.Where(p => p.Published);
 
 			if (since != PostedSince.Forever)
@@ -125,11 +134,9 @@ namespace VamBooru.Repository.EFPostgres
 					Published = p.Published,
 					DateCreated = p.DateCreated,
 					DatePublished = p.DatePublished,
-					ImageUrl = p.ImageUrl,
+					ThumbnailUrn = p.ThumbnailUrn,
 					Tags = p.Tags,
 					Votes = p.Votes,
-					//TODO: This is only required to populate the post's image URL. We should associate it upfront instead of always loading all scenes.
-					Scenes = p.Scenes
 				})
 				.ToArrayAsync();
 		}
@@ -143,9 +150,20 @@ namespace VamBooru.Repository.EFPostgres
 				.Include(p => p.Author)
 				.Include(p => p.Tags)
 				.ThenInclude(t => t.Tag)
-				.Include(p => p.Scenes)
 				.Where(p => p.Author == user)
 				.OrderByDescending(p => p.DatePublished)
+				.Select(p => new Post
+				{
+					Id = p.Id,
+					Title = p.Title,
+					Author = p.Author,
+					Published = p.Published,
+					DateCreated = p.DateCreated,
+					DatePublished = p.DatePublished,
+					ThumbnailUrn = p.ThumbnailUrn,
+					Tags = p.Tags,
+					Votes = p.Votes,
+				})
 				.ToArrayAsync();
 		}
 
@@ -254,37 +272,18 @@ namespace VamBooru.Repository.EFPostgres
 			return dbTags.ToArray();
 		}
 
-		public async Task<IFileModel[]> LoadPostFilesAsync(Guid postId, bool includeBytes)
+		public Task<PostFile[]> LoadPostFilesAsync(Guid postId)
 		{
-			var sceneFiles = await LoadSceneFilesAsync(postId, includeBytes);
-			var supportFiles = await LoadSupportFilesAsync(postId, includeBytes);
-
-			return sceneFiles.Concat<IFileModel>(supportFiles).ToArray();
+			return _context.PostFiles
+				.Where(sf => sf.Post.Id == postId)
+				.ToArrayAsync();
 		}
 
-		private Task<SceneFile[]> LoadSceneFilesAsync(Guid postId, bool includeBytes)
+		public Task<PostFile> LoadPostFileAsync(Guid postId, string urn)
 		{
-			var query = _context.SceneFiles
-				.Include(sf => sf.Scene)
-				.Where(sf => sf.Scene.Post.Id == postId);
-
-			query = includeBytes
-				? query.Select(sf => new SceneFile {Filename = sf.Filename, Scene = sf.Scene, Bytes = sf.Bytes})
-				: query.Select(sf => new SceneFile {Filename = sf.Filename, Scene = sf.Scene});
-
-			return query.ToArrayAsync();
-		}
-
-		private Task<SupportFile[]> LoadSupportFilesAsync(Guid postId, bool includeBytes)
-		{
-			var query = _context.SupportFiles
-				.Where(sf => sf.Post.Id == postId);
-
-			query = includeBytes
-				? query.Select(sf => new SupportFile {Filename = sf.Filename, Post = new Post {Id = sf.Post.Id}, Bytes = sf.Bytes})
-				: query.Select(sf => new SupportFile {Filename = sf.Filename, Post = new Post {Id = sf.Post.Id}});
-
-			return query.ToArrayAsync();
+			//TODO: Not unit tested
+			return _context.PostFiles
+				.SingleOrDefaultAsync(sf => sf.Urn == urn && sf.Post.Id == postId);
 		}
 
 		public async Task<LoadOrCreateUserFromLoginResult> LoadOrCreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now)

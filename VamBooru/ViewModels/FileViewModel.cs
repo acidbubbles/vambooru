@@ -6,7 +6,7 @@ namespace VamBooru.ViewModels
 	{
 		public string Filename { get; set; }
 
-		public static FileViewModel From(IFileModel from)
+		public static FileViewModel From(PostFile from)
 		{
 			if(from == null) return null;
 

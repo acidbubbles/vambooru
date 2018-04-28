@@ -18,14 +18,6 @@ namespace VamBooru.Controllers
 	public class UploadController : Controller
 	{
 		private const int MaxFileSize = 5 * 1000 * 1000; // 5MB
-		private static readonly string[] SupportFilesExtensions = new[]
-		{
-			".wav",
-			".mp3",
-			".jpg",
-			".png",
-			".txt"
-		};
 
 		private readonly IRepository _repository;
 		private readonly IStorage _storage;
@@ -43,6 +35,12 @@ namespace VamBooru.Controllers
 		[Authorize]
 		public async Task<IActionResult> Upload()
 		{
+			//TODO: Refactor this; it's way too complicated.
+			//TODO: Assign the post's ThumbnailUrn and remove scenes loading from BrowsePosts
+
+			var user = await _repository.LoadPrivateUserAsync(this.GetUserLoginInfo());
+			if (user == null) return Unauthorized();
+
 			if(!OrganizeFiles(out var scenesFiles, out var supportFiles, out var errorCode)) return BadRequest(new UploadResponse {Success = false, Code = errorCode});
 
 			var scenes = await Task.WhenAll(scenesFiles.Select(async sf =>
@@ -61,20 +59,29 @@ namespace VamBooru.Controllers
 				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
 			}
 
-			var post = await _repository.CreatePostAsync(
-				this.GetUserLoginInfo(),
-				scenes.First().Item1.Name,
-				tags.Distinct().ToArray(),
-				scenes.Select(s => s.Item1).ToArray(),
-				DateTimeOffset.UtcNow
-			);
-
+			var postFiles = new List<PostFile>();
+			string postThumbnailUrn = null;
 			foreach (var sceneData in scenes)
 			{
-				await _storage.SaveSceneAsync(sceneData.Item1, sceneData.Item3);
+				postFiles.Add(new PostFile
+				{
+					Urn = await _storage.SaveFileAsync(sceneData.Item3, true),
+					Filename = sceneData.Item2.FilenameWithoutExtension + ".json",
+					MimeType = "application/json",
+					Compressed = true
+				});
 				sceneData.Item3.Dispose();
-				await _storage.SaveSceneThumbAsync(sceneData.Item1, sceneData.Item4);
+				var thumbUrn = await _storage.SaveFileAsync(sceneData.Item4, false);
+				if (postThumbnailUrn == null) postThumbnailUrn = thumbUrn;
+				postFiles.Add(new PostFile
+				{
+					Urn = thumbUrn,
+					Filename = sceneData.Item2.FilenameWithoutExtension + ".jpg",
+					MimeType = "image/jpeg",
+					Compressed = false
+				});
 				sceneData.Item4.Dispose();
+				sceneData.Item1.ThumbnailUrn = thumbUrn;
 			}
 
 			foreach (var supportFile in supportFiles)
@@ -86,8 +93,24 @@ namespace VamBooru.Controllers
 				}
 				memoryStream.Seek(0, SeekOrigin.Begin);
 
-				await _storage.SaveSupportFileAsync(post, supportFile.FileName, memoryStream);
+				postFiles.Add(new PostFile
+				{
+					Urn = await _storage.SaveFileAsync(memoryStream, true),
+					Filename = supportFile.FileName,
+					MimeType = MimeTypeUtils.Of(supportFile.FileName),
+					Compressed = true
+				});
 			}
+
+			var post = await _repository.CreatePostAsync(
+				this.GetUserLoginInfo(),
+				scenes.First().Item1.Name,
+				tags.Distinct().ToArray(),
+				scenes.Select(s => s.Item1).ToArray(),
+				postFiles.ToArray(),
+				postThumbnailUrn,
+				DateTimeOffset.UtcNow
+			);
 
 			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });
 		}
@@ -140,7 +163,7 @@ namespace VamBooru.Controllers
 					}
 				}
 
-				if (SupportFilesExtensions.Contains(extension))
+				if (MimeTypeUtils.Known.Contains(extension))
 				{
 					//TODO: We should validate these files
 					supportFiles.Add(file);

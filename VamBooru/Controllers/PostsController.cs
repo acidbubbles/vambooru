@@ -72,7 +72,7 @@ namespace VamBooru.Controllers
 		public async Task<PostViewModel> GetPostAsync([FromRoute] Guid postId)
 		{
 			var viewModel = PrepareForDisplay(await _repository.LoadPostAsync(postId), false);
-			viewModel.Files = (await _repository.LoadPostFilesAsync(postId, false)).Select(FileViewModel.From).ToArray();
+			viewModel.Files = (await _repository.LoadPostFilesAsync(postId)).Select(FileViewModel.From).ToArray();
 			return viewModel;
 		}
 
@@ -88,23 +88,13 @@ namespace VamBooru.Controllers
 		{
 			var viewModel = PostViewModel.From(post, optimize);
 
-			if (!optimize)
+			if (viewModel.ThumbnailUrn != null)
+				viewModel.ThumbnailUrl = Url.RouteUrl(nameof(PostFilesController.GetAsync), new { postId = post.Id, urn = viewModel.ThumbnailUrn });
+
+			if (viewModel.Scenes?.Any() ?? false)
 			{
-				viewModel.DownloadUrl = Url.RouteUrl(nameof(DownloadController.DownloadPostAsync), new {postId = post.Id});
-				foreach (var scene in viewModel.Scenes)
-					scene.ImageUrl = Url.RouteUrl(nameof(ScenesController.GetSceneThumbnailAsync), new {sceneId = scene.Id});
-				if (viewModel.ImageUrl == null)
-					viewModel.ImageUrl = viewModel.Scenes.FirstOrDefault()?.ImageUrl;
-			}
-			else
-			{
-				if (viewModel.ImageUrl == null)
-				{
-					//TODO: Let the user select which image to use as the "default" scene
-					var sceneId = post.Scenes.FirstOrDefault()?.Id;
-					if (sceneId != null)
-						viewModel.ImageUrl = Url.RouteUrl(nameof(ScenesController.GetSceneThumbnailAsync), new {sceneId});
-				}
+				foreach (var scene in viewModel.Scenes.Where(scene => scene.ThumbnailUrn != null))
+					scene.ThumbnailUrl = Url.RouteUrl(nameof(PostFilesController.GetAsync), new {postId = post.Id, urn = scene.ThumbnailUrn});
 			}
 
 			return viewModel;

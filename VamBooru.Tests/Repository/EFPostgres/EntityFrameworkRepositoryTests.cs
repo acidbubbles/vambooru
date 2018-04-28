@@ -129,13 +129,15 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				{
 					new Scene
 					{
-						Name = "My Scene",
-						Files = new[]
-						{
-							new SceneFile {Filename = "file.json", Extension = ".json", Bytes = new byte[] {1, 2, 3, 4}}
-						}
+						Name = "My Scene"
 					}
-				}, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+				},
+				new[]
+				{
+					new PostFile {Filename = "file.json"},
+					new PostFile {Filename = "file.jpg"},
+				}, null,
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 
 			CreateDbContext();
@@ -155,9 +157,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				{
 					new Scene
 					{
-						Name = "My Scene",
-						// We don't need files
-						Files = null
+						Name = "My Scene"
 					}
 				}.ToList()
 			}, c =>
@@ -182,7 +182,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"My Post 1",
 				new[] {"abc", "def"},
-				new Scene[0],
+				new Scene[0], new PostFile[0], null,
 				DateTimeOffset.MinValue
 			);
 
@@ -190,7 +190,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"My Post 1",
 				new[] {"def", "ghi"},
-				new Scene[0],
+				new Scene[0], new PostFile[0], null,
 				DateTimeOffset.MinValue
 			);
 
@@ -204,7 +204,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"Old Title",
 				new[] {"tag1", "tag2"},
-				new Scene[0],
+				new Scene[0], new PostFile[0], null,
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero));
 
 			CreateDbContext();
@@ -256,7 +256,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 		[Test]
 		public async Task NoVotesByDefault()
 		{
-			var post = await _repository.CreatePostAsync(_loginInfo, "Some Title", new string[0], new Scene[0], DateTimeOffset.MinValue);
+			var post = await _repository.CreatePostAsync(_loginInfo, "Some Title", new string[0], new Scene[0], new PostFile[0], null, DateTimeOffset.MinValue);
 
 			CreateDbContext();
 			var updated = await _repository.LoadPostAsync(post.Id);
@@ -273,7 +273,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			await _repository.LoadOrCreateUserFromLoginAsync("Scheme1", "user1", "User 1", DateTimeOffset.UtcNow);
 			await _repository.LoadOrCreateUserFromLoginAsync("Scheme1", "user2", "User 2", DateTimeOffset.UtcNow);
 			await _repository.LoadOrCreateUserFromLoginAsync("Scheme1", "user3", "User 3", DateTimeOffset.UtcNow);
-			var post = await _repository.CreatePostAsync(_loginInfo, "Some Title", new string[0], new Scene[0], DateTimeOffset.MinValue);
+			var post = await _repository.CreatePostAsync(_loginInfo, "Some Title", new string[0], new Scene[0], new PostFile[0], null, DateTimeOffset.MinValue);
 
 			CreateDbContext();
 			await _repository.VoteAsync(new UserLoginInfo("Scheme1", "user1"), post.Id, 100);
@@ -297,7 +297,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"My Post",
 				new[] {"my-tag"},
-				new Scene[0],
+				new Scene[0], new PostFile[0], null,
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 
@@ -320,7 +320,13 @@ namespace VamBooru.Tests.Repository.EFPostgres
 					{
 						Name = "My Scene"
 					}
-				}, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+				},
+				new[]
+				{
+					new PostFile {Filename = "file.json"},
+					new PostFile {Filename = "file.jpg"},
+				}, null,
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 			var viewModel = PostViewModel.From(saved, false);
 			viewModel.Published = true;
@@ -349,9 +355,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				{
 					new Scene
 					{
-						Name = "My Scene",
-						// We don't need files
-						Files = null
+						Name = "My Scene"
 					}
 				}.ToList()
 			}, c =>
@@ -400,7 +404,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 					_loginInfo,
 					postTitle,
 					postTags,
-					CreateScenes(),
+					CreateScenes(), new PostFile[0], null,
 					created
 				);
 
@@ -432,7 +436,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"My Post",
 				new[] {"my-tag"},
-				new Scene[0],
+				new Scene[0], new PostFile[0], null,
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 
@@ -442,9 +446,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			CollectionAssert.AreEqual(new[] { "My Post" }, posts.Select(post => post.Title).ToArray());
 		}
 
-		[TestCase(true)]
-		[TestCase(false)]
-		public async Task GetPostFiles(bool includeBytes)
+		public async Task GetPostFiles()
 		{
 			var saved = await _repository.CreatePostAsync(
 				_loginInfo,
@@ -456,42 +458,39 @@ namespace VamBooru.Tests.Repository.EFPostgres
 					{
 						Name = "My Scene"
 					}
-				}, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+				},
+				new[]
+				{
+					new PostFile { Filename = "My Scene.json" },
+					new PostFile { Filename = "My Scene.jpg" },
+					new PostFile { Filename = "sound.wav" },
+				}, null, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
-			var scene = saved.Scenes.First();
-			scene.Files = scene.Files ?? new List<SceneFile>();
-
-			//TODO: Right now we mix Storage and Repository a lot. Bytes should move out eventually
-			saved.SupportFiles.Add(new SupportFile { Filename = "sound.wav", Bytes = new byte[] { 1, 2, 3 } });
-			scene.Files.Add(new SceneFile {Filename = "My Scene.json", Extension = ".json", Bytes = new byte[] {5, 6}});
-			scene.Files.Add(new SceneFile {Filename = "My Scene.jpg", Extension = ".jpg", Bytes = new byte[] {7, 8}});
-			await _context.SaveChangesAsync();
 
 			CreateDbContext();
-			var files = await _repository.LoadPostFilesAsync(saved.Id, includeBytes);
+			var files = await _repository.LoadPostFilesAsync(saved.Id);
 
-			files.ShouldDeepEqual(new IFileModel[]
+			files.ShouldDeepEqual(new[]
 			{
-				new SceneFile {Filename = "My Scene.json", Bytes = includeBytes ? new byte[] {5, 6} : null},
-				new SceneFile {Filename = "My Scene.jpg", Bytes = includeBytes ? new byte[] {7, 8} : null},
-				new SupportFile {Filename = "sound.wav", Bytes = includeBytes ? new byte[] {1, 2, 3} : null}
+				new PostFile {Filename = "My Scene.json"},
+				new PostFile {Filename = "My Scene.jpg"},
+				new PostFile {Filename = "sound.wav"}
 			}, c =>
 			{
 				c.IgnoreCollectionOrder = true;
 				c.MembersToIgnore.Add("*Id");
-				c.MembersToIgnore.Add("SupportFile.Post");
-				c.MembersToIgnore.Add("SceneFile.Scene");
+				c.MembersToIgnore.Add("PostFile.Post");
 			});
 		}
 
 		[Test]
 		public async Task TagPostsCount()
 		{
-			var post1 = await _repository.CreatePostAsync(_loginInfo, "Post1", new[] { "tag1", "tag2" }, new Scene[0], DateTimeOffset.MinValue);
+			var post1 = await _repository.CreatePostAsync(_loginInfo, "Post1", new[] { "tag1", "tag2" }, new Scene[0], new PostFile[0], null, DateTimeOffset.MinValue);
 			var post1ViewModel = PostViewModel.From(post1, false);
-			var post2 = await _repository.CreatePostAsync(_loginInfo, "Post2", new[] { "tag2", "tag3" }, new Scene[0], DateTimeOffset.MinValue);
+			var post2 = await _repository.CreatePostAsync(_loginInfo, "Post2", new[] { "tag2", "tag3" }, new Scene[0], new PostFile[0], null, DateTimeOffset.MinValue);
 			var post2ViewModel = PostViewModel.From(post2, false);
-			await _repository.CreatePostAsync(_loginInfo, "Post3", new[] { "tag4" }, new Scene[0], DateTimeOffset.MinValue);
+			await _repository.CreatePostAsync(_loginInfo, "Post3", new[] { "tag4" }, new Scene[0], new PostFile[0], null, DateTimeOffset.MinValue);
 
 			// Zero by default
 			{

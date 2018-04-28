@@ -3,7 +3,7 @@ using VamBooru.ViewModels;
 
 namespace VamBooru.Models
 {
-	public class SceneFile : IFileModel
+	public class SceneFile
 	{
 		public long Id { get; set; }
 		[Required] public string Filename { get; set; }

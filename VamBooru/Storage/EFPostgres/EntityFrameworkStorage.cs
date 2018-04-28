@@ -9,8 +9,7 @@ namespace VamBooru.Storage.EFPostgres
 {
 	public class EntityFrameworkStorage : IStorage
 	{
-		private const string JpgExtension = ".jpg";
-		private const string JsonExtension = ".json";
+		private const string UrnPrefix = "urn:vambooru:ef:";
 
 		private readonly VamBooruDbContext _context;
 
@@ -19,30 +18,7 @@ namespace VamBooru.Storage.EFPostgres
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
-		public async Task<SceneFile> SaveSceneAsync(Scene scene, MemoryStream stream)
-		{
-			return await SaveSceneFile(scene, stream, JsonExtension, true);
-		}
-
-		public async Task<SceneFile> SaveSceneThumbAsync(Scene scene, MemoryStream stream)
-		{
-			return await SaveSceneFile(scene, stream, JpgExtension, false);
-		}
-
-		public async Task<SupportFile> SaveSupportFileAsync(Post post, string filename, MemoryStream stream)
-		{
-			var file = new SupportFile
-			{
-				Post = post,
-				Filename = filename,
-				Bytes = stream.ToArray()
-			};
-			_context.SupportFiles.Add(file);
-			await _context.SaveChangesAsync();
-			return file;
-		}
-
-		private async Task<SceneFile> SaveSceneFile(Scene scene, MemoryStream stream, string extension, bool compressed)
+		public async Task<string> SaveFileAsync(MemoryStream stream, bool compressed)
 		{
 			if (compressed)
 			{
@@ -55,28 +31,28 @@ namespace VamBooru.Storage.EFPostgres
 				stream = result;
 			}
 
-			var file = new SceneFile
+			var file = new StorageFile
 			{
-				Scene = scene,
-				Filename = scene.Name + extension,
-				Extension = extension,
 				Bytes = stream.ToArray()
 			};
-			_context.SceneFiles.Add(file);
+			_context.StorageFiles.Add(file);
 			await _context.SaveChangesAsync();
-			return file;
+			return $"{UrnPrefix}{file.Id}";
 		}
 
-		public async Task<Stream> LoadSceneFileStreamAsync(Guid sceneId, string filename)
+		public async Task<Stream> LoadFileStreamAsync(string urn, bool compressed)
 		{
-			var file = await _context.SceneFiles.FirstOrDefaultAsync(sf => sf.Scene.Id == sceneId && sf.Filename == filename);
+			if(!urn.StartsWith("urn:vambooru:ef:")) throw new ArgumentException($"Invalid or unsupported URN: '{urn}'", nameof(urn));
+			var id = int.Parse(urn.Substring(UrnPrefix.Length));
+
+			var file = await _context.StorageFiles.FirstOrDefaultAsync(sf => sf.Id == id);
 			if (file == null) return null;
 
-			if (filename.EndsWith(".json"))
+			if (compressed)
 			{
-				var compressed = new MemoryStream(file.Bytes);
+				var original = new MemoryStream(file.Bytes);
 				var decompressed = new MemoryStream();
-				using (var gzip = new GZipStream(compressed, CompressionMode.Decompress, true))
+				using (var gzip = new GZipStream(original, CompressionMode.Decompress, true))
 				{
 					gzip.CopyTo(decompressed);
 				}
@@ -84,20 +60,6 @@ namespace VamBooru.Storage.EFPostgres
 				return decompressed;
 			}
 
-			return new MemoryStream(file.Bytes);
-		}
-
-		public async Task<Stream> LoadSceneThumbStreamAsync(Guid sceneId)
-		{
-			var file = await _context.SceneFiles.FirstOrDefaultAsync(sf => sf.Scene.Id == sceneId && sf.Extension == JpgExtension);
-			if (file == null) return null;
-			return new MemoryStream(file.Bytes);
-		}
-
-		public async Task<Stream> LoadSupportFileStreamAsync(Guid postId, string filename)
-		{
-			var file = await _context.SupportFiles.FirstOrDefaultAsync(sf => sf.Post.Id == postId && sf.Filename == filename);
-			if (file == null) return null;
 			return new MemoryStream(file.Bytes);
 		}
 	}
