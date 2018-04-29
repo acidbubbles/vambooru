@@ -8,6 +8,14 @@ namespace VamBooru.Migrations
 	{
 		protected override void Up(MigrationBuilder migrationBuilder)
 		{
+			// Avoid running this migration if /api/admin/migrations/ExtractStorage was not run)
+			migrationBuilder.Sql(@"DO language plpgsql $$
+BEGIN
+	IF (SELECT COUNT(""Id"") FROM ""SceneFiles"") > 0 THEN
+		RAISE EXCEPTION 'Manual files migration was not yet complete';
+	END IF;
+END
+$$;");
 			migrationBuilder.DropTable(
 				name: "SceneFiles");
 
