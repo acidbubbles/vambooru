@@ -26,8 +26,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostTags\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Tags\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserPostVotes\"");
-			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"SupportFiles\"");
-			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"SceneFiles\"");
+			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostFiles\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Scenes\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"Posts\"");
 			await _context.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserLogins\"");
@@ -134,9 +133,10 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				},
 				new[]
 				{
-					new PostFile {Filename = "file.json"},
-					new PostFile {Filename = "file.jpg"},
-				}, null,
+					new PostFile {Filename = "file.json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+					new PostFile {Filename = "file.jpg", Urn = "urn:vambooru:tests:0002"}
+				},
+				"urn:vambooru:tests:0002",
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 
@@ -149,6 +149,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				Text = "",
 				Author = _user,
 				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
+				ThumbnailUrn = "urn:vambooru:tests:0002",
 				Tags = new[]
 				{
 					new PostTag {Tag = new Tag {Name = "my-tag"}}
@@ -182,7 +183,9 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"My Post 1",
 				new[] {"abc", "def"},
-				new Scene[0], new PostFile[0], null,
+				new Scene[0],
+				new PostFile[0],
+				"",
 				DateTimeOffset.MinValue
 			);
 
@@ -190,7 +193,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"My Post 1",
 				new[] {"def", "ghi"},
-				new Scene[0], new PostFile[0], null,
+				new Scene[0], new PostFile[0], "",
 				DateTimeOffset.MinValue
 			);
 
@@ -204,7 +207,9 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"Old Title",
 				new[] {"tag1", "tag2"},
-				new Scene[0], new PostFile[0], null,
+				new Scene[0],
+				new PostFile[0],
+				"urn:vambooru:tests:0000",
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero));
 
 			CreateDbContext();
@@ -230,6 +235,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
 				DatePublished = new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero),
 				Published = true,
+				ThumbnailUrn = "urn:vambooru:tests:0000",
 				Tags = new[]
 				{
 					new PostTag {Tag = new Tag {Name = "tag2", PostsCount = 1}},
@@ -297,7 +303,9 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"My Post",
 				new[] {"my-tag"},
-				new Scene[0], new PostFile[0], null,
+				new Scene[0],
+				new PostFile[0],
+				"",
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 
@@ -323,9 +331,10 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				},
 				new[]
 				{
-					new PostFile {Filename = "file.json"},
-					new PostFile {Filename = "file.jpg"},
-				}, null,
+					new PostFile {Filename = "file.json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+					new PostFile {Filename = "file.jpg", Urn = "urn:vambooru:tests:0002"}
+				},
+				"urn:vambooru:tests:0002",
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 			var viewModel = PostViewModel.From(saved, false);
@@ -347,17 +356,12 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
 				DatePublished = new DateTimeOffset(2005, 02, 03, 04, 05, 07, TimeSpan.Zero),
 				Published = true,
+				ThumbnailUrn = "urn:vambooru:tests:0002",
 				Tags = new[]
 				{
 					new PostTag {Tag = new Tag {Name = "my-tag", PostsCount = 1}}
 				}.ToList(),
-				Scenes = new[]
-				{
-					new Scene
-					{
-						Name = "My Scene"
-					}
-				}.ToList()
+				Scenes = new List<Scene>()
 			}, c =>
 			{
 				c.MembersToIgnore.Add("*Id");
@@ -404,7 +408,9 @@ namespace VamBooru.Tests.Repository.EFPostgres
 					_loginInfo,
 					postTitle,
 					postTags,
-					CreateScenes(), new PostFile[0], null,
+					CreateScenes(),
+					new PostFile[0],
+					"",
 					created
 				);
 
@@ -436,7 +442,9 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				_loginInfo,
 				"My Post",
 				new[] {"my-tag"},
-				new Scene[0], new PostFile[0], null,
+				new Scene[0],
+				new PostFile[0],
+				"",
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 
@@ -461,10 +469,12 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				},
 				new[]
 				{
-					new PostFile { Filename = "My Scene.json" },
-					new PostFile { Filename = "My Scene.jpg" },
-					new PostFile { Filename = "sound.wav" },
-				}, null, new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+					new PostFile {Filename = "My Scene.json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+					new PostFile {Filename = "My Scene.jpg", Urn = "urn:vambooru:tests:0002"},
+					new PostFile {Filename = "sound.wav", Urn = "urn:vambooru:tests:0003"},
+				},
+				"urn:vambooru:tests:0002",
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 
 			CreateDbContext();
@@ -486,11 +496,11 @@ namespace VamBooru.Tests.Repository.EFPostgres
 		[Test]
 		public async Task TagPostsCount()
 		{
-			var post1 = await _repository.CreatePostAsync(_loginInfo, "Post1", new[] { "tag1", "tag2" }, new Scene[0], new PostFile[0], null, DateTimeOffset.MinValue);
+			var post1 = await _repository.CreatePostAsync(_loginInfo, "Post1", new[] { "tag1", "tag2" }, new Scene[0], new PostFile[0], "", DateTimeOffset.MinValue);
 			var post1ViewModel = PostViewModel.From(post1, false);
-			var post2 = await _repository.CreatePostAsync(_loginInfo, "Post2", new[] { "tag2", "tag3" }, new Scene[0], new PostFile[0], null, DateTimeOffset.MinValue);
+			var post2 = await _repository.CreatePostAsync(_loginInfo, "Post2", new[] { "tag2", "tag3" }, new Scene[0], new PostFile[0], "", DateTimeOffset.MinValue);
 			var post2ViewModel = PostViewModel.From(post2, false);
-			await _repository.CreatePostAsync(_loginInfo, "Post3", new[] { "tag4" }, new Scene[0], new PostFile[0], null, DateTimeOffset.MinValue);
+			await _repository.CreatePostAsync(_loginInfo, "Post3", new[] { "tag4" }, new Scene[0], new PostFile[0], "", DateTimeOffset.MinValue);
 
 			// Zero by default
 			{
@@ -527,11 +537,11 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			{
 				var tags = await _repository.LoadTopTags(4);
 				tags.Select(TagViewModel.From).ToArray().ShouldDeepEqual(new[]
-						{
-						new TagViewModel {Name = "tag2", PostsCount = 2},
-						new TagViewModel {Name = "tag1", PostsCount = 1},
-						new TagViewModel {Name = "tag3", PostsCount = 1}
-						}, c => c.MembersToIgnore.Add("*Id"));
+				{
+					new TagViewModel {Name = "tag2", PostsCount = 2},
+					new TagViewModel {Name = "tag1", PostsCount = 1},
+					new TagViewModel {Name = "tag3", PostsCount = 1}
+				}, c => c.MembersToIgnore.Add("*Id"));
 			}
 
 			// Track changes
@@ -575,6 +585,3 @@ namespace VamBooru.Tests.Repository.EFPostgres
 		}
 	}
 }
-
-
-
