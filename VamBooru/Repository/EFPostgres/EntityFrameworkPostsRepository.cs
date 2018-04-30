@@ -34,7 +34,9 @@ namespace VamBooru.Repository.EFPostgres
 				Text = "",
 				Author = user,
 				ThumbnailUrn = thumbnailUrn,
-				DateCreated = now
+				DateCreated = now,
+				Scenes = new List<Scene>(),
+				PostFiles = new List<PostFile>()
 			};
 
 			foreach (var scene in scenes)
@@ -223,6 +225,8 @@ namespace VamBooru.Repository.EFPostgres
 		private async Task<TagsAssignationResult> AssignTagsAsync(Post post, string[] tags)
 		{
 			var result = new TagsAssignationResult();
+
+			if(post.Tags == null) post.Tags = new List<PostTag>();
 
 			// Remove tags
 			foreach (var tag in post.Tags.ToArray())

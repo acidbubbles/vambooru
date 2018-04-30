@@ -71,14 +71,14 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				Tags = new[]
 				{
 					new PostTag {Tag = new Tag {Name = "my-tag"}}
-				}.ToList(),
+				}.ToHashSet(),
 				Scenes = new[]
 				{
 					new Scene
 					{
 						Name = "My Scene"
 					}
-				}.ToList()
+				}.ToHashSet()
 			}, c =>
 			{
 				c.MembersToIgnore.Add("*Id");
@@ -248,8 +248,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				Tags = new[]
 				{
 					new PostTag {Tag = new Tag {Name = "my-tag", PostsCount = 1}}
-				}.ToList(),
-				Scenes = new List<Scene>()
+				}.ToHashSet()
 			}, c =>
 			{
 				c.MembersToIgnore.Add("*Id");

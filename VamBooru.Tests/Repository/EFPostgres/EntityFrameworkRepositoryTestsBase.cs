@@ -22,6 +22,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Tags\"");
 			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserPostVotes\"");
 			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostFiles\"");
+			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostComments\"");
 			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Scenes\"");
 			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Posts\"");
 			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserLogins\"");

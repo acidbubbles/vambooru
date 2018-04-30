@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using VamBooru.Models;
@@ -23,6 +24,7 @@ namespace VamBooru.ViewModels
 		{
 			if(from == null) return null;
 
+			var tags = from.Tags ?? new List<PostTag>();
 			return new PostViewModel
 			{
 				Id = from.Id.ToString(),
@@ -31,9 +33,9 @@ namespace VamBooru.ViewModels
 				Text = from.Text,
 				ThumbnailUrn = from.ThumbnailUrn,
 				Votes = from.Votes,
-				Tags = from.Tags?.Select(tag => TagViewModel.From(tag.Tag)).OrderByDescending(t => t.PostsCount).ThenBy(t => t.Name).ToArray(),
+				Tags = tags.Select(tag => TagViewModel.From(tag.Tag)).OrderByDescending(t => t.PostsCount).ThenBy(t => t.Name).ToArray(),
 				Author = UserViewModel.From(from.Author),
-				Scenes = optimize ? null : from.Scenes.Select(SceneViewModel.From).ToArray()
+				Scenes = optimize ? null : (from.Scenes?.Select(SceneViewModel.From).ToArray() ?? new SceneViewModel[0])
 			};
 		}
 	}

@@ -36,8 +36,9 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				Logins = new[]
 				{
 					new UserLogin {Scheme = "MyScheme", NameIdentifier = "john.1234"}
-				}.ToList(),
+				}.ToHashSet(),
 				Username = "John Doe",
+				Role = UserRoles.Standard,
 				DateSubscribed = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			}, c =>
 			{
@@ -66,8 +67,9 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				Logins = new[]
 				{
 					new UserLogin {Scheme = LoginInfo.Scheme, NameIdentifier = LoginInfo.NameIdentifier}
-				}.ToList(),
+				}.ToHashSet(),
 				Username = "Happy Panda",
+				Role = UserRoles.Standard,
 				DateSubscribed = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			}, c =>
 			{
@@ -83,9 +85,8 @@ namespace VamBooru.Tests.Repository.EFPostgres
 
 			user.ShouldDeepEqual(new User
 			{
-				// We don't want to load the user logins for public access
-				Logins = new List<UserLogin>(),
 				Username = "John Doe",
+				Role = UserRoles.Standard,
 				DateSubscribed = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			}, c =>
 			{

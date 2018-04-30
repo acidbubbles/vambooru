@@ -15,6 +15,7 @@ namespace VamBooru.Models
 		public DbSet<PostFile> PostFiles { get; set; }
 		public DbSet<Tag> Tags { get; set; }
 		public DbSet<PostTag> PostTags { get; set; }
+		public DbSet<PostComment> PostComments { get; set; }
 		public DbSet<Scene> Scenes { get; set; }
 		public DbSet<UserPostVote> UserPostVotes { get; set; }
 
@@ -54,6 +55,9 @@ namespace VamBooru.Models
 			modelBuilder.Entity<PostFile>()
 				.HasIndex(sf => sf.Urn)
 				.IsUnique();
+
+			modelBuilder.Entity<PostComment>()
+				.HasIndex(post => post.DateCreated);
 		}
 	}
 }

@@ -10,8 +10,9 @@ namespace VamBooru.Models
 		[Required] public string Username { get; set; }
 		public DateTimeOffset DateSubscribed { get; set; }
 		public UserRoles Role { get; set; }
-		public ICollection<Post> Posts { get; set; } = new List<Post>();
-		public ICollection<UserLogin> Logins { get; set; } = new List<UserLogin>();
+		public ICollection<Post> Posts { get; set; }
+		public ICollection<PostComment> PostComments { get; set; }
+		public ICollection<UserLogin> Logins { get; set; }
 		
 		public override string ToString()
 		{

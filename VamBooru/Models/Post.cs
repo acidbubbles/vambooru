@@ -17,15 +17,15 @@ namespace VamBooru.Models
 		[Required] public User Author { get; set; }
 		public string ThumbnailUrn { get; set; }
 		[Description("Calculated when UserVotes is updated")] public int Votes { get; set; }
-		public ICollection<PostTag> Tags { get; set; } = new List<PostTag>();
-		public ICollection<Scene> Scenes { get; set; } = new List<Scene>();
-		public ICollection<PostFile> PostFiles { get; set; } = new List<PostFile>();
-		public ICollection<UserPostVote> UserVotes { get; set; } = new List<UserPostVote>();
+		public ICollection<PostTag> Tags { get; set; }
+		public ICollection<Scene> Scenes { get; set; }
+		public ICollection<PostFile> PostFiles { get; set; }
+		public ICollection<UserPostVote> UserVotes { get; set; }
+		public ICollection<PostComment> Comments { get; set; }
 		
 		public override string ToString()
 		{
 			return $"{nameof(Post)} '{Title}'";
 		}
-
 	}
 }
