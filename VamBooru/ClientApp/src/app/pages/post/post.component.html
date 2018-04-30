@@ -32,7 +32,7 @@
 					</div>
 				</div>
 				<div class="col-md-8 tags text-right">
-					<span *ngFor="let tag of post.tags" class="badge badge-secondary">{{ tag.name }}</span>
+					<a *ngFor="let tag of post.tags" class="badge badge-secondary" [routerLink]="['/browse']" [queryParams]="{ tags: [tag.name] }">{{ tag.name }} ({{ tag.postsCount }})</a>
 				</div>
 			</div>
 		</div>
