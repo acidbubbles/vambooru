@@ -52,7 +52,7 @@
 
 		<hr />
 
-		<label>Tags</label>
+		<label>Tags in result</label>
 		<div class="tags mb-2">
 			<a [routerLink]="['/browse']" [queryParams]="{tag: [tag.name]}" *ngFor="let tag of commonTags" class="badge badge-secondary" (click)="addTag(tag)">+ {{ tag.name }} ({{ tag.postsCount }})</a>
 		</div>

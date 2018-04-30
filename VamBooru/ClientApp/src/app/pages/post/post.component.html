@@ -3,6 +3,13 @@
 		<div class="card-header">
 			<h2>{{ post.title }} <span class="badge badge-danger" *ngIf="!post.published"><span class="fa fa-eye-slash"></span>&nbsp;Not published</span></h2>
 			<i>by <a [routerLink]="['/users', post.author.username]">{{ post.author.username }}</a></i>
+
+			<div *ngIf="ownedByCurrentUser" class="text-right">
+				<b>You created this post.</b>&nbsp;
+				<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-sm btn-secondary">
+					<i class="fab fa-pencil"></i>&nbsp;Edit
+				</a>
+			</div>
 		</div>
 		<div class="card-body">
 			<div class="mx-auto text-center">
@@ -39,7 +46,7 @@
 	</div>
 
 	<div class="card mb-4" *ngIf="post.text">
-		<div class="card-body">
+		<div class="card-body pb-1">
 			<markdown [data]="post.text"></markdown>
 		</div>
 	</div>
@@ -50,19 +57,10 @@
 				<i class="fab fa-download-alt"></i>&nbsp;Download as .zip
 			</a>
 		</div>
-		<div class="card-body">
+		<div class="card-body pb-1">
 			<ul>
 				<li *ngFor="let file of post.files">{{file.filename}}</li>
 			</ul>
-		</div>
-	</div>
-
-	<div *ngIf="ownedByCurrentUser" class="card mb-4">
-		<div class="card-body">
-			<p>You created this post.</p>
-			<a [routerLink]="['/posts', post.id, 'edit']" class="btn btn-secondary">
-				<i class="fab fa-pencil"></i>&nbsp;Edit
-			</a>
 		</div>
 	</div>
 </div>
