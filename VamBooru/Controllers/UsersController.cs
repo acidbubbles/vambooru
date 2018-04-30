@@ -14,11 +14,11 @@ namespace VamBooru.Controllers
 	{
 		private const string Me = "me";
 
-		private readonly IRepository _repository;
+		private readonly IUsersRepository _usersRepository;
 
-		public UsersController(IRepository repository)
+		public UsersController(IUsersRepository usersRepository)
 		{
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
 		}
 
 		[HttpGet("{username}")]
@@ -29,11 +29,11 @@ namespace VamBooru.Controllers
 			{
 				if (!User.Identity.IsAuthenticated) return Unauthorized();
 
-				user = await _repository.LoadPrivateUserAsync(User.Identity.AuthenticationType, User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+				user = await _usersRepository.LoadPrivateUserAsync(User.Identity.AuthenticationType, User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
 			}
 			else
 			{
-				user = await _repository.LoadPublicUserAsync(username);
+				user = await _usersRepository.LoadPublicUserAsync(username);
 			}
 
 			if (user == null) return NotFound();

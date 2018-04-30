@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VamBooru.Models;
-using VamBooru.Repository;
 using VamBooru.Storage;
 
 namespace VamBooru.Controllers
@@ -14,19 +13,18 @@ namespace VamBooru.Controllers
 	public class AdminController : Controller
 	{
 		private readonly VamBooruDbContext _dbContext;
-		private readonly IRepository _repository;
 		private readonly IStorage _storage;
 
-		public AdminController(VamBooruDbContext dbContext, IRepository repository, IStorage storage)
+		public AdminController(VamBooruDbContext dbContext, IStorage storage)
 		{
 			_dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 			_storage = storage ?? throw new ArgumentNullException(nameof(storage));
 		}
 
 		[HttpGet("migrations/ExtractStorage")]
 		public async Task<IActionResult> MigrationsExtractStorage()
 		{
+#pragma warning disable 612
 			var result = new List<string>();
 
 			{
@@ -82,6 +80,7 @@ namespace VamBooru.Controllers
 			}
 
 			return Ok(result);
+#pragma warning restore 612
 		}
 	}
 }

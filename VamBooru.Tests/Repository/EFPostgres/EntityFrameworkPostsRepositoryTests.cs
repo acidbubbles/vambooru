@@ -1,0 +1,338 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using VamBooru.Models;
+using VamBooru.Repository;
+using VamBooru.Repository.EFPostgres;
+using VamBooru.ViewModels;
+
+namespace VamBooru.Tests.Repository.EFPostgres
+{
+	public class EntityFrameworkPostsRepositoryTests : EntityFrameworkRepositoryTestsBase<EntityFrameworkPostsRepository>
+	{
+		private EntityFrameworkUsersRepository _users;
+		private EntityFrameworkVotesRepository _votes;
+
+		[SetUp]
+		public async Task BeforeEach()
+		{
+			await Initialize();
+			await CreateUser();
+		}
+
+		[TearDown]
+		public void AfterEach()
+		{
+			Cleanup();
+		}
+
+		protected override EntityFrameworkPostsRepository Create(VamBooruDbContext context)
+		{
+			_users = new EntityFrameworkUsersRepository(context);
+			_votes = new EntityFrameworkVotesRepository(context, _users);
+			return new EntityFrameworkPostsRepository(context, _users);
+		}
+
+		[Test]
+		public async Task CreateAndGetPosts()
+		{
+			var saved = await Repository.CreatePostAsync(
+				LoginInfo,
+				"My Post",
+				new[] {"my-tag"},
+				new[]
+				{
+					new Scene
+					{
+						Name = "My Scene"
+					}
+				},
+				new[]
+				{
+					new PostFile {Filename = "file.json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+					new PostFile {Filename = "file.jpg", Urn = "urn:vambooru:tests:0002"}
+				},
+				"urn:vambooru:tests:0002",
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
+
+			CreateDbContext();
+			var post = await Repository.LoadPostAsync(saved.Id);
+
+			post.ShouldDeepEqual(new Post
+			{
+				Title = "My Post",
+				Text = "",
+				Author = CurrentUser,
+				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
+				ThumbnailUrn = "urn:vambooru:tests:0002",
+				Tags = new[]
+				{
+					new PostTag {Tag = new Tag {Name = "my-tag"}}
+				}.ToList(),
+				Scenes = new[]
+				{
+					new Scene
+					{
+						Name = "My Scene"
+					}
+				}.ToList()
+			}, c =>
+			{
+				c.MembersToIgnore.Add("*Id");
+				c.MembersToIgnore.Add("UserLogin.User");
+				c.MembersToIgnore.Add("PostTag.PostId");
+				c.MembersToIgnore.Add("PostTag.TagId");
+				c.MembersToIgnore.Add("PostTag.Post");
+				c.MembersToIgnore.Add("Tag.Id");
+				c.MembersToIgnore.Add("Scene.Post");
+				c.MembersToIgnore.Add("SceneFile.Scene");
+				c.MembersToIgnore.Add("User.Scenes");
+				c.MembersToIgnore.Add("User.Logins");
+			});
+		}
+
+		[Test]
+		public async Task NewPostsReuseTags()
+		{
+			var post1 = await Repository.CreatePostAsync(
+				LoginInfo,
+				"My Post 1",
+				new[] {"abc", "def"},
+				new Scene[0],
+				new PostFile[0],
+				"",
+				DateTimeOffset.MinValue
+			);
+
+			var post2 = await Repository.CreatePostAsync(
+				LoginInfo,
+				"My Post 1",
+				new[] {"def", "ghi"},
+				new Scene[0], new PostFile[0], "",
+				DateTimeOffset.MinValue
+			);
+
+			Assert.That(post1.Tags.Single(t => t.Tag.Name == "def").TagId, Is.EqualTo(post2.Tags.Single(t => t.Tag.Name == "def").TagId), "The Tag should be reused");
+		}
+
+		[Test]
+		public async Task UpdatePost()
+		{
+			var saved = await Repository.CreatePostAsync(
+				LoginInfo,
+				"Old Title",
+				new[] {"tag1", "tag2"},
+				new Scene[0],
+				new PostFile[0],
+				"urn:vambooru:tests:0000",
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero));
+
+			CreateDbContext();
+			var updated = await Repository.UpdatePostAsync(LoginInfo, new PostViewModel
+				{
+					Id = saved.Id.ToString(),
+					Author = new UserViewModel {Username = CurrentUser.Username},
+					Title = "New Title",
+					Text = "Markdown\nText",
+					Published = true,
+					Tags = new[] {new TagViewModel {Name = "tag2"}, new TagViewModel {Name = "tag3"}}
+				}, new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
+
+			CreateDbContext();
+			var post = await Repository.LoadPostAsync(saved.Id);
+
+			post.ShouldDeepEqual(new Post
+			{
+				Title = "New Title",
+				Text = "Markdown\nText",
+				Author = CurrentUser,
+				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
+				DatePublished = new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero),
+				Published = true,
+				ThumbnailUrn = "urn:vambooru:tests:0000",
+				Tags = new[]
+				{
+					new PostTag {Tag = new Tag {Name = "tag2", PostsCount = 1}},
+					new PostTag {Tag = new Tag {Name = "tag3", PostsCount = 1}}
+				}.ToList(),
+			}, c =>
+			{
+				c.MembersToIgnore.Add("*Id");
+				c.MembersToIgnore.Add("Post.Scenes");
+				c.MembersToIgnore.Add("UserLogin.User");
+				c.MembersToIgnore.Add("PostTag.PostId");
+				c.MembersToIgnore.Add("PostTag.TagId");
+				c.MembersToIgnore.Add("PostTag.Post");
+				c.MembersToIgnore.Add("Tag.Id");
+				c.MembersToIgnore.Add("Scene.Post");
+				c.MembersToIgnore.Add("SceneFile.Scene");
+				c.MembersToIgnore.Add("User.Scenes");
+				c.MembersToIgnore.Add("User.Logins");
+			});
+
+			Assert.That(updated.Tags.Single(t => t.Tag.Name == "tag2").TagId, Is.EqualTo(post.Tags.Single(t => t.Tag.Name == "tag2").TagId), "The Tag should be reused");
+		}
+
+		[Test]
+		public async Task BrowsePostsExcludesNonPublishedPosts()
+		{
+			await Repository.CreatePostAsync(
+				LoginInfo,
+				"My Post",
+				new[] {"my-tag"},
+				new Scene[0],
+				new PostFile[0],
+				"",
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
+
+			CreateDbContext();
+			var posts = await Repository.BrowsePostsAsync(PostSortBy.Default, PostSortDirection.Default, PostedSince.Default, 0, 1, null, null, null, DateTimeOffset.MaxValue);
+
+			Assert.That(posts.Length, Is.EqualTo(0));
+		}
+
+		[Test]
+		public async Task BrowsePostsContainsExpectedFields()
+		{
+			var saved = await Repository.CreatePostAsync(
+				LoginInfo,
+				"My Post",
+				new[] {"my-tag"},
+				new[]
+				{
+					new Scene
+					{
+						Name = "My Scene"
+					}
+				},
+				new[]
+				{
+					new PostFile {Filename = "file.json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+					new PostFile {Filename = "file.jpg", Urn = "urn:vambooru:tests:0002"}
+				},
+				"urn:vambooru:tests:0002",
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
+			var viewModel = PostViewModel.From(saved, false);
+			viewModel.Published = true;
+			viewModel.Text = "Some text...";
+			await Repository.UpdatePostAsync(LoginInfo, viewModel, new DateTimeOffset(2005, 02, 03, 04, 05, 07, TimeSpan.Zero));
+
+			CreateDbContext();
+			var posts = await Repository.BrowsePostsAsync(PostSortBy.Default, PostSortDirection.Default, PostedSince.Default, 0, 1, null, null, null, DateTimeOffset.MaxValue);
+
+			Assert.That(posts.Length, Is.EqualTo(1));
+
+			posts[0].ShouldDeepEqual(new Post
+			{
+				Title = "My Post",
+				// Text should be excluded
+				Text = null,
+				Author = CurrentUser,
+				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
+				DatePublished = new DateTimeOffset(2005, 02, 03, 04, 05, 07, TimeSpan.Zero),
+				Published = true,
+				ThumbnailUrn = "urn:vambooru:tests:0002",
+				Tags = new[]
+				{
+					new PostTag {Tag = new Tag {Name = "my-tag", PostsCount = 1}}
+				}.ToList(),
+				Scenes = new List<Scene>()
+			}, c =>
+			{
+				c.MembersToIgnore.Add("*Id");
+				c.MembersToIgnore.Add("UserLogin.User");
+				c.MembersToIgnore.Add("PostTag.PostId");
+				c.MembersToIgnore.Add("PostTag.TagId");
+				c.MembersToIgnore.Add("PostTag.Post");
+				c.MembersToIgnore.Add("Tag.Id");
+				c.MembersToIgnore.Add("Scene.Post");
+				c.MembersToIgnore.Add("SceneFile.Scene");
+				c.MembersToIgnore.Add("User.Scenes");
+				c.MembersToIgnore.Add("User.Logins");
+			});
+		}
+
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, null, new[] { "23 hours ago, 30pts", "6 days ago, 90pts" }, TestName = "Sort by created, page 1")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 1, 2, null, null, null, new[] { "3 weeks ago, 200pts", "11 months ago, 50pts" }, TestName = "Sort by created, page 2")]
+		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 0, 2, null, null, null, new[] { "2 years ago, 100pts", "11 months ago, 50pts" }, TestName = "Sort by least recently updated, page 1")]
+		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 1, 2, null, null, null, new[] { "3 weeks ago, 200pts", "6 days ago, 90pts" }, TestName = "Sort by least recently updated, page 2")]
+		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, null, new[] { "3 weeks ago, 200pts", "2 years ago, 100pts" }, TestName = "Sort by votes, page 1")]
+		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 1, 2, null, null, null, new[] { "6 days ago, 90pts", "11 months ago, 50pts" }, TestName = "Sort by votes, page 2")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastYear, 0, 1, null, null, null, new[] { "11 months ago, 50pts" }, TestName = "Since last year")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastMonth, 0, 1, null, null, null, new[] { "3 weeks ago, 200pts" }, TestName = "Since last month")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastDay, 0, 1, null, null, null, new[] { "23 hours ago, 30pts" }, TestName = "Since yesterday")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "tag1" }, null, null, new[] { "3 weeks ago, 200pts", "2 years ago, 100pts" }, TestName = "Search by one tag")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "tag1", "tag2" }, null, null, new[] { "3 weeks ago, 200pts" }, TestName = "Search by two tags")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, "cool", new[] { "6 days ago, 90pts" }, TestName = "Text search in post text")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, "weeks", new[] { "3 weeks ago, 200pts" }, TestName = "Text search in post title")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 1, null, "John Doe", null, new[] { "23 hours ago, 30pts" }, TestName = "Filter by current user")]
+		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 1, null, "Abbie Bibbo", null, new string[0], TestName = "Filter by non-existent user")]
+		public async Task BrowsePostsFilters(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, string author, string text, string[] expected)
+		{
+			Scene[] CreateScenes() => new[]
+			{
+				new Scene
+				{
+					Name = "My Scene"
+				}
+			};
+
+			async Task CreatePost(string postTitle, string postText, int votes, DateTimeOffset created, params string[] postTags)
+			{
+				var post = await Repository.CreatePostAsync(
+					LoginInfo,
+					postTitle,
+					postTags,
+					CreateScenes(),
+					new PostFile[0],
+					"",
+					created
+				);
+
+				var viewModel = PostViewModel.From(post, false);
+				viewModel.Published = true;
+				viewModel.Text = postText;
+				await Repository.UpdatePostAsync(LoginInfo, viewModel, post.DateCreated.AddDays(1));
+
+				await _votes.VoteAsync(LoginInfo, post.Id, votes);
+			}
+
+			var now = new DateTimeOffset(2000, 01, 01, 01, 01, 01, TimeSpan.Zero);
+			await CreatePost("2 years ago, 100pts", "", 100, now.AddYears(-2), "tag1");
+			await CreatePost("11 months ago, 50pts", "", 50, now.AddMonths(-11), "tag2");
+			await CreatePost("3 weeks ago, 200pts", "", 200, now.AddDays(-7 * 3), "tag1", "tag2");
+			await CreatePost("6 days ago, 90pts", "cool one", 90, now.AddDays(-6));
+			await CreatePost("23 hours ago, 30pts", "", 30, now.AddHours(-1));
+
+			CreateDbContext();
+			var posts = await Repository.BrowsePostsAsync(sortBy, sortDirection, since, page, pageSize, tags, author, text, now);
+
+			CollectionAssert.AreEqual(expected, posts.Select(post => post.Title).ToArray());
+		}
+
+		[Test]
+		public async Task MyPostsIncludesNonPublishedPosts()
+		{
+			await Repository.CreatePostAsync(
+				LoginInfo,
+				"My Post",
+				new[] {"my-tag"},
+				new Scene[0],
+				new PostFile[0],
+				"",
+				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
+			);
+
+			CreateDbContext();
+			var posts = await Repository.BrowseMyPostsAsync(LoginInfo);
+
+			CollectionAssert.AreEqual(new[] { "My Post" }, posts.Select(post => post.Title).ToArray());
+		}
+	}
+}

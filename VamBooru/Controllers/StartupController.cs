@@ -9,12 +9,12 @@ namespace VamBooru.Controllers
 	[Route("/api/startup")]
 	public class StartupController : Controller
 	{
-		private readonly IRepository _repository;
+		private readonly IUsersRepository _usersRepository;
 		private readonly string _authScheme;
 
-		public StartupController(IConfiguration configuration, IRepository repository)
+		public StartupController(IConfiguration configuration, IUsersRepository usersRepository)
 		{
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
 			_authScheme = configuration["Authentication:Scheme"];
 		}
 
@@ -28,7 +28,7 @@ namespace VamBooru.Controllers
 					AuthSchemes = new[] { _authScheme }
 				});
 
-			var user = await _repository.LoadPrivateUserAsync(this.GetUserLoginInfo());
+			var user = await _usersRepository.LoadPrivateUserAsync(this.GetUserLoginInfo());
 			return Ok(new StartupConfiguration
 			{
 				IsAuthenticated = true,

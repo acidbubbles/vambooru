@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -15,7 +14,7 @@ namespace VamBooru.Tests.Controllers
 		[Test]
 		public async Task Get_ByUsername()
 		{
-			var repository = new Mock<IRepository>(MockBehavior.Strict);
+			var repository = new Mock<IUsersRepository>(MockBehavior.Strict);
 			repository
 				.Setup(mock => mock.LoadPublicUserAsync("johnny"))
 				.ReturnsAsync(new User

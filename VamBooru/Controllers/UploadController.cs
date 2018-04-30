@@ -19,13 +19,15 @@ namespace VamBooru.Controllers
 	{
 		private const int MaxFileSize = 5 * 1000 * 1000; // 5MB
 
-		private readonly IRepository _repository;
+		private readonly IUsersRepository _usersRepository;
+		private readonly IPostsRepository _postsRepository;
 		private readonly IStorage _storage;
 		private readonly ISceneFormat _sceneFormat;
 
-		public UploadController(IRepository repository, IStorage storage, ISceneFormat sceneFormat)
+		public UploadController(IUsersRepository usersRepository, IPostsRepository postsRepository, IStorage storage, ISceneFormat sceneFormat)
 		{
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+			_postsRepository = postsRepository ?? throw new ArgumentNullException(nameof(postsRepository));
 			_storage = storage ?? throw new ArgumentNullException(nameof(storage));
 			_sceneFormat = sceneFormat ?? throw new ArgumentNullException(nameof(sceneFormat));
 		}
@@ -38,7 +40,7 @@ namespace VamBooru.Controllers
 			//TODO: Refactor this; it's way too complicated.
 			//TODO: Assign the post's ThumbnailUrn and remove scenes loading from BrowsePosts
 
-			var user = await _repository.LoadPrivateUserAsync(this.GetUserLoginInfo());
+			var user = await _usersRepository.LoadPrivateUserAsync(this.GetUserLoginInfo());
 			if (user == null) return Unauthorized();
 
 			if(!OrganizeFiles(out var scenesFiles, out var supportFiles, out var errorCode)) return BadRequest(new UploadResponse {Success = false, Code = errorCode});
@@ -102,7 +104,7 @@ namespace VamBooru.Controllers
 				});
 			}
 
-			var post = await _repository.CreatePostAsync(
+			var post = await _postsRepository.CreatePostAsync(
 				this.GetUserLoginInfo(),
 				scenes.First().Item1.Name,
 				tags.Distinct().ToArray(),

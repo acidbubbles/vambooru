@@ -15,12 +15,12 @@ namespace VamBooru.Controllers
 	[Route("auth")]
 	public class AuthController : Controller
 	{
-		private readonly IRepository _repository;
+		private readonly IUsersRepository _usersRepository;
 		private readonly string _defaultScheme;
 
-		public AuthController(IConfiguration configuration, IRepository repository)
+		public AuthController(IConfiguration configuration, IUsersRepository usersRepository)
 		{
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
 			_defaultScheme = configuration["Authentication:Scheme"] ?? throw new ArgumentException("Scheme was not configured", nameof(configuration));
 		}
 
@@ -57,7 +57,7 @@ namespace VamBooru.Controllers
 
 			//TODO: This should be replaced by a signup page when the user does not already exist
 			//TODO: Retry more than once if conflict
-			var result = await _repository.LoadOrCreateUserFromLoginAsync(scheme, identifier, username, DateTimeOffset.UtcNow);
+			var result = await _usersRepository.LoadOrCreateUserFromLoginAsync(scheme, identifier, username, DateTimeOffset.UtcNow);
 
 			switch (result.Result)
 			{

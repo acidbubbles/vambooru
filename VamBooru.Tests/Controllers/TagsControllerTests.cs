@@ -14,7 +14,7 @@ namespace VamBooru.Tests.Controllers
 		[Test]
 		public async Task SearchTags()
 		{
-			var repository = new Mock<IRepository>(MockBehavior.Strict);
+			var repository = new Mock<ITagsRepository>(MockBehavior.Strict);
 			repository
 				.Setup(mock => mock.SearchTags("art"))
 				.ReturnsAsync(new[]
@@ -42,7 +42,7 @@ namespace VamBooru.Tests.Controllers
 		[Test]
 		public async Task LoadTopTags()
 		{
-			var repository = new Mock<IRepository>(MockBehavior.Strict);
+			var repository = new Mock<ITagsRepository>(MockBehavior.Strict);
 			repository
 				.Setup(mock => mock.LoadTopTags(16))
 				.ReturnsAsync(new[]

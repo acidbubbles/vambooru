@@ -15,8 +15,8 @@ namespace VamBooru.Tests.Controllers
 		[Test]
 		public async Task Browse_Defaults()
 		{
-			var repository = new Mock<IRepository>(MockBehavior.Strict);
-			repository
+			var postsRepository = new Mock<IPostsRepository>(MockBehavior.Strict);
+			postsRepository
 				.Setup(mock => mock.BrowsePostsAsync(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 16, null, null, null, It.Is<DateTimeOffset>(d => d <= DateTimeOffset.UtcNow)))
 				.ReturnsAsync(new[]
 				{
@@ -31,8 +31,9 @@ namespace VamBooru.Tests.Controllers
 						}
 					}
 				});
+			var filesRepository = new Mock<IPostFilesRepository>(MockBehavior.Strict);
 			var cache = SetupCaching("posts:browse:(Created;Down;Default;0;16)");
-			var controller = new PostsController(repository.Object, cache.Object);
+			var controller = new PostsController(postsRepository.Object, filesRepository.Object, cache.Object);
 
 			var result = await controller.BrowseAsync();
 

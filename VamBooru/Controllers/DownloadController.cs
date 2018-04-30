@@ -11,20 +11,22 @@ namespace VamBooru.Controllers
 	[Route("api/download")]
 	public class DownloadController : Controller
 	{
-		private readonly IRepository _repository;
+		private readonly IPostsRepository _postsRepository;
+		private readonly IPostFilesRepository _filesRepository;
 		private readonly IStorage _storage;
 
-		public DownloadController(IRepository repository, IStorage storage)
+		public DownloadController(IPostsRepository postsRepository, IPostFilesRepository filesRepository, IStorage storage)
 		{
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_postsRepository = postsRepository ?? throw new ArgumentNullException(nameof(postsRepository));
+			_filesRepository = filesRepository ?? throw new ArgumentNullException(nameof(filesRepository));
 			_storage = storage ?? throw new ArgumentNullException(nameof(storage));
 		}
 
 		[HttpGet("posts/{postId}", Name = nameof(DownloadPostAsync))]
 		public async Task<IActionResult> DownloadPostAsync([FromRoute] Guid postId)
 		{
-			var post = await _repository.LoadPostAsync(postId);
-			var files = await _repository.LoadPostFilesAsync(postId);
+			var post = await _postsRepository.LoadPostAsync(postId);
+			var files = await _filesRepository.LoadPostFilesAsync(postId);
 
 			//TODO: This should be done way before
 			var username = SanitizingUtils.GetSanitizedFilename(post.Author.Username);

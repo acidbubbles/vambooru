@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VamBooru.Repository;
@@ -11,11 +10,13 @@ namespace VamBooru.Controllers
 	[Route("api/account")]
 	public class MyAccountController : Controller
 	{
-		private readonly IRepository _repository;
+		private readonly IUsersRepository _usersRepository;
+		private readonly IPostsRepository _postsRepository;
 
-		public MyAccountController(IRepository repository)
+		public MyAccountController(IUsersRepository usersRepository, IPostsRepository postsRepository)
 		{
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+			_postsRepository = postsRepository ?? throw new ArgumentNullException(nameof(postsRepository));
 		}
 
 		[HttpGet("")]
@@ -23,10 +24,10 @@ namespace VamBooru.Controllers
 		{
 			if (!User.Identity.IsAuthenticated) return Unauthorized();
 			var login = this.GetUserLoginInfo();
-			var account = await _repository.LoadPrivateUserAsync(login);
+			var account = await _usersRepository.LoadPrivateUserAsync(login);
 
 			if (account == null) return NotFound();
-			var posts = await _repository.BrowseMyPostsAsync(login);
+			var posts = await _postsRepository.BrowseMyPostsAsync(login);
 
 			return Ok(new MyAccountViewModel
 			{
@@ -43,7 +44,7 @@ namespace VamBooru.Controllers
 
 			try
 			{
-				var dbAccount = await _repository.UpdateUserAsync(this.GetUserLoginInfo(), account.Username);
+				var dbAccount = await _usersRepository.UpdateUserAsync(this.GetUserLoginInfo(), account.Username);
 				return Ok(new MyAccountViewModel { Username = dbAccount.Username });
 			}
 			catch (UsernameConflictException)

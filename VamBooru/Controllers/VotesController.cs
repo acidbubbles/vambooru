@@ -8,17 +8,17 @@ namespace VamBooru.Controllers
 	[Route("api/votes")]
 	public class VotesController : Controller
 	{
-		private readonly IRepository _repository;
+		private readonly IVotesRepository _votesRepository;
 
-		public VotesController(IRepository repository)
+		public VotesController(IVotesRepository votesRepository)
 		{
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_votesRepository = votesRepository ?? throw new ArgumentNullException(nameof(votesRepository));
 		}
 
 		[HttpGet("{postId}")]
 		public async Task<IActionResult> GetVote([FromRoute] Guid postId)
 		{
-			var userVote = await _repository.GetVoteAsync(this.GetUserLoginInfo(), postId);
+			var userVote = await _votesRepository.GetVoteAsync(this.GetUserLoginInfo(), postId);
 
 			var value = Math.Clamp(userVote?.Votes ?? 0, -1, 1);
 
@@ -40,7 +40,7 @@ namespace VamBooru.Controllers
 			if (value == -1) votes = -2;
 			if (value == 1) votes = 10;
 
-			var difference = await _repository.VoteAsync(this.GetUserLoginInfo(), postId, votes);
+			var difference = await _votesRepository.VoteAsync(this.GetUserLoginInfo(), postId, votes);
 
 			return Json(new
 			{

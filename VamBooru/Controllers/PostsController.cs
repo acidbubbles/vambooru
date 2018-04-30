@@ -12,12 +12,14 @@ namespace VamBooru.Controllers
 	[Route("api/posts")]
 	public class PostsController : Controller
 	{
-		private readonly IRepository _repository;
+		private readonly IPostsRepository _postsRepository;
+		private readonly IPostFilesRepository _filesRepository;
 		private readonly IMemoryCache _cache;
 
-		public PostsController(IRepository repository, IMemoryCache cache)
+		public PostsController(IPostsRepository postsRepository, IPostFilesRepository filesRepository, IMemoryCache cache)
 		{
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_postsRepository = postsRepository ?? throw new ArgumentNullException(nameof(postsRepository));
+			_filesRepository = filesRepository ?? throw new ArgumentNullException(nameof(filesRepository));
 			_cache = cache ?? throw new ArgumentNullException(nameof(cache));
 		}
 
@@ -54,7 +56,7 @@ namespace VamBooru.Controllers
 
 		private async Task<PostViewModel[]> BrowseInternalAsync(int page, int pageSize, PostSortBy sortBy, PostSortDirection sortDirection, PostedSince postedSince, string[] tags, string author, string text)
 		{
-			var posts = await _repository.BrowsePostsAsync(
+			var posts = await _postsRepository.BrowsePostsAsync(
 				sortBy,
 				sortDirection,
 				postedSince,
@@ -71,8 +73,8 @@ namespace VamBooru.Controllers
 		[HttpGet("{postId}")]
 		public async Task<PostViewModel> GetPostAsync([FromRoute] Guid postId)
 		{
-			var viewModel = PrepareForDisplay(await _repository.LoadPostAsync(postId), false);
-			viewModel.Files = (await _repository.LoadPostFilesAsync(postId)).Select(FileViewModel.From).ToArray();
+			var viewModel = PrepareForDisplay(await _postsRepository.LoadPostAsync(postId), false);
+			viewModel.Files = (await _filesRepository.LoadPostFilesAsync(postId)).Select(FileViewModel.From).ToArray();
 			return viewModel;
 		}
 
@@ -80,7 +82,7 @@ namespace VamBooru.Controllers
 		public async Task<IActionResult> SavePostAsync([FromRoute] Guid postId, [FromBody] PostViewModel post)
 		{
 			if (post.Id != postId.ToString()) return BadRequest("Mismatch between route post ID and body post ID");
-			await _repository.UpdatePostAsync(this.GetUserLoginInfo(), post, DateTimeOffset.UtcNow);
+			await _postsRepository.UpdatePostAsync(this.GetUserLoginInfo(), post, DateTimeOffset.UtcNow);
 			return NoContent();
 		}
 
