@@ -7,8 +7,8 @@ namespace VamBooru.Models
 	public class PostComment
 	{
 		public long Id { get;set; }
-		public Post Post { get; set; }
-		public User Author { get;set; }
+		[Required] public Post Post { get; set; }
+		[Required] public User Author { get;set; }
 		public DateTimeOffset DateCreated { get; set; }
 		[Required] [Column(TypeName = "text")] public string Text { get; set; }
 

@@ -6,7 +6,7 @@ namespace VamBooru.Models
 	{
 		[Required] public User User { get; set; }
 		[Required] public string Scheme { get; set; }
-		[Required]public string NameIdentifier { get; set; }
+		[Required] public string NameIdentifier { get; set; }
 		
 		public override string ToString()
 		{
