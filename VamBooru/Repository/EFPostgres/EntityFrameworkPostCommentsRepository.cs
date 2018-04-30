@@ -20,15 +20,14 @@ namespace VamBooru.Repository.EFPostgres
 		public async Task<PostComment> CreatePostCommentAsync(UserLoginInfo login, Guid postId, string text, DateTimeOffset now)
 		{
 			var user = await _usersRepository.LoadPrivateUserAsync(login);
-			var post = new Post {Id = postId};
 			var comment = new PostComment
 			{
 				Author = user,
 				DateCreated = now,
-				Post = post,
 				Text = text
 			};
-			DbContext.PostComments.Add(comment);
+			DbContext.Attach(comment);
+			DbContext.Entry(comment).Property<Guid>("PostId").CurrentValue = postId;
 			await DbContext.SaveChangesAsync();
 			return comment;
 		}

@@ -35,3 +35,4 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Allow selecting the preferred scene, and upload/embed animated gifs or videos for showing off the work
 * Auto-tagging of sounds/audio, toys, etc.
 * Use built-in .NET Authenticate/Roles instead of checking manually
+* Limit and validate comments and post description text size and content

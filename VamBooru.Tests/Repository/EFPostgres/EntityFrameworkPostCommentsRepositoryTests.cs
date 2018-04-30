@@ -1,10 +1,8 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using VamBooru.Models;
 using VamBooru.Repository.EFPostgres;
-using VamBooru.ViewModels;
 
 namespace VamBooru.Tests.Repository.EFPostgres
 {

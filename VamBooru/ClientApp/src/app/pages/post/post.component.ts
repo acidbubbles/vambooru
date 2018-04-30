@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs/Subscription";
 import { ActivatedRoute } from "@angular/router";
-import { IPost } from "../../model/post";
 import { ConfigurationService } from "../../services/configuration-service";
 import { PostsService } from "../../services/posts-service";
+import { PostCommentsService } from "../../services/post-comments-service";
 import { VotesService, IVoteValue } from "../../services/votes-service";
+import { IPost } from "../../model/post";
+import { IPostComment } from "../../model/post-comment";
 
 @Component({
 	selector: "post",
@@ -12,13 +14,15 @@ import { VotesService, IVoteValue } from "../../services/votes-service";
 })
 export class PostComponent implements OnInit, OnDestroy {
 	post: IPost;
+	comments: IPostComment[];
 	routeSub: Subscription;
 	loggedInUsername: string;
 	ownedByCurrentUser: boolean;
 	vote: IVoteValue;
 	voting: boolean;
+	currentComment: IPostComment;
 
-	constructor(private readonly route: ActivatedRoute, private readonly postsService: PostsService, private readonly votesService: VotesService, configService: ConfigurationService) {
+	constructor(private readonly route: ActivatedRoute, private readonly postsService: PostsService, private readonly commentsService: PostCommentsService, private readonly votesService: VotesService, configService: ConfigurationService) {
 		this.loggedInUsername = configService.config.username;
 	}
 
@@ -28,10 +32,17 @@ export class PostComponent implements OnInit, OnDestroy {
 			this.ownedByCurrentUser = false;
 			this.vote = null;
 			this.voting = false;
+			this.resetComment();
+
 			this.postsService.getPost(params["id"]).subscribe(result => {
 				this.post = result;
 				this.ownedByCurrentUser = this.post.author.username === this.loggedInUsername;
 			});
+
+			this.commentsService.load(params["id"]).subscribe(result => {
+				this.comments = result || [];
+			});
+
 			if (this.loggedInUsername) {
 				this.votesService.getVote(params["id"]).subscribe(result => {
 					this.vote = result;
@@ -53,5 +64,16 @@ export class PostComponent implements OnInit, OnDestroy {
 			this.post.votes += result.difference;
 			this.voting = false;
 		});
+	}
+
+	resetComment() {
+		this.currentComment = { text: "", author: { username: this.loggedInUsername }, dateCreated: "now" } as IPostComment;
+	}
+
+	sendComment() {
+		//TODO: Wait for the result and show the text box again
+		this.commentsService.send(this.post.id, this.currentComment.text).subscribe();
+		this.comments.unshift(this.currentComment);
+		this.currentComment = null;
 	}
 }

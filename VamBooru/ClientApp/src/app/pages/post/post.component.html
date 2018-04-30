@@ -63,4 +63,23 @@
 			</ul>
 		</div>
 	</div>
+
+	<div class="card mb-4">
+		<div class="card-header">
+			Comments
+		</div>
+		<div class="card-body">
+			<div *ngIf="currentComment">
+				<textarea class="form-control" rows="4" [(ngModel)]="currentComment.text"></textarea>
+				<div class="text-right mt-1">
+					<input class="btn btn-primary" type="button" value="Send" (click)="sendComment()" />
+				</div>
+				<hr />
+			</div>
+			<div *ngFor="let comment of comments">
+				<b>{{ comment.author?.username }}</b> <span>{{ comment.dateCreated }}</span>
+				<p>{{ comment.text }}</p>
+			</div>
+		</div>
+	</div>
 </div>

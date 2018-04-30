@@ -13,6 +13,7 @@ namespace VamBooru.Repository.EFPostgres
 			services.AddTransient<ITagsRepository, EntityFrameworkTagsRepository>();
 			services.AddTransient<IUsersRepository, EntityFrameworkUsersRepository>();
 			services.AddTransient<IVotesRepository, EntityFrameworkVotesRepository>();
+			services.AddTransient<IPostCommentsRepository, EntityFrameworkPostCommentsRepository>();
 			return services;
 		}
 	}

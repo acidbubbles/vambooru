@@ -16,6 +16,7 @@ import { UsersService } from "./services/users-service";
 import { MyAccountService } from "./services/my-account-service";
 import { VotesService } from "./services/votes-service";
 import { TagsService } from "./services/tags-service";
+import { PostCommentsService } from "./services/post-comments-service";
 
 // Application
 import { AppComponent } from "./app.component";
@@ -86,7 +87,8 @@ import { UserComponent } from "./pages/user/user.component";
 		UsersService,
 		MyAccountService,
 		VotesService,
-		TagsService
+		TagsService,
+		PostCommentsService
 	],
 	bootstrap: [AppComponent]
 })
