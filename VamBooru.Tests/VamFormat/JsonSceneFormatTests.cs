@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -52,6 +53,34 @@ namespace VamBooru.Tests.VamFormat
 				})));
 
 				Assert.That(tags, Is.Empty);
+			}
+
+			[Test]
+			public void CanFindAudioClips()
+			{
+				var tags = _format.GetTags(Deserialize(BytesOf(new
+				{
+					atoms = new[]
+					{
+						new { id = "CoreControl", storables = new[] { new { id = "URLAudioClipManager", clips = new[] { new { url = "sound.wav" } } } } }
+					}
+				})));
+
+				Assert.That(tags, Is.EquivalentTo(new[] {"audio"}));
+			}
+
+			[Test]
+			public void CanFindTriggers()
+			{
+				var tags = _format.GetTags(Deserialize(BytesOf(new
+				{
+					atoms = new[]
+					{
+						new { id = "AnimationPattern#1", storables = new[] { new { id = "AnimationPattern", triggers = new[] { new { displayName = "" } } } } }
+					}
+				})));
+
+				Assert.That(tags, Is.EquivalentTo(new[] {"interactive"}));
 			}
 
 			[Test]

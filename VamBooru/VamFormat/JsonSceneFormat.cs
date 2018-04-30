@@ -36,6 +36,8 @@ namespace VamBooru.VamFormat
 
 			var males = 0;
 			var females = 0;
+			var audio = 0;
+			var triggers = 0;
 			foreach (dynamic atom in atoms)
 			{
 				var storables = atom.storables;
@@ -43,11 +45,20 @@ namespace VamBooru.VamFormat
 
 				foreach (var storable in storables)
 				{
-					if (storable.id != "geometry") continue;
-					var character = storable.character?.ToString();
-					if (character == null) continue;
-					if (character.StartsWith("Female")) females++;
-					if (character.StartsWith("Male")) males++;
+					if (storable.triggers != null && storable.triggers.Count > 0)
+						triggers++;
+
+					if (storable.id == "geometry")
+					{
+						var character = storable.character?.ToString();
+						if (character == null) continue;
+						if (character.StartsWith("Female")) females++;
+						if (character.StartsWith("Male")) males++;
+					}
+					else if (storable.id == "URLAudioClipManager")
+					{
+						if (storable.clips != null && storable.clips.Count > 0) audio++;
+					}
 				}
 			}
 
@@ -56,6 +67,12 @@ namespace VamBooru.VamFormat
 
 			if (females > 0)
 				yield return $"{females}-female{(females > 1 ? "s" : "")}";
+
+			if (audio > 0)
+				yield return "audio";
+
+			if (triggers > 0)
+				yield return "interactive";
 		}
 	}
 }
