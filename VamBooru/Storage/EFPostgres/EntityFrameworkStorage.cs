@@ -42,7 +42,7 @@ namespace VamBooru.Storage.EFPostgres
 
 		public async Task<Stream> LoadFileStreamAsync(string urn, bool compressed)
 		{
-			if(!urn.StartsWith("urn:vambooru:ef:")) throw new ArgumentException($"Invalid or unsupported URN: '{urn}'", nameof(urn));
+			if(!urn.StartsWith(UrnPrefix)) throw new ArgumentException($"Invalid or unsupported URN: '{urn}'", nameof(urn));
 			var id = int.Parse(urn.Substring(UrnPrefix.Length));
 
 			var file = await _context.StorageFiles.FirstOrDefaultAsync(sf => sf.Id == id);
