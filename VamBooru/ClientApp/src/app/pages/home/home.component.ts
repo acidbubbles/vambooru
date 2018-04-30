@@ -41,8 +41,6 @@ export class HomeComponent implements OnInit {
 	}
 	ngOnInit() {
 		this.highestRatedError = null;
-		const highestRatedQuery = { ...this.highestRatedQuery };
-		highestRatedQuery.pageSize = 8;
 		this.postsService
 			.searchPosts(this.highestRatedQuery)
 			.subscribe(
@@ -55,8 +53,6 @@ export class HomeComponent implements OnInit {
 			);
 
 		this.recentlyCreatedError = null;
-		const recentlyCreatedQuery = { ...this.recentlyCreatedQuery };
-		recentlyCreatedQuery.pageSize = 8;
 		this.postsService
 			.searchPosts(this.recentlyCreatedQuery)
 			.subscribe(
@@ -74,7 +70,7 @@ export class HomeComponent implements OnInit {
 					this.topTags = result;
 				},
 				error => {
-					this.topTags = [{ name: "error", postsCount: 0 }];
+					this.topTags = [{ name: `error: ${error.message}`, postsCount: 0 }];
 				}
 			);
 	}

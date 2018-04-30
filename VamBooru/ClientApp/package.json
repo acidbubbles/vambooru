@@ -33,7 +33,7 @@
     "ngx-chips": "^1.8.0",
     "ngx-md": "^3.1.1",
     "rxjs": "^5.5.6",
-    "zone.js": "^0.8.19"
+    "zone.js": "^0.8.26"
   },
   "devDependencies": {
     "@angular/cli": "~1.7.0",

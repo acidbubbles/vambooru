@@ -45,10 +45,10 @@ describe("NavMenuComponent", () => {
 		});
 
 		it("should show the login link only", async(() => {
-			expect(fixture.nativeElement.querySelector(".glyphicon-log-in")).not.toBeNull();
+			expect(fixture.nativeElement.querySelector(".fa-sign-in-alt")).not.toBeNull();
 
-			expect(fixture.nativeElement.querySelector(".glyphicon-cloud-upload")).toBeNull();
-			expect(fixture.nativeElement.querySelector(".glyphicon-user")).toBeNull();
+			expect(fixture.nativeElement.querySelector(".fa-upload")).toBeNull();
+			expect(fixture.nativeElement.querySelector(".fa-user")).toBeNull();
 		}));
 
 	});
@@ -67,10 +67,10 @@ describe("NavMenuComponent", () => {
 		});
 
 		it("should show the upload and account links", async(() => {
-			expect(fixture.nativeElement.querySelector(".glyphicon-log-in")).toBeNull();
+			expect(fixture.nativeElement.querySelector(".fa-sign-in-alt")).toBeNull();
 
-			expect(fixture.nativeElement.querySelector(".glyphicon-cloud-upload")).not.toBeNull();
-			expect(fixture.nativeElement.querySelector(".glyphicon-user").parentNode.innerText).toEqual("@john.doe");
+			expect(fixture.nativeElement.querySelector(".fa-upload")).not.toBeNull();
+			expect(fixture.nativeElement.querySelector(".fa-user").parentNode.innerText).toEqual("@john.doe");
 		}));
 
 	});
