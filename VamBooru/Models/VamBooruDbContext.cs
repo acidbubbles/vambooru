@@ -1,4 +1,3 @@
-using System;
 using Microsoft.EntityFrameworkCore;
 
 namespace VamBooru.Models
@@ -20,9 +19,6 @@ namespace VamBooru.Models
 		public DbSet<UserPostVote> UserPostVotes { get; set; }
 
 		public DbSet<StorageFile> StorageFiles { get; set; }
-
-		[Obsolete] public DbSet<SceneFile> SceneFiles { get; set; }
-		[Obsolete] public DbSet<SupportFile> SupportFiles { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

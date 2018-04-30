@@ -117,29 +117,6 @@ namespace VamBooru.Migrations
                     b.ToTable("Scenes");
                 });
 
-            modelBuilder.Entity("VamBooru.Models.SceneFile", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<byte[]>("Bytes")
-                        .IsRequired();
-
-                    b.Property<string>("Extension")
-                        .IsRequired();
-
-                    b.Property<string>("Filename")
-                        .IsRequired();
-
-                    b.Property<Guid>("SceneId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SceneId");
-
-                    b.ToTable("SceneFiles");
-                });
-
             modelBuilder.Entity("VamBooru.Models.StorageFile", b =>
                 {
                     b.Property<long>("Id")
@@ -151,26 +128,6 @@ namespace VamBooru.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("StorageFiles");
-                });
-
-            modelBuilder.Entity("VamBooru.Models.SupportFile", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<byte[]>("Bytes")
-                        .IsRequired();
-
-                    b.Property<string>("Filename")
-                        .IsRequired();
-
-                    b.Property<Guid>("PostId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("SupportFiles");
                 });
 
             modelBuilder.Entity("VamBooru.Models.Tag", b =>
@@ -276,22 +233,6 @@ namespace VamBooru.Migrations
                 {
                     b.HasOne("VamBooru.Models.Post", "Post")
                         .WithMany("Scenes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("VamBooru.Models.SceneFile", b =>
-                {
-                    b.HasOne("VamBooru.Models.Scene", "Scene")
-                        .WithMany()
-                        .HasForeignKey("SceneId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("VamBooru.Models.SupportFile", b =>
-                {
-                    b.HasOne("VamBooru.Models.Post", "Post")
-                        .WithMany()
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
