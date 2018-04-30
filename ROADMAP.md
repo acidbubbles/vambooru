@@ -23,9 +23,12 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Paging
 * Ability to modify/overwrite existing scene files (last updated)
 * Delete posts and users
+* Delete comments
 * Show the scenes you have voted for, and show who voted for your scene (do not show downvotes)
 * Track downloads (popularity) and clicks (Redis)
 * Notifications (new comment, like)
+* Ability for anyone with enough reputation to tag anything
+* Reputation system (user ranking)
 
 ## Improvements
 
@@ -36,3 +39,7 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Auto-tagging of sounds/audio, toys, etc.
 * Use built-in .NET Authenticate/Roles instead of checking manually
 * Limit and validate comments and post description text size and content
+* Comments paging
+* Ctrl-enter to comment
+* Convert comments date time to "X time ago"
+* Show creating date of posts
