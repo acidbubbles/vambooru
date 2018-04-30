@@ -51,8 +51,8 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				},
 				new[]
 				{
-					new PostFile {Filename = "file.json", Urn = "urn:vambooru:tests:0001", Compressed = true},
-					new PostFile {Filename = "file.jpg", Urn = "urn:vambooru:tests:0002"}
+					new PostFile {Filename = "file.json", MimeType = "application/json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+					new PostFile {Filename = "file.jpg", MimeType = "image/jpeg", Urn = "urn:vambooru:tests:0002"}
 				},
 				"urn:vambooru:tests:0002",
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
@@ -219,8 +219,8 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				},
 				new[]
 				{
-					new PostFile {Filename = "file.json", Urn = "urn:vambooru:tests:0001", Compressed = true},
-					new PostFile {Filename = "file.jpg", Urn = "urn:vambooru:tests:0002"}
+					new PostFile {Filename = "file.json", MimeType = "application/json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+					new PostFile {Filename = "file.jpg", MimeType = "image/jpeg", Urn = "urn:vambooru:tests:0002"}
 				},
 				"urn:vambooru:tests:0002",
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)

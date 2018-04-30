@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VamBooru.Models;
+using VamBooru.Repository;
 using VamBooru.Storage;
 
 namespace VamBooru.Controllers
@@ -12,11 +13,13 @@ namespace VamBooru.Controllers
 	[Route("/api/admin")]
 	public class AdminController : Controller
 	{
+		private readonly IUsersRepository _usersRepository;
 		private readonly VamBooruDbContext _dbContext;
 		private readonly IStorage _storage;
 
-		public AdminController(VamBooruDbContext dbContext, IStorage storage)
+		public AdminController(IUsersRepository usersRepository, VamBooruDbContext dbContext, IStorage storage)
 		{
+			_usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
 			_dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 			_storage = storage ?? throw new ArgumentNullException(nameof(storage));
 		}
@@ -24,6 +27,9 @@ namespace VamBooru.Controllers
 		[HttpGet("migrations/ExtractStorage")]
 		public async Task<IActionResult> MigrationsExtractStorage()
 		{
+			if ((await _usersRepository.LoadPrivateUserAsync(this.GetUserLoginInfo())).Role != UserRoles.Admin)
+				return Unauthorized();
+
 #pragma warning disable 612
 			var result = new List<string>();
 

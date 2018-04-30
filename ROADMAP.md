@@ -25,6 +25,7 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Delete posts and users
 * Show the scenes you have voted for, and show who voted for your scene (do not show downvotes)
 * Track downloads (popularity) and clicks (Redis)
+* Notifications (new comment, like)
 
 ## Improvements
 
@@ -33,3 +34,4 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Show the scene images in a lightbox when clicking
 * Allow selecting the preferred scene, and upload/embed animated gifs or videos for showing off the work
 * Auto-tagging of sounds/audio, toys, etc.
+* Use built-in .NET Authenticate/Roles instead of checking manually

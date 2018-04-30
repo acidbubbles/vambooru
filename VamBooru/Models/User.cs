@@ -9,6 +9,7 @@ namespace VamBooru.Models
 		public Guid Id { get; set; }
 		[Required] public string Username { get; set; }
 		public DateTimeOffset DateSubscribed { get; set; }
+		public UserRoles Role { get; set; }
 		public ICollection<Post> Posts { get; set; } = new List<Post>();
 		public ICollection<UserLogin> Logins { get; set; } = new List<UserLogin>();
 		
@@ -16,5 +17,12 @@ namespace VamBooru.Models
 		{
 			return $"{nameof(User)} '{Username}'";
 		}
+	}
+
+	public enum UserRoles
+	{
+		Standard = 0,
+		Moderator = 10,
+		Admin = 100
 	}
 }
