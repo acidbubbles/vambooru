@@ -10,5 +10,10 @@ namespace VamBooru.Models
 
 		public Guid TagId { get; set; }
 		[Required] public Tag Tag { get; set; }
+
+		public override string ToString()
+		{
+			return $"{nameof(PostTag)} '{Tag.Name}'";
+		}
 	}
 }

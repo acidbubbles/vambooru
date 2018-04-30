@@ -89,7 +89,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				c.MembersToIgnore.Add("Tag.Id");
 				c.MembersToIgnore.Add("Scene.Post");
 				c.MembersToIgnore.Add("SceneFile.Scene");
-				c.MembersToIgnore.Add("User.Scenes");
+				c.MembersToIgnore.Add("User.Posts");
 				c.MembersToIgnore.Add("User.Logins");
 			});
 		}
@@ -138,12 +138,18 @@ namespace VamBooru.Tests.Repository.EFPostgres
 					Title = "New Title",
 					Text = "Markdown\nText",
 					Published = true,
-					Tags = new[] {new TagViewModel {Name = "tag2"}, new TagViewModel {Name = "tag3"}}
+					Tags = new[]
+					{
+						new TagViewModel {Name = "tag2"},
+						new TagViewModel {Name = "tag3"}
+					}
 				}, new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
 
 			CreateDbContext();
 			var post = await Repository.LoadPostAsync(saved.Id);
+			//TODO: This can be removed if we use a predictable index (long)
+			post.Tags = post.Tags.OrderBy(t => t.Tag.Name).ToList();
 
 			post.ShouldDeepEqual(new Post
 			{
@@ -158,9 +164,10 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				{
 					new PostTag {Tag = new Tag {Name = "tag2", PostsCount = 1}},
 					new PostTag {Tag = new Tag {Name = "tag3", PostsCount = 1}}
-				}.ToList(),
+				}.ToList()
 			}, c =>
 			{
+				c.MaxDifferences = 3;
 				c.MembersToIgnore.Add("*Id");
 				c.MembersToIgnore.Add("Post.Scenes");
 				c.MembersToIgnore.Add("UserLogin.User");
@@ -170,7 +177,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				c.MembersToIgnore.Add("Tag.Id");
 				c.MembersToIgnore.Add("Scene.Post");
 				c.MembersToIgnore.Add("SceneFile.Scene");
-				c.MembersToIgnore.Add("User.Scenes");
+				c.MembersToIgnore.Add("User.Posts");
 				c.MembersToIgnore.Add("User.Logins");
 			});
 
@@ -253,27 +260,232 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				c.MembersToIgnore.Add("Tag.Id");
 				c.MembersToIgnore.Add("Scene.Post");
 				c.MembersToIgnore.Add("SceneFile.Scene");
-				c.MembersToIgnore.Add("User.Scenes");
+				c.MembersToIgnore.Add("User.Posts");
 				c.MembersToIgnore.Add("User.Logins");
 			});
 		}
 
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, null, new[] { "23 hours ago, 30pts", "6 days ago, 90pts" }, TestName = "Sort by created, page 1")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 1, 2, null, null, null, new[] { "3 weeks ago, 200pts", "11 months ago, 50pts" }, TestName = "Sort by created, page 2")]
-		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 0, 2, null, null, null, new[] { "2 years ago, 100pts", "11 months ago, 50pts" }, TestName = "Sort by least recently updated, page 1")]
-		[TestCase(PostSortBy.Updated, PostSortDirection.Up, PostedSince.Forever, 1, 2, null, null, null, new[] { "3 weeks ago, 200pts", "6 days ago, 90pts" }, TestName = "Sort by least recently updated, page 2")]
-		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, null, new[] { "3 weeks ago, 200pts", "2 years ago, 100pts" }, TestName = "Sort by votes, page 1")]
-		[TestCase(PostSortBy.Votes, PostSortDirection.Down, PostedSince.Forever, 1, 2, null, null, null, new[] { "6 days ago, 90pts", "11 months ago, 50pts" }, TestName = "Sort by votes, page 2")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastYear, 0, 1, null, null, null, new[] { "11 months ago, 50pts" }, TestName = "Since last year")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastMonth, 0, 1, null, null, null, new[] { "3 weeks ago, 200pts" }, TestName = "Since last month")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Up, PostedSince.LastDay, 0, 1, null, null, null, new[] { "23 hours ago, 30pts" }, TestName = "Since yesterday")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "tag1" }, null, null, new[] { "3 weeks ago, 200pts", "2 years ago, 100pts" }, TestName = "Search by one tag")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, new[] { "tag1", "tag2" }, null, null, new[] { "3 weeks ago, 200pts" }, TestName = "Search by two tags")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, "cool", new[] { "6 days ago, 90pts" }, TestName = "Text search in post text")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 2, null, null, "weeks", new[] { "3 weeks ago, 200pts" }, TestName = "Text search in post title")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 1, null, "John Doe", null, new[] { "23 hours ago, 30pts" }, TestName = "Filter by current user")]
-		[TestCase(PostSortBy.Created, PostSortDirection.Down, PostedSince.Forever, 0, 1, null, "Abbie Bibbo", null, new string[0], TestName = "Filter by non-existent user")]
-		public async Task BrowsePostsFilters(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page, int pageSize, string[] tags, string author, string text, string[] expected)
+		public class BrowsePostFilterTestCase
+		{
+			public PostSortBy SortBy { get; set; }
+			public PostSortDirection SortDirection { get; set; }
+			public PostedSince Since { get; set; }
+			public int Page { get; set; }
+			public int PageSize { get; set; }
+			public string[] Tags { get; set; }
+			public string Author { get; set; }
+			public string Text { get; set; }
+			public string[] Expected { get; set; }
+			public string TestName { get;set; }
+
+			public override string ToString()
+			{
+				return TestName;
+			}
+		}
+
+		public static IEnumerable<BrowsePostFilterTestCase> BrowsePostFilterTestCases()
+		{
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 0,
+				PageSize = 2,
+				Tags = null,
+				Author = null,
+				Text = null,
+				Expected = new[] {"23 hours ago, 30pts", "6 days ago, 90pts"},
+				TestName = "Sort by created, page 1"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 1,
+				PageSize = 2,
+				Tags = null,
+				Author = null,
+				Text = null,
+				Expected = new[] {"3 weeks ago, 200pts", "11 months ago, 50pts"},
+				TestName = "Sort by created, page 2"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Updated,
+				SortDirection = PostSortDirection.Up,
+				Since = PostedSince.Forever,
+				Page = 0,
+				PageSize = 2,
+				Tags = null,
+				Author = null,
+				Text = null,
+				Expected = new[] {"2 years ago, 100pts", "11 months ago, 50pts"},
+				TestName = "Sort by least recently updated, page 1"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Updated,
+				SortDirection = PostSortDirection.Up,
+				Since = PostedSince.Forever,
+				Page = 1,
+				PageSize = 2,
+				Tags = null,
+				Author = null,
+				Text = null,
+				Expected = new[] {"3 weeks ago, 200pts", "6 days ago, 90pts"},
+				TestName = "Sort by least recently updated, page 2"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Votes,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 0,
+				PageSize = 2,
+				Tags = null,
+				Author = null,
+				Text = null,
+				Expected = new[] {"3 weeks ago, 200pts", "2 years ago, 100pts"},
+				TestName = "Sort by votes, page 1"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Votes,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 1,
+				PageSize = 2,
+				Tags = null,
+				Author = null,
+				Text = null,
+				Expected = new[] {"6 days ago, 90pts", "11 months ago, 50pts"},
+				TestName = "Sort by votes, page 2"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Up,
+				Since = PostedSince.LastYear,
+				Page = 0,
+				PageSize = 1,
+				Tags = null,
+				Author = null,
+				Text = null,
+				Expected = new[] {"11 months ago, 50pts"},
+				TestName = "Since last year"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Up,
+				Since = PostedSince.LastMonth,
+				Page = 0,
+				PageSize = 1,
+				Tags = null,
+				Author = null,
+				Text = null,
+				Expected = new[] {"3 weeks ago, 200pts"},
+				TestName = "Since last month"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Up,
+				Since = PostedSince.LastDay,
+				Page = 0,
+				PageSize = 1,
+				Tags = null,
+				Author = null,
+				Text = null,
+				Expected = new[] {"23 hours ago, 30pts"},
+				TestName = "Since yesterday"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 0,
+				PageSize = 2,
+				Tags = new[] {"tag1"},
+				Author = null,
+				Text = null,
+				Expected = new[] {"3 weeks ago, 200pts", "2 years ago, 100pts"},
+				TestName = "Search by one tag"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 0,
+				PageSize = 2,
+				Tags = new[] {"tag1", "tag2"},
+				Author = null,
+				Text = null,
+				Expected = new[] {"3 weeks ago, 200pts"},
+				TestName = "Search by two tags"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 0,
+				PageSize = 2,
+				Tags = null,
+				Author = null,
+				Text = "cool",
+				Expected = new[] {"6 days ago, 90pts"},
+				TestName = "Text search in post text"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 0,
+				PageSize = 2,
+				Tags = null,
+				Author = null,
+				Text = "weeks",
+				Expected = new[] {"3 weeks ago, 200pts"},
+				TestName = "Text search in post title"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 0,
+				PageSize = 1,
+				Tags = null,
+				Author = "John Doe",
+				Text = null,
+				Expected = new[] {"23 hours ago, 30pts"},
+				TestName = "Filter by current user"
+			};
+			yield return new BrowsePostFilterTestCase
+			{
+				SortBy = PostSortBy.Created,
+				SortDirection = PostSortDirection.Down,
+				Since = PostedSince.Forever,
+				Page = 0,
+				PageSize = 1,
+				Tags = null,
+				Author = "Abbie Bibbo",
+				Text = null,
+				Expected = new string[0],
+				TestName = "Filter by non-existent user"
+			};
+		}
+
+		[Test]
+		[TestCaseSource(nameof(BrowsePostFilterTestCases))]
+		public async Task BrowsePostsFilters(BrowsePostFilterTestCase test)
 		{
 			Scene[] CreateScenes() => new[]
 			{
@@ -311,9 +523,9 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			await CreatePost("23 hours ago, 30pts", "", 30, now.AddHours(-1));
 
 			CreateDbContext();
-			var posts = await Repository.BrowsePostsAsync(sortBy, sortDirection, since, page, pageSize, tags, author, text, now);
+			var posts = await Repository.BrowsePostsAsync(test.SortBy, test.SortDirection, test.Since, test.Page, test.PageSize, test.Tags, test.Author, test.Text, now);
 
-			CollectionAssert.AreEqual(expected, posts.Select(post => post.Title).ToArray());
+			CollectionAssert.AreEqual(test.Expected, posts.Select(post => post.Title).ToArray());
 		}
 
 		[Test]

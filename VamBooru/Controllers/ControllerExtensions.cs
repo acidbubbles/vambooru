@@ -12,7 +12,6 @@ namespace VamBooru.Controllers
 			var user = controller.User;
 			return new UserLoginInfo
 			{
-				//TODO: Get this from the logged in information
 				Scheme = user.Identity.AuthenticationType,
 				NameIdentifier = user.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value
 			};

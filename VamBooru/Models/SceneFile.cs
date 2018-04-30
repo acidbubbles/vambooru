@@ -1,8 +1,9 @@
+using System;
 using System.ComponentModel.DataAnnotations;
-using VamBooru.ViewModels;
 
 namespace VamBooru.Models
 {
+	[Obsolete]
 	public class SceneFile
 	{
 		public long Id { get; set; }
@@ -10,13 +11,5 @@ namespace VamBooru.Models
 		[Required] public string Extension { get; set; }
 		[Required] public byte[] Bytes { get; set; }
 		[Required] public Scene Scene { get; set; }
-
-		public FileViewModel ToViewModel()
-		{
-			return new FileViewModel
-			{
-				Filename = Filename
-			};
-		}
 	}
 }

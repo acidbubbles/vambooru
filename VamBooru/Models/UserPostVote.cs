@@ -12,5 +12,10 @@ namespace VamBooru.Models
 		[Required] public User User { get; set; }
 
 		public int Votes { get; set; }
+
+		public override string ToString()
+		{
+			return $"{nameof(UserPostVote)} {Votes} votes";
+		}
 	}
 }

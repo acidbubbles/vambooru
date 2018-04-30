@@ -9,5 +9,10 @@ namespace VamBooru.Models
 		[Required] public string Name { get; set; }
 		[Required] public Post Post { get; set; }
 		public string ThumbnailUrn { get; set; }
+
+		public override string ToString()
+		{
+			return $"{nameof(Scene)} '{Name}'";
+		}
 	}
 }

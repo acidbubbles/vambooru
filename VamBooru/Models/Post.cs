@@ -21,5 +21,11 @@ namespace VamBooru.Models
 		public ICollection<Scene> Scenes { get; set; } = new List<Scene>();
 		public ICollection<PostFile> PostFiles { get; set; } = new List<PostFile>();
 		public ICollection<UserPostVote> UserVotes { get; set; } = new List<UserPostVote>();
+		
+		public override string ToString()
+		{
+			return $"{nameof(Post)} '{Title}'";
+		}
+
 	}
 }

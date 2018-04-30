@@ -1,7 +1,9 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace VamBooru.Models
 {
+	[Obsolete]
 	public class SupportFile
 	{
 		public long Id { get; set; }
