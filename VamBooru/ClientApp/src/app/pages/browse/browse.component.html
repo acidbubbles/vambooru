@@ -23,8 +23,8 @@
 
 		<div class="form-group mb-2">
 			<label>Containing tags</label>
-			<tag-input [(ngModel)]="tags" [identifyBy]="'id'" [displayBy]="'name'" [onlyFromAutocomplete]="true" [placeholder]="'+'" [secondaryPlaceholder]="'Search tags'" theme="bootstrap">
-				<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'id'" [displayBy]="'name'">
+			<tag-input [(ngModel)]="tags" [identifyBy]="'name'" [displayBy]="'name'" [onlyFromAutocomplete]="true" [placeholder]="'+'" [secondaryPlaceholder]="'Search tags'" theme="bootstrap">
+				<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'name'" [displayBy]="'name'">
 					<ng-template let-item="item" let-index="index">
 						{{ item.name }}
 					</ng-template>

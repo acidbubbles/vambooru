@@ -35,7 +35,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
 		{ value: PostedSince.lastYear, label: "Last Year" },
 		{ value: PostedSince.lastMonth, label: "Last Month" },
 		{ value: PostedSince.lastWeek, label: "Last Week" },
-		{ value: PostedSince.lastDay, label: "Last Day" },
+		{ value: PostedSince.lastDay, label: "Last Day" }
 	];
 
 	constructor(private readonly postsService: PostsService, private readonly tagsService: TagsService, private readonly router: Router, private readonly route: ActivatedRoute) {
@@ -58,7 +58,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
 				text: params["text"] || ""
 		};
 			if (this.query.tags) {
-				this.tags = this.query.tags.map<ITag>(t => ({ id: t, name: t } as ITag));
+				this.tags = this.query.tags.map<ITag>(t => ({ name: t } as ITag));
 			}
 			this.go();
 		});

@@ -44,7 +44,7 @@ namespace VamBooru.Tests.Controllers
 					Id ="9495ee61-37ac-43cf-8ee0-dbcd18510914",
 					Title = "My Scene",
 					Author = new UserViewModel {Username = "john.doe"},
-					Tags = new[] {new TagViewModel {Id = "c2fa02b7-b107-4261-8306-9465178f2949", Name = "artsy"}}
+					Tags = new[] {new TagViewModel {Name = "artsy"}}
 				}
 			});
 		}

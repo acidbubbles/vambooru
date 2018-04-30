@@ -45,8 +45,8 @@
 
 			<div class="form-group">
 				<label>Tags (press enter to add one):</label>
-				<tag-input [(ngModel)]="post.tags" [identifyBy]="'id'" [displayBy]="'name'" theme="bootstrap">
-					<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'id'" [displayBy]="'name'">
+				<tag-input [(ngModel)]="post.tags" [identifyBy]="'name'" [displayBy]="'name'" theme="bootstrap">
+					<tag-input-dropdown [autocompleteObservable]="autocompleteTags" [minimumTextLength]="0" [identifyBy]="'name'" [displayBy]="'name'">
 						<ng-template let-item="item" let-index="index">
 							{{ item.name }}
 						</ng-template>

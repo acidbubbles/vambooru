@@ -33,7 +33,6 @@ namespace VamBooru.Tests.Controllers
 			{
 				new TagViewModel
 				{
-					Id = "c2fa02b7-b107-4261-8306-9465178f2949",
 					Name = "artsy"
 				}
 			});
@@ -61,7 +60,6 @@ namespace VamBooru.Tests.Controllers
 			{
 				new TagViewModel
 				{
-					Id = "c2fa02b7-b107-4261-8306-9465178f2949",
 					Name = "artsy"
 				}
 			});

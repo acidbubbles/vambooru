@@ -74,7 +74,7 @@ export class HomeComponent implements OnInit {
 					this.topTags = result;
 				},
 				error => {
-					this.topTags = [{ name: "error", id: "", postsCount: 0 }];
+					this.topTags = [{ name: "error", postsCount: 0 }];
 				}
 			);
 	}
