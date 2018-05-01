@@ -77,7 +77,7 @@
 			</div>
 			<hr *ngIf="comments?.length > 0 && currentComment && loggedInUsername" />
 			<div *ngFor="let comment of comments">
-				<b>{{ comment.author?.username }}</b> <span>{{ comment.dateCreated }}</span>
+				<b><a [routerLink]="['/users', comment.author.username]">{{ comment.author.username }}</a></b>, <span>{{ comment.dateCreated }}</span>
 				<markdown [data]="comment.text"></markdown>
 			</div>
 		</div>
