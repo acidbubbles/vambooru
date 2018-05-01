@@ -43,7 +43,7 @@ namespace VamBooru.Controllers
 						if (stream == null)
 							throw new Exception($"The file {file.Urn} was missing from post {postId}");
 
-					var entry = zip.CreateEntry($"scenes/{username}/{filename}");
+					var entry = zip.CreateEntry($"scene/{username}/{filename}");
 						using (var entryStream = entry.Open())
 						{
 							await stream.CopyToAsync(entryStream);
