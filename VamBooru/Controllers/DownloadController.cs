@@ -30,6 +30,7 @@ namespace VamBooru.Controllers
 
 			//TODO: This should be done way before
 			var username = SanitizingUtils.GetSanitizedFilename(post.Author.Username);
+			var title = SanitizingUtils.GetSanitizedFilename(post.Title);
 
 			//TODO: We should generate the zip upfront and store it for direct download
 			var zipStream = new MemoryStream();
@@ -43,7 +44,7 @@ namespace VamBooru.Controllers
 						if (stream == null)
 							throw new Exception($"The file {file.Urn} was missing from post {postId}");
 
-					var entry = zip.CreateEntry($"scene/{username}/{filename}");
+					var entry = zip.CreateEntry($"scene/{username}/{title}/{filename}");
 						using (var entryStream = entry.Open())
 						{
 							await stream.CopyToAsync(entryStream);
@@ -54,7 +55,7 @@ namespace VamBooru.Controllers
 
 			zipStream.Seek(0, SeekOrigin.Begin);
 
-			return File(zipStream, "application/octet-stream", $"{username} - {SanitizingUtils.GetSanitizedFilename(post.Title)}.zip");
+			return File(zipStream, "application/octet-stream", $"{username} - {title}.zip");
 		}
 	}
 }
