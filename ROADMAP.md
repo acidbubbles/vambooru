@@ -23,7 +23,7 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Paging
 * Ability to modify/overwrite existing scene files (last updated)
 * Delete posts and users
-* Delete comments
+* Edit / Delete comments
 * Show the scenes you have voted for, and show who voted for your scene (do not show downvotes)
 * Track downloads (popularity) and clicks (Redis)
 * Notifications (new comment, like)
@@ -36,7 +36,7 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Branding and UI improvements (right now, it's a barebone bootstrap 4 site)
 * Show the scene images in a lightbox when clicking
 * Allow selecting the preferred scene, and upload/embed animated gifs or videos for showing off the work
-* Auto-tagging of sounds/audio, toys, etc.
+* Validate all scene paths, make sure all dependencies are there, and auto tag animations
 * Use built-in .NET Authenticate/Roles instead of checking manually
 * Limit and validate comments and post description text size and content
 * Comments paging

@@ -20,6 +20,7 @@ namespace VamBooru.Repository.EFPostgres
 		public async Task<PostComment> CreatePostCommentAsync(UserLoginInfo login, Guid postId, string text, DateTimeOffset now)
 		{
 			var user = await _usersRepository.LoadPrivateUserAsync(login);
+			if (user == null) throw new NullReferenceException("No user matching the specified login");
 			var comment = new PostComment
 			{
 				Author = user,

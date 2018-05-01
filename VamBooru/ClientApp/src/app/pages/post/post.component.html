@@ -64,21 +64,21 @@
 		</div>
 	</div>
 
-	<div class="card mb-4">
+	<div class="card mb-4" *ngIf="loggedInUsername || comments?.length">
 		<div class="card-header">
 			Comments
 		</div>
 		<div class="card-body">
-			<div *ngIf="currentComment">
+			<div *ngIf="currentComment && loggedInUsername">
 				<textarea class="form-control" rows="4" [(ngModel)]="currentComment.text"></textarea>
 				<div class="text-right mt-1">
 					<input class="btn btn-primary" type="button" value="Send" (click)="sendComment()" />
 				</div>
-				<hr />
 			</div>
+			<hr *ngIf="comments?.length > 0 && currentComment && loggedInUsername" />
 			<div *ngFor="let comment of comments">
 				<b>{{ comment.author?.username }}</b> <span>{{ comment.dateCreated }}</span>
-				<p>{{ comment.text }}</p>
+				<markdown [data]="comment.text"></markdown>
 			</div>
 		</div>
 	</div>

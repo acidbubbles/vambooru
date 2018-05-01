@@ -72,8 +72,15 @@ export class PostComponent implements OnInit, OnDestroy {
 
 	sendComment() {
 		//TODO: Wait for the result and show the text box again
-		this.commentsService.send(this.post.id, this.currentComment.text).subscribe();
-		this.comments.unshift(this.currentComment);
+		const comment = this.currentComment;
 		this.currentComment = null;
+		this.commentsService.send(this.post.id, comment.text).subscribe(
+			() => {
+				this.comments.unshift(comment);
+			},
+			error => {
+				this.currentComment = comment;
+				this.comments.unshift({ text: `Error: ${error.message}` } as IPostComment);
+			});
 	}
 }
