@@ -67,16 +67,16 @@ export class PostComponent implements OnInit, OnDestroy {
 	}
 
 	resetComment() {
-		this.currentComment = { text: "", author: { username: this.loggedInUsername }, dateCreated: "now" } as IPostComment;
+		this.currentComment = { text: "", author: { username: this.loggedInUsername }, dateCreated: "just now" } as IPostComment;
 	}
 
 	sendComment() {
-		//TODO: Wait for the result and show the text box again
 		const comment = this.currentComment;
 		this.currentComment = null;
 		this.commentsService.send(this.post.id, comment.text).subscribe(
 			() => {
 				this.comments.unshift(comment);
+				this.resetComment();
 			},
 			error => {
 				this.currentComment = comment;

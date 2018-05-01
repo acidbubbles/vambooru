@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using VamBooru.Models;
@@ -29,7 +30,51 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			return new EntityFrameworkPostFilesRepository(context);
 		}
 
+		[Test]
 		public async Task GetPostFiles()
+		{
+			var post = await GivenAPost(
+				new PostFile {Filename = "My Scene.json", MimeType = "application/json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+				new PostFile {Filename = "My Scene.jpg", MimeType = "image/jpeg", Urn = "urn:vambooru:tests:0002"},
+				new PostFile {Filename = "sound.wav", MimeType = "audio/wav", Urn = "urn:vambooru:tests:0003"}
+			);
+
+			CreateDbContext();
+			var files = await Repository.LoadPostFilesAsync(post.Id);
+
+			files.ShouldDeepEqual(new[]
+			{
+				new PostFile {Filename = "My Scene.json", MimeType = "application/json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+				new PostFile {Filename = "My Scene.jpg", MimeType = "image/jpeg", Urn = "urn:vambooru:tests:0002"},
+				new PostFile {Filename = "sound.wav", MimeType = "audio/wav", Urn = "urn:vambooru:tests:0003"}
+			}, c =>
+			{
+				c.MaxDifferences = 3;
+				c.MembersToIgnore.Add("*Id");
+				c.MembersToIgnore.Add("PostFile.Post");
+			});
+		}
+
+		[Test]
+		public async Task GetPostFile()
+		{
+			var post = await GivenAPost(
+				new PostFile {Filename = "file.txt", MimeType = "text/plain", Urn = "urn:vambooru:tests:0001"}
+			);
+
+			CreateDbContext();
+			var file = await Repository.LoadPostFileAsync(post.Id, "urn:vambooru:tests:0001");
+
+			file.ShouldDeepEqual(
+				new PostFile {Filename = "file.txt", MimeType = "text/plain", Urn =  "urn:vambooru:tests:0001"}
+				, c =>
+				{
+					c.MembersToIgnore.Add("*Id");
+					c.MembersToIgnore.Add("PostFile.Post");
+				});
+		}
+
+		private async Task<Post> GivenAPost(params PostFile[] postFiles)
 		{
 			var saved = await _posts.CreatePostAsync(
 				LoginInfo,
@@ -39,33 +84,14 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				{
 					new Scene
 					{
-						Name = "My Scene"
+						Name = "My Scene",
 					}
 				},
-				new[]
-				{
-					new PostFile {Filename = "My Scene.json", Urn = "urn:vambooru:tests:0001", Compressed = true},
-					new PostFile {Filename = "My Scene.jpg", Urn = "urn:vambooru:tests:0002"},
-					new PostFile {Filename = "sound.wav", Urn = "urn:vambooru:tests:0003"},
-				},
-				"urn:vambooru:tests:0002",
+				postFiles,
+				postFiles.First().Urn,
 				new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero)
 			);
-
-			CreateDbContext();
-			var files = await Repository.LoadPostFilesAsync(saved.Id);
-
-			files.ShouldDeepEqual(new[]
-			{
-				new PostFile {Filename = "My Scene.json"},
-				new PostFile {Filename = "My Scene.jpg"},
-				new PostFile {Filename = "sound.wav"}
-			}, c =>
-			{
-				c.IgnoreCollectionOrder = true;
-				c.MembersToIgnore.Add("*Id");
-				c.MembersToIgnore.Add("PostFile.Post");
-			});
+			return saved;
 		}
 	}
 }

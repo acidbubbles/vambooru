@@ -22,7 +22,6 @@ namespace VamBooru.Repository.EFPostgres
 
 		public Task<PostFile> LoadPostFileAsync(Guid postId, string urn)
 		{
-			//TODO: Not unit tested
 			return DbContext.PostFiles
 				.SingleOrDefaultAsync(sf => sf.Urn == urn && sf.Post.Id == postId);
 		}

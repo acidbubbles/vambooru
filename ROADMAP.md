@@ -38,8 +38,14 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 * Allow selecting the preferred scene, and upload/embed animated gifs or videos for showing off the work
 * Validate all scene paths, make sure all dependencies are there, and auto tag animations
 * Use built-in .NET Authenticate/Roles instead of checking manually
-* Limit and validate comments and post description text size and content
+* Limit and sanitize username, comments, post titles and text
 * Comments paging
 * Ctrl-enter to comment
 * Convert comments date time to "X time ago"
 * Show creating date of posts
+* Save a SHA-256 hash of each file, and check for duplicates
+* Pre-generate the zip upfront and store it for direct download
+
+## Technical
+
+* Docker image for quick tests (https://docs.docker.com/samples/library/postgres/, https://docs.docker.com/engine/examples/dotnetcore/)

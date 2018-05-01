@@ -28,11 +28,9 @@ namespace VamBooru.Controllers
 			var post = await _postsRepository.LoadPostAsync(postId);
 			var files = await _filesRepository.LoadPostFilesAsync(postId);
 
-			//TODO: This should be done way before
 			var username = SanitizingUtils.GetSanitizedFilename(post.Author.Username);
 			var title = SanitizingUtils.GetSanitizedFilename(post.Title);
 
-			//TODO: We should generate the zip upfront and store it for direct download
 			var zipStream = new MemoryStream();
 			using (var zip = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
 			{

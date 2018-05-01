@@ -38,8 +38,6 @@ namespace VamBooru.Controllers
 		public async Task<IActionResult> Upload()
 		{
 			//TODO: Refactor this; it's way too complicated.
-			//TODO: Assign the post's ThumbnailUrn and remove scenes loading from BrowsePosts
-
 			var user = await _usersRepository.LoadPrivateUserAsync(this.GetUserLoginInfo());
 			if (user == null) return Unauthorized();
 

@@ -29,10 +29,10 @@
 			<div class="row">
 				<div class="col-md-4">
 					<div class="btn-group">
-						<button type="button" class="btn" [ngClass]="{ 'btn-secondary': !vote, 'btn-danger': vote && vote.value !== -1, 'btn-danger': vote && vote.value === -1 }" (click)="changeVote(-1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
+						<button type="button" class="btn" [ngClass]="{ 'btn-secondary': !vote, 'btn-danger': vote && vote.value !== -1, 'btn-danger': vote && vote.value === -1 }" (click)="changeVote(-1)" [disabled]="!vote || voting || !loggedInUsername">
 							<i class="fa fa-thumbs-down"></i>
 						</button>
-						<button type="button" class="btn" [ngClass]="{ 'btn-secondary': !vote, 'btn-success': vote && vote.value !== 1, 'btn-success': vote && vote.value === 1 }" (click)="changeVote(1)" [disabled]="!vote || voting" *ngIf="loggedInUsername">
+						<button type="button" class="btn" [ngClass]="{ 'btn-secondary': !vote, 'btn-success': vote && vote.value !== 1, 'btn-success': vote && vote.value === 1 }" (click)="changeVote(1)" [disabled]="!vote || voting || !loggedInUsername">
 							<i class="fa fa-thumbs-up"></i>
 						</button>
 						<button class="btn btn-secondary disabled">Score: {{ post.votes }}</button>
@@ -53,9 +53,17 @@
 
 	<div class="card mb-4">
 		<div class="card-header">
-			<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
-				<i class="fab fa-download-alt"></i>&nbsp;Download as .zip
-			</a>
+			<div class="row">
+				<div class="col-md-6 pt-1">
+					<b class="card-title">Download</b>
+				</div>
+				<div class="col-md-6 text-right">
+					<a class="btn btn-sm btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
+						<i class="fab fa-download-alt"></i>&nbsp;Download as .zip
+					</a>
+				</div>
+			</div>
+			
 		</div>
 		<div class="card-body pb-1">
 			<ul>
@@ -66,11 +74,18 @@
 
 	<div class="card mb-4" *ngIf="loggedInUsername || comments?.length">
 		<div class="card-header">
-			Comments
+			<div class="row">
+				<div class="col-md-6 pt-1">
+					<b class="card-title">Comments</b>
+				</div>
+				<div class="col-md-6 text-right" *ngIf="!loggedInUsername">
+					<i>Login to post a comment</i>
+				</div>
+			</div>
 		</div>
 		<div class="card-body">
 			<div *ngIf="currentComment && loggedInUsername">
-				<textarea class="form-control" rows="4" [(ngModel)]="currentComment.text"></textarea>
+				<textarea id="commentText" class="form-control" rows="4" [(ngModel)]="currentComment.text" (keydown.control.Enter)="sendComment()"></textarea>
 				<div class="text-right mt-1">
 					<input class="btn btn-primary" type="button" value="Send" (click)="sendComment()" />
 				</div>
@@ -83,3 +98,4 @@
 		</div>
 	</div>
 </div>
+

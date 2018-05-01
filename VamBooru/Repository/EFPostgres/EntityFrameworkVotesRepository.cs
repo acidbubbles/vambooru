@@ -48,7 +48,6 @@ namespace VamBooru.Repository.EFPostgres
 			}
 
 			if (difference != 0)
-				//TODO: It is theoritically possible that the same user sends multiple upvotes VERY fast and create a few fake votes.
 				await DbContext.Database.ExecuteSqlCommandAsync(
 					"UPDATE \"Posts\" SET \"Votes\" = \"Votes\" + @difference WHERE \"Id\" = @postId",
 					new NpgsqlParameter("@difference", difference),

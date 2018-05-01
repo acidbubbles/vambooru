@@ -55,8 +55,6 @@ namespace VamBooru.Controllers
 			var uid = GetUniqueUsername("user");
 			var username = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value ?? $"anon.{uid}";
 
-			//TODO: This should be replaced by a signup page when the user does not already exist
-			//TODO: Retry more than once if conflict
 			var result = await _usersRepository.LoadOrCreateUserFromLoginAsync(scheme, identifier, username, DateTimeOffset.UtcNow);
 
 			switch (result.Result)
