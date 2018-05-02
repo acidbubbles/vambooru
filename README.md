@@ -8,9 +8,10 @@ The goal is to create a site for the community to share scenes, and eventually g
 
 * GitHub authentication
 * Upload Virt-a-Mate scene JSON and jpegs, along with companion files
-  * Auto-tagging (how many males/females)
+  * Auto-tagging (how many males/females, audio, etc.)
   * Basic validation
-* User profiles (usernames only)
+* Post gallery (searching, filtering and sorting)
+* User profiles (usernames)
 * Voting
 * Tagging and tag searching
-* Post gallery browsing
+* Comments
