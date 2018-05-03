@@ -22,18 +22,25 @@ namespace VamBooru.Controllers
 		[HttpGet("stats")]
 		public async Task<IActionResult> GetStats()
 		{
-			if ((await _usersRepository.LoadPrivateUserAsync(this.GetUserLoginInfo())).Role != UserRoles.Admin)
+			var user = await _usersRepository.LoadPrivateUserAsync(this.GetUserLoginInfo());
+			if (user == null || user.Role != UserRoles.Admin)
 				return Unauthorized();
 
 			var users = await _dbContext.Users.CountAsync();
 			var posts = await _dbContext.Posts.CountAsync();
 			var tags = await _dbContext.Tags.CountAsync();
+			var comments = await _dbContext.PostComments.CountAsync();
+			var files = await _dbContext.PostFiles.CountAsync();
+			var votes = await _dbContext.UserPostVotes.CountAsync();
 
 			return Ok(new
 			{
 				users,
 				posts,
-				tags
+				tags,
+				comments,
+				files,
+				votes
 			});
 		}
 	}
