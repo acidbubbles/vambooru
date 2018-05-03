@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using StackExchange.Redis;
 using VamBooru.Middlewares;
 using VamBooru.Models;
 using VamBooru.Repository.EFPostgres;
@@ -37,7 +39,22 @@ namespace VamBooru
 		public void ConfigureServices(IServiceCollection services)
 		{ 
 			services.AddSingleton(Configuration);
+			services.AddMemoryCache();
+			services.AddResponseCompression();
 
+			ConfigureReverseProxy(services);
+			ConfigureDataProtection(services);
+			ConfigureMvc(services);
+			ConfigureDatabase(services);
+			ConfigureAngular(services);
+			ConfigureRepository(services);
+			ConfigureStorage(services);
+			ConfigureVamBooruServices(services);
+			ConfigureAuthentication(services);
+		}
+
+		private static void ConfigureReverseProxy(IServiceCollection services)
+		{
 			services.Configure<ForwardedHeadersOptions>(options =>
 			{
 				options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -45,9 +62,15 @@ namespace VamBooru
 				options.KnownNetworks.Clear();
 				options.KnownProxies.Clear();
 			});
+		}
 
-			services.AddResponseCompression();
+		private static void ConfigureVamBooruServices(IServiceCollection services)
+		{
+			services.AddTransient<ISceneFormat, JsonSceneFormat>();
+		}
 
+		private void ConfigureMvc(IServiceCollection services)
+		{
 			services
 				.AddMvc(options =>
 				{
@@ -55,20 +78,15 @@ namespace VamBooru
 						options.Filters.Add(new RequireHttpsAttribute());
 				})
 				.AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
+		}
 
-			ConfigureDatabase(services);
-
-			ConfigureAngular(services);
-
-			ConfigureRepository(services);
-
-			ConfigureStorage(services);
-
-			services.AddTransient<ISceneFormat, JsonSceneFormat>();
-
-			services.AddMemoryCache();
-
-			ConfigureAuthentication(services);
+		private void ConfigureDataProtection(IServiceCollection services)
+		{
+			var redisUrl = Configuration["DataProtection:Redis:Url"];
+			if (string.IsNullOrEmpty(redisUrl)) return;
+			var redis = ConnectionMultiplexer.Connect(redisUrl);
+			services.AddDataProtection()
+				.PersistKeysToRedis(redis, "DataProtection-Keys");
 		}
 
 		private void ConfigureRepository(IServiceCollection services)
