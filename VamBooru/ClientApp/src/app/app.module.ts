@@ -70,6 +70,7 @@ import { UserComponent } from "./pages/user/user.component";
 			{ path: "posts/:id", component: PostComponent },
 			{ path: "posts/:id/edit", component: PostEditComponent },
 			{ path: "upload", component: UploadComponent },
+			{ path: "posts/:id/edit/upload", component: UploadComponent },
 			{ path: "me", component: MyAccountComponent },
 			{ path: "users/:id", component: UserComponent },
 			{ path: "**", redirectTo: "error" }

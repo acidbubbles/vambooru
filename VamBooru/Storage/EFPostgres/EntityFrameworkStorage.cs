@@ -42,8 +42,7 @@ namespace VamBooru.Storage.EFPostgres
 
 		public async Task<Stream> LoadFileStreamAsync(string urn, bool compressed)
 		{
-			if(!urn.StartsWith(UrnPrefix)) throw new ArgumentException($"Invalid or unsupported URN: '{urn}'", nameof(urn));
-			var id = int.Parse(urn.Substring(UrnPrefix.Length));
+			var id = GetIdFromUrn(urn);
 
 			var file = await _context.StorageFiles.FirstOrDefaultAsync(sf => sf.Id == id);
 			if (file == null) return null;
@@ -61,6 +60,21 @@ namespace VamBooru.Storage.EFPostgres
 			}
 
 			return new MemoryStream(file.Bytes);
+		}
+
+		public Task DeleteFileAsync(string urn)
+		{
+			var file = new StorageFile {Id = GetIdFromUrn(urn)};
+			_context.StorageFiles.Attach(file);
+			_context.StorageFiles.Remove(file);
+			return _context.SaveChangesAsync();
+		}
+
+		private static int GetIdFromUrn(string urn)
+		{
+			if (!urn.StartsWith(UrnPrefix)) throw new ArgumentException($"Invalid or unsupported URN: '{urn}'", nameof(urn));
+			var id = int.Parse(urn.Substring(UrnPrefix.Length));
+			return id;
 		}
 	}
 }

@@ -21,8 +21,15 @@ namespace VamBooru.Repository.EFPostgres
 			_users = users ?? throw new ArgumentNullException(nameof(users));
 		}
 
-		public async Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes,
-			PostFile[] files, string thumbnailUrn, DateTimeOffset now)
+		public Task<Post> CreatePostAsync(UserLoginInfo login, Post post, DateTimeOffset now)
+		{
+			if (login == null) throw new ArgumentNullException(nameof(login));
+			if (post == null) throw new ArgumentNullException(nameof(post));
+
+			return CreatePostAsync(login, post.Title, post.Tags.Select(tag => tag.Tag.Name).ToArray(), post.Scenes.ToArray(), post.PostFiles.ToArray(), post.ThumbnailUrn, now);
+		}
+
+		public async Task<Post> CreatePostAsync(UserLoginInfo login, string title, string[] tags, Scene[] scenes, PostFile[] files, string thumbnailUrn, DateTimeOffset now)
 		{
 			var user = await _users.LoadPrivateUserAsync(login);
 
@@ -39,25 +46,33 @@ namespace VamBooru.Repository.EFPostgres
 				PostFiles = new List<PostFile>()
 			};
 
-			foreach (var scene in scenes)
-			{
-				if (scene.Id != Guid.Empty) throw new UnauthorizedAccessException("Cannot assign an existing scene to a new post");
-				DbContext.Scenes.Add(scene);
-				post.Scenes.Add(scene);
-			}
-
 			await AssignTagsAsync(post, tags);
+			AssignScenesToPost(post, scenes);
+			AssignFilesToPost(post, files);
 
+			DbContext.Posts.Add(post);
+			await DbContext.SaveChangesAsync();
+			return post;
+		}
+
+		private void AssignFilesToPost(Post post, IEnumerable<PostFile> files)
+		{
 			foreach (var file in files)
 			{
 				if (file.Id != 0) throw new UnauthorizedAccessException("Cannot assign an existing file to a new post");
 				DbContext.PostFiles.Add(file);
 				post.PostFiles.Add(file);
 			}
+		}
 
-			DbContext.Posts.Add(post);
-			await DbContext.SaveChangesAsync();
-			return post;
+		private void AssignScenesToPost(Post post, IEnumerable<Scene> scenes)
+		{
+			foreach (var scene in scenes)
+			{
+				if (scene.Id != Guid.Empty) throw new UnauthorizedAccessException("Cannot assign an existing scene to a new post");
+				DbContext.Scenes.Add(scene);
+				post.Scenes.Add(scene);
+			}
 		}
 
 		public Task<Post> LoadPostAsync(Guid id)
@@ -67,7 +82,13 @@ namespace VamBooru.Repository.EFPostgres
 				.Include(p => p.Tags)
 				.ThenInclude(t => t.Tag)
 				.Include(p => p.Scenes)
+				.Include(p => p.PostFiles)
 				.FirstOrDefaultAsync(p => p.Id == id);
+		}
+
+		public Task SavePostAsync(Post post)
+		{
+			return DbContext.SaveChangesAsync();
 		}
 
 		public Task<Post[]> BrowsePostsAsync(PostSortBy sortBy, PostSortDirection sortDirection, PostedSince since, int page,
@@ -181,6 +202,7 @@ namespace VamBooru.Repository.EFPostgres
 
 			dbPost.Title = post.Title;
 			dbPost.Text = post.Text;
+			dbPost.ThumbnailUrn = post.ThumbnailUrn;
 			if (!wasPublished && post.Published)
 				dbPost.DatePublished = now;
 			dbPost.Published = post.Published;
@@ -206,6 +228,15 @@ namespace VamBooru.Repository.EFPostgres
 			}
 
 			return dbPost;
+		}
+
+		public async Task UpdatePostScenesAndFiles(Post post, Scene[] newScenes, PostFile[] newFiles)
+		{
+			DbContext.PostFiles.RemoveRange(post.PostFiles);
+			DbContext.Scenes.RemoveRange(post.Scenes);
+			AssignScenesToPost(post, newScenes);
+			AssignFilesToPost(post, newFiles);
+			await DbContext.SaveChangesAsync();
 		}
 
 		private async Task ChangeTagsPostsCount(ICollection<Tag> tags, int increment)

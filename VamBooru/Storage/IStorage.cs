@@ -7,5 +7,6 @@ namespace VamBooru.Storage
 	{
 		Task<string> SaveFileAsync(MemoryStream stream, bool compressed);
 		Task<Stream> LoadFileStreamAsync(string urn, bool compressed);
+		Task DeleteFileAsync(string urn);
 	}
 }

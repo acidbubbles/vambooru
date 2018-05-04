@@ -16,6 +16,7 @@ namespace VamBooru.Models
 		[Required] [Column(TypeName = "text")] public string Text { get; set; }
 		[Required] public User Author { get; set; }
 		public string ThumbnailUrn { get; set; }
+		[Description("Updated when new files are uploaded")] public int Version { get; set; } = 1;
 		[Description("Calculated when UserVotes is updated")] public int Votes { get; set; }
 		public ICollection<PostTag> Tags { get; set; }
 		public ICollection<Scene> Scenes { get; set; }

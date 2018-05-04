@@ -17,6 +17,8 @@ namespace VamBooru.Controllers
 	[Route("api/upload")]
 	public class UploadController : Controller
 	{
+		//TODO: This class is absolutely not tested
+
 		private const int MaxFileSize = 5 * 1000 * 1000; // 5MB
 
 		private readonly IUsersRepository _usersRepository;
@@ -32,16 +34,85 @@ namespace VamBooru.Controllers
 			_sceneFormat = sceneFormat ?? throw new ArgumentNullException(nameof(sceneFormat));
 		}
 
-		[HttpPost("")]
+		[HttpPost("posts/{postId}")]
 		[DisableFormValueModelBinding]
 		[Authorize]
-		public async Task<IActionResult> Upload()
+		public async Task<IActionResult> UploadToExistingPost([FromRoute] Guid postId)
 		{
-			//TODO: Refactor this; it's way too complicated.
+			//TODO: Updating a scene may result in broken zip downloads. We should disable the post for the duration of the update.
+
 			var user = await _usersRepository.LoadPrivateUserAsync(this.GetUserLoginInfo());
 			if (user == null) return Unauthorized();
 
-			if(!OrganizeFiles(out var scenesFiles, out var supportFiles, out var errorCode)) return BadRequest(new UploadResponse {Success = false, Code = errorCode});
+			var post = await _postsRepository.LoadPostAsync(postId);
+			if (post.Author.Id != user.Id) return Unauthorized();
+
+			// Save files and prepare template
+			Post postTemplate;
+			try
+			{
+				postTemplate = await UploadAndCreatePostTemplate();
+			}
+			catch (PostUploadException exc)
+			{
+				return BadRequest(new UploadResponse { Success = false, Code = exc.Code });
+			}
+
+			// Temporarily unpublish
+			var published = post.Published;
+			post.Published = false;
+			await _postsRepository.SavePostAsync(post);
+
+			// Delete old files and scenes, save the new ones
+			var filesToDelete = post.PostFiles.Select(f => f.Urn).ToArray();
+			await _postsRepository.UpdatePostScenesAndFiles(post, postTemplate.Scenes.ToArray(), postTemplate.PostFiles.ToArray());
+			foreach (var fileToDelete in filesToDelete)
+			{
+				await _storage.DeleteFileAsync(fileToDelete);
+			}
+
+			// Republish and increment version
+			post.Published = published;
+			post.ThumbnailUrn = post.Scenes.FirstOrDefault()?.ThumbnailUrn;
+			post.Version++;
+			post.DatePublished = DateTimeOffset.UtcNow;
+			await _postsRepository.SavePostAsync(post);
+
+			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });
+		}
+
+		[HttpPost("")]
+		[DisableFormValueModelBinding]
+		[Authorize]
+		public async Task<IActionResult> UploadAndCreatePost()
+		{
+			var user = await _usersRepository.LoadPrivateUserAsync(this.GetUserLoginInfo());
+			if (user == null) return Unauthorized();
+
+			Post postTemplate;
+			try
+			{
+				postTemplate = await UploadAndCreatePostTemplate();
+			}
+			catch (PostUploadException exc)
+			{
+				return BadRequest(new UploadResponse { Success = false, Code = exc.Code });
+			}
+
+			var post = await _postsRepository.CreatePostAsync(
+				this.GetUserLoginInfo(),
+				postTemplate,
+				DateTimeOffset.UtcNow
+			);
+
+			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });
+		}
+
+		private async Task<Post> UploadAndCreatePostTemplate()
+		{
+			//TODO: Refactor this; it's way too complicated.
+
+			OrganizeFiles(out var scenesFiles, out var supportFiles);
 
 			var scenes = await Task.WhenAll(scenesFiles.Select(async sf =>
 				new Tuple<Scene, SceneJsonAndJpg, MemoryStream, MemoryStream>(
@@ -56,7 +127,9 @@ namespace VamBooru.Controllers
 			{
 				var project = _sceneFormat.Deserialize(sceneData.Item3.ToArray());
 				tags.AddRange(_sceneFormat.GetTags(project));
-				if (!ValidateJpeg(sceneData.Item4)) BadRequest(new UploadResponse {Success = false, Code = "InvalidJpegHeader"});
+				if (!ValidateJpeg(sceneData.Item4))
+					throw new PostUploadException("InvalidJpegHeader",
+						$"The file '{sceneData.Item2.FilenameWithoutExtension}.jpg' is not a valid jpeg image.");
 			}
 
 			var postFiles = new List<PostFile>();
@@ -91,6 +164,7 @@ namespace VamBooru.Controllers
 				{
 					await supportFileStream.CopyToAsync(memoryStream);
 				}
+
 				memoryStream.Seek(0, SeekOrigin.Begin);
 
 				postFiles.Add(new PostFile
@@ -102,22 +176,23 @@ namespace VamBooru.Controllers
 				});
 			}
 
-			var post = await _postsRepository.CreatePostAsync(
-				this.GetUserLoginInfo(),
-				scenes.First().Item1.Name,
-				tags.Distinct().ToArray(),
-				scenes.Select(s => s.Item1).ToArray(),
-				postFiles.ToArray(),
-				postThumbnailUrn,
-				DateTimeOffset.UtcNow
-			);
-
-			return Ok(new UploadResponse { Success = true, Id = post.Id.ToString() });
+			return new Post
+			{
+				Title = scenes.First().Item1.Name,
+				Tags = tags.Distinct().Select(t => new PostTag {Tag = new Tag {Name = t}}).ToArray(),
+				Scenes = scenes.Select(s => s.Item1).ToArray(),
+				PostFiles = postFiles.ToArray(),
+				ThumbnailUrn = postThumbnailUrn,
+				Version = 1
+			};
 		}
 
-		public bool OrganizeFiles(out List<SceneJsonAndJpg> scenesFiles, out List<IFormFile> supportFiles, out string errorCode)
+		public void OrganizeFiles(out List<SceneJsonAndJpg> scenesFiles, out List<IFormFile> supportFiles)
 		{
 			var files = Request.Form.Files;
+
+			if(files.Count == 0)
+				throw new PostUploadException("NoFiles", "There was no files in the upload");
 
 			supportFiles = new List<IFormFile>();
 			scenesFiles = files
@@ -130,52 +205,43 @@ namespace VamBooru.Controllers
 				.ToList();
 
 			if (!scenesFiles.Any())
-			{
-				errorCode = "NoSceneJson";
-				return false;
-			}
+				throw new PostUploadException("NoSceneJson", "There was no .json file in the uploaded files list");
 
 			foreach (var file in files)
 			{
+				if (file.Length <= 0)
+					throw new PostUploadException("FileEmpty", $"File {file.FileName} is empty.");
+
 				if (file.Length > MaxFileSize)
-				{
-					errorCode = $"FileTooLarge:{MaxFileSize/1000/1000}MB";
-					return true;
-				}
+					throw new PostUploadException("FileTooLarge", $"File {file.FileName} is too large. Size: {file.Length / 1000 / 1000} Max: {MaxFileSize / 1000 / 1000}MB");
 
 				var filename = file.FileName;
 				if (string.IsNullOrEmpty(filename))
-				{
-					errorCode = "MissingFilename";
-					return false;
-				}
+					throw new PostUploadException("MissingFilename", "File has no filename.");
 
 				var extension = Path.GetExtension(file.FileName);
 				var filenameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
-				if (extension == ".json") continue;
-				if (extension == ".jpg")
+				switch (extension)
 				{
-					var sceneFile = scenesFiles.FirstOrDefault(sf => sf.FilenameWithoutExtension == filenameWithoutExtension);
-					if (sceneFile != null)
-					{
-						sceneFile.JpgFile = file;
+					case ".json":
 						continue;
-					}
+					case ".jpg":
+						var sceneFile = scenesFiles.FirstOrDefault(sf => sf.FilenameWithoutExtension == filenameWithoutExtension);
+						if (sceneFile != null)
+						{
+							sceneFile.JpgFile = file;
+							continue;
+						}
+
+						break;
 				}
 
-				if (MimeTypeUtils.Known.Contains(extension))
-				{
-					//TODO: We should validate these files
-					supportFiles.Add(file);
-					continue;
-				}
+				if (!MimeTypeUtils.Known.Contains(extension))
+					throw new PostUploadException("UnsupportedExtension", $"Unsupported file extension: '{file.FileName}'");
 
-				errorCode = $"UnsupportedExtension:{extension}";
-				return true;
+				//TODO: We should validate these files
+				supportFiles.Add(file);
 			}
-
-			errorCode = null;
-			return true;
 		}
 
 		private static bool ValidateJpeg(Stream sceneJpgStream)
@@ -221,6 +287,17 @@ namespace VamBooru.Controllers
 			public bool Success { get; set; }
 			public string Code { get; set; }
 			public string Id { get; set; }
+		}
+	}
+
+	public class PostUploadException : Exception
+	{
+		public string Code { get; set; }
+
+		public PostUploadException(string code, string message)
+			: base(message)
+		{
+			Code = code;
 		}
 	}
 }

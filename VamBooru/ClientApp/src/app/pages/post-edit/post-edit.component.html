@@ -58,12 +58,16 @@
 
 	<div class="card mb-4">
 		<div class="card-header">
-			Files
+			Files (v{{ post.version }})
 		</div>
 		<div class="card-body">
 			<p>
 				<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
 					<i class="fab fa-download-alt"></i>&nbsp;Download as .zip
+				</a>
+
+				<a class="btn btn-secondary" [routerLink]="['/posts', post.id, 'edit', 'upload']">
+					<i class="fas fa-upload"></i>&nbsp;Upload a new version
 				</a>
 			</p>
 			<p>
