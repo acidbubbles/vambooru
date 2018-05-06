@@ -49,6 +49,8 @@ There can be an infinite list of things to add, but here's the core features tha
 * Track downloads (popularity) and views (Redis)
 * Ability for anyone with enough reputation to tag anything (auto-role assignation)
 * Simple blog-like posts (tutorials, news, etc.)
+* Get updates for a list of given posts (e.g. "new updates"
+* Attach a message with new post versions (what's new)
 
 ## Improvements
 

@@ -24,6 +24,7 @@ namespace VamBooru.Tests.Controllers
 					{
 						Id = Guid.Parse("9495ee61-37ac-43cf-8ee0-dbcd18510914"),
 						Title = "My Scene",
+						Version = 4,
 						Author = new User {Username = "john.doe"},
 						Tags = new[]
 						{
@@ -43,6 +44,7 @@ namespace VamBooru.Tests.Controllers
 				{
 					Id ="9495ee61-37ac-43cf-8ee0-dbcd18510914",
 					Title = "My Scene",
+					Version = 4,
 					Author = new UserViewModel {Username = "john.doe"},
 					Tags = new[] {new TagViewModel {Name = "artsy"}}
 				}

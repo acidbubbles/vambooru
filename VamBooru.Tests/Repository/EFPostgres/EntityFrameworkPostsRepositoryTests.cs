@@ -68,6 +68,11 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				Author = CurrentUser,
 				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
 				ThumbnailUrn = "urn:vambooru:tests:0002",
+				PostFiles = new[]
+				{
+					new PostFile {Filename = "file.json", MimeType = "application/json", Urn = "urn:vambooru:tests:0001", Compressed = true},
+					new PostFile {Filename = "file.jpg", MimeType = "image/jpeg", Urn = "urn:vambooru:tests:0002"}
+				}.ToHashSet(),
 				Tags = new[]
 				{
 					new PostTag {Tag = new Tag {Name = "my-tag"}}
@@ -88,7 +93,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				c.MembersToIgnore.Add("PostTag.Post");
 				c.MembersToIgnore.Add("Tag.Id");
 				c.MembersToIgnore.Add("Scene.Post");
-				c.MembersToIgnore.Add("SceneFile.Scene");
+				c.MembersToIgnore.Add("PostFile.Post");
 				c.MembersToIgnore.Add("User.Posts");
 				c.MembersToIgnore.Add("User.Logins");
 			});
@@ -138,6 +143,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 					Title = "New Title",
 					Text = "Markdown\nText",
 					Published = true,
+					ThumbnailUrn = "urn:vambooru:tests:0002",
 					Tags = new[]
 					{
 						new TagViewModel {Name = "tag2"},
@@ -155,11 +161,13 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			{
 				Title = "New Title",
 				Text = "Markdown\nText",
+				Version = 1,
 				Author = CurrentUser,
 				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
 				DatePublished = new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero),
 				Published = true,
-				ThumbnailUrn = "urn:vambooru:tests:0000",
+				ThumbnailUrn = "urn:vambooru:tests:0002",
+				PostFiles = new HashSet<PostFile>(),
 				Tags = new[]
 				{
 					new PostTag {Tag = new Tag {Name = "tag2", PostsCount = 1}},
@@ -176,7 +184,6 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				c.MembersToIgnore.Add("PostTag.Post");
 				c.MembersToIgnore.Add("Tag.Id");
 				c.MembersToIgnore.Add("Scene.Post");
-				c.MembersToIgnore.Add("SceneFile.Scene");
 				c.MembersToIgnore.Add("User.Posts");
 				c.MembersToIgnore.Add("User.Logins");
 			});
@@ -258,7 +265,6 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				c.MembersToIgnore.Add("PostTag.Post");
 				c.MembersToIgnore.Add("Tag.Id");
 				c.MembersToIgnore.Add("Scene.Post");
-				c.MembersToIgnore.Add("SceneFile.Scene");
 				c.MembersToIgnore.Add("User.Posts");
 				c.MembersToIgnore.Add("User.Logins");
 			});
