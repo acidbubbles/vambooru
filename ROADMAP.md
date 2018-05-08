@@ -67,9 +67,10 @@ There can be an infinite list of things to add, but here's the core features tha
 * Comments paging
 * Convert comments date time to "X time ago"
 * Show published date of posts
-* Save a SHA-256 hash of each file, and check for duplicates
+* Save a SHA-256 hash of each file, and check for duplicates when uploading
 
 ## Technical
 
 * Use built-in .NET Authenticate/Roles instead of checking manually
 * Docker image for quick tests (https://docs.docker.com/samples/library/postgres/, https://docs.docker.com/engine/examples/dotnetcore/)
+* Some analytics to track usage, uploads, etc. (anonymous as much as possible)

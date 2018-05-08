@@ -202,7 +202,6 @@ namespace VamBooru.Repository.EFPostgres
 
 			dbPost.Title = post.Title;
 			dbPost.Text = post.Text;
-			dbPost.ThumbnailUrn = post.ThumbnailUrn;
 			if (!wasPublished && post.Published)
 				dbPost.DatePublished = now;
 			dbPost.Published = post.Published;

@@ -52,7 +52,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
 				direction: params["direction"] || PostSortDirection.down,
 				since: params["since"] || PostedSince.forever,
 				page: params["page"] || 0,
-				pageSize: params["pageSize"] || 12,
+				pageSize: params["pageSize"] || 24,
 				tags: tagsParam,
 				author: params["author"] || "",
 				text: params["text"] || ""
