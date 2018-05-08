@@ -19,7 +19,7 @@ namespace VamBooru.Controllers
 	{
 		//TODO: This class is absolutely not tested
 
-		private const int MaxFileSize = 5 * 1000 * 1000; // 5MB
+		private const int MaxFileSize = 20 * 1000 * 1000; // 20MB
 
 		private readonly IUsersRepository _usersRepository;
 		private readonly IPostsRepository _postsRepository;
