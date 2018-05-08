@@ -143,7 +143,6 @@ namespace VamBooru.Tests.Repository.EFPostgres
 					Title = "New Title",
 					Text = "Markdown\nText",
 					Published = true,
-					ThumbnailUrn = "urn:vambooru:tests:0002",
 					Tags = new[]
 					{
 						new TagViewModel {Name = "tag2"},
@@ -166,7 +165,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
 				DatePublished = new DateTimeOffset(2006, 02, 03, 04, 05, 06, TimeSpan.Zero),
 				Published = true,
-				ThumbnailUrn = "urn:vambooru:tests:0002",
+				ThumbnailUrn = "urn:vambooru:tests:0000",
 				PostFiles = new HashSet<PostFile>(),
 				Tags = new[]
 				{
