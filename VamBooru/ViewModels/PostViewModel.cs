@@ -41,6 +41,7 @@ namespace VamBooru.ViewModels
 				Tags = tags.Select(tag => TagViewModel.From(tag.Tag)).OrderByDescending(t => t.PostsCount).ThenBy(t => t.Name).ToArray(),
 				Author = UserViewModel.From(from.Author),
 				Scenes = optimize ? null : (from.Scenes?.Select(SceneViewModel.From).ToArray() ?? new SceneViewModel[0]),
+				Files = from.PostFiles?.Select(FileViewModel.From).ToArray()
 			};
 		}
 	}

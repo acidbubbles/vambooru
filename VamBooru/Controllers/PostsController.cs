@@ -13,13 +13,11 @@ namespace VamBooru.Controllers
 	public class PostsController : Controller
 	{
 		private readonly IPostsRepository _postsRepository;
-		private readonly IPostFilesRepository _filesRepository;
 		private readonly IMemoryCache _cache;
 
-		public PostsController(IPostsRepository postsRepository, IPostFilesRepository filesRepository, IMemoryCache cache)
+		public PostsController(IPostsRepository postsRepository, IMemoryCache cache)
 		{
 			_postsRepository = postsRepository ?? throw new ArgumentNullException(nameof(postsRepository));
-			_filesRepository = filesRepository ?? throw new ArgumentNullException(nameof(filesRepository));
 			_cache = cache ?? throw new ArgumentNullException(nameof(cache));
 		}
 
@@ -73,9 +71,7 @@ namespace VamBooru.Controllers
 		[HttpGet("{postId}")]
 		public async Task<PostViewModel> GetPostAsync([FromRoute] Guid postId)
 		{
-			var viewModel = PrepareForDisplay(await _postsRepository.LoadPostAsync(postId), false);
-			viewModel.Files = (await _filesRepository.LoadPostFilesAsync(postId)).Select(FileViewModel.From).ToArray();
-			return viewModel;
+			return PrepareForDisplay(await _postsRepository.LoadPostAsync(postId), false);
 		}
 
 		[HttpPut("{postId}")]

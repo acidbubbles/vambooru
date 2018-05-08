@@ -32,9 +32,8 @@ namespace VamBooru.Tests.Controllers
 						}
 					}
 				});
-			var filesRepository = new Mock<IPostFilesRepository>(MockBehavior.Strict);
 			var cache = SetupCaching("posts:browse:(Created;Down;Default;0;16)");
-			var controller = new PostsController(postsRepository.Object, filesRepository.Object, cache.Object);
+			var controller = new PostsController(postsRepository.Object, cache.Object);
 
 			var result = await controller.BrowseAsync();
 
