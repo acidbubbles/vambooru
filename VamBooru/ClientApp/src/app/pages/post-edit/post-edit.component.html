@@ -62,7 +62,7 @@
 		</div>
 		<div class="card-body">
 			<p>
-				<a class="btn btn-primary" href="/api/download/posts/{{ post.id }}" target="_blank">
+				<a class="btn btn-primary mr-2" href="/api/download/posts/{{ post.id }}" target="_blank">
 					<i class="fab fa-download-alt"></i>&nbsp;Download as .zip
 				</a>
 
@@ -80,7 +80,7 @@
 	</div>
 
 	<div class="form-group">
-		<button type="button" class="btn btn-secondary" (click)="save()" [disabled]="saving">
+		<button type="button" class="btn btn-secondary mr-2" (click)="save()" [disabled]="saving">
 			<i class="fab fa-floppy-disk"></i>&nbsp;Save
 		</button>
 		<button type="button" class="btn btn-success" (click)="publish(true)" [disabled]="saving" *ngIf="!post.published">
