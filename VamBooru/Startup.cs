@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -18,6 +19,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OwaspHeaders.Core.Extensions;
+using OwaspHeaders.Core.Models;
 using StackExchange.Redis;
 using VamBooru.Middlewares;
 using VamBooru.Models;
@@ -35,6 +38,7 @@ namespace VamBooru
 		}
 
 		public IConfiguration Configuration { get; }
+		private SecureHeadersMiddlewareConfiguration _secureHeadersMiddlewareConfiguration;
 
 		public void ConfigureServices(IServiceCollection services)
 		{ 
@@ -42,7 +46,9 @@ namespace VamBooru
 			services.AddMemoryCache();
 			services.AddResponseCompression();
 
+			ConfigureOwasp();
 			ConfigureReverseProxy(services);
+			ConfigureRateLimit(services);
 			ConfigureDataProtection(services);
 			ConfigureMvc(services);
 			ConfigureDatabase(services);
@@ -51,6 +57,25 @@ namespace VamBooru
 			ConfigureStorage(services);
 			ConfigureVamBooruServices(services);
 			ConfigureAuthentication(services);
+		}
+
+		private void ConfigureOwasp()
+		{
+			var config = SecureHeadersMiddlewareBuilder.CreateBuilder()
+				.UseXFrameOptions()
+				.UseXSSProtection()
+				.UseContentTypeOptions()
+				.UseContentDefaultSecurityPolicy()
+				.UsePermittedCrossDomainPolicies()
+				.UseReferrerPolicy()
+				.RemovePoweredByHeader();
+
+			if (Configuration["Web:Https"] == "True")
+				config = config
+					.UseHsts()
+					.UseExpectCt("https://vambooru.herokuapp.com/api/security/report", 86400, true);
+
+			_secureHeadersMiddlewareConfiguration = config.Build();
 		}
 
 		private static void ConfigureReverseProxy(IServiceCollection services)
@@ -62,6 +87,14 @@ namespace VamBooru
 				options.KnownNetworks.Clear();
 				options.KnownProxies.Clear();
 			});
+		}
+
+		private void ConfigureRateLimit(IServiceCollection services)
+		{
+			services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
+
+			services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+			services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
 		}
 
 		private static void ConfigureVamBooruServices(IServiceCollection services)
@@ -214,6 +247,8 @@ namespace VamBooru
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
 			app.UseForwardedHeaders();
+			app.UseIpRateLimiting();
+			app.UseSecureHeadersMiddleware(_secureHeadersMiddlewareConfiguration);
 			app.UseResponseCompression();
 
 			app.UseExceptionHandler(new ExceptionHandlerOptions
