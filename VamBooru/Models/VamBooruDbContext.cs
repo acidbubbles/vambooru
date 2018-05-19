@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace VamBooru.Models
 {
@@ -58,6 +59,11 @@ namespace VamBooru.Models
 
 			modelBuilder.Entity<PostComment>()
 				.HasIndex(post => post.DateCreated);
+		}
+
+		protected override void OnConfiguring(DbContextOptionsBuilder options)
+		{
+			options.ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning));
 		}
 	}
 }
