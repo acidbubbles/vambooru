@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy  } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
-import { Subscription } from "rxjs/Subscription";
-import { Observable } from "rxjs/Observable";
+import { Subscription, Observable } from "rxjs";
 import { PostsService, PostSortBy, PostSortDirection, PostedSince, IPostQuery } from "../../services/posts-service";
 import { TagsService } from "../../services/tags-service";
 import { IPost } from "../../model/post";

@@ -7,7 +7,7 @@ import { RouterModule } from "@angular/router";
 
 // External modules
 import { TagInputModule } from "ngx-chips";
-import { MarkdownModule } from "ngx-md";
+import { NgxMdModule } from "ngx-md";
 
 // Services
 import { ConfigurationService } from "./services/configuration-service";
@@ -60,7 +60,7 @@ import { UserComponent } from "./pages/user/user.component";
 		FormsModule,
 		ReactiveFormsModule,
 		TagInputModule,
-		MarkdownModule.forRoot(),
+		NgxMdModule.forRoot(),
 		RouterModule.forRoot([
 			{ path: "", component: HomeComponent, pathMatch: "full" },
 			{ path: "error", component: ErrorComponent,  },

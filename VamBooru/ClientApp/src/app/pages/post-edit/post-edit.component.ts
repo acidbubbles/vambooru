@@ -1,8 +1,6 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { Subscription } from "rxjs/Subscription";
+import { Subscription, Observable } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Observable } from "rxjs/Observable";
-import "rxjs/add/operator/map";
 import { PostsService } from "../../services/posts-service";
 import { TagsService } from "../../services/tags-service";
 import { IPost } from "../../model/post";
