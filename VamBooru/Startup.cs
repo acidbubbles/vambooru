@@ -65,7 +65,6 @@ namespace VamBooru
 				.UseXFrameOptions()
 				.UseXSSProtection()
 				.UseContentTypeOptions()
-				.UseContentDefaultSecurityPolicy()
 				.UsePermittedCrossDomainPolicies()
 				.UseReferrerPolicy()
 				.RemovePoweredByHeader();
@@ -73,6 +72,7 @@ namespace VamBooru
 			if (Configuration["Web:Https"] == "True")
 				config = config
 					.UseHsts()
+					.UseContentDefaultSecurityPolicy()
 					.UseExpectCt("https://vambooru.herokuapp.com/api/security/report", 86400, true);
 
 			_secureHeadersMiddlewareConfiguration = config.Build();
