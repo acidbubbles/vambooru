@@ -9,7 +9,8 @@
 * `Authentication:GitHub:ClientSecret`
 * `DOTNET_SKIP_FIRST_TIME_EXPERIENCE` to `true` to avoid `dotnet` commands to take forever
 * `Logging:LogLevel:Default`, `Logging:LogLevel:Microsoft` and `Logging:LogLevel:System` if you want easier control on logging
-* `Repository:EFPostgres:ConnectionString` to `Server=(server);Port=(port);Database=(db);User Id=(user);Password=(password);` based on the `DATABASE_URL` created by Heroku, which should look like `postgres://(username):(password)@(server):(port)/(db)`
+* `Repository:EFPostgres:ConnectionString` to `$DATABASE_URL` - This will read the `DATABASE_URL` created by Heroku, which should look like `postgres://(username):(password)@(server):(port)/(db)`, and transform it to something like `Server=(server);Port=(port);Database=(db);User Id=(user);Password=(password);`
+* `DataProtection:Redis:Url` to `$REDIS_URL`
 
 Once everything is ready, run this command to get the database up: `heroku run "cd VamBooru; dotnet restore; dotnet ef database update"`
 

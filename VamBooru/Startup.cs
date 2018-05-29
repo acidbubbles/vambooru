@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -116,10 +117,16 @@ namespace VamBooru
 		private void ConfigureDataProtection(IServiceCollection services)
 		{
 			var redisUrl = Configuration["DataProtection:Redis:Url"];
-			if (string.IsNullOrEmpty(redisUrl)) return;
+			if (redisUrl.StartsWith("$"))
+			{
+				redisUrl = Environment.GetEnvironmentVariable(redisUrl.Substring(1));
+				if (redisUrl == null) return;
+				var match = Regex.Match(redisUrl, @"redis://(?<username>.+?):(?<password>.+?)@(?<server>.+?):(?<port>\d+)");
+				if (!match.Success) throw new Exception("Invalid redis environment variable: regex did not match");
+				redisUrl = $"{match.Groups["server"]}:{match.Groups["port"]},password={match.Groups["password"]}";
+			}
 			var redis = ConnectionMultiplexer.Connect(redisUrl);
-			services.AddDataProtection()
-				.PersistKeysToRedis(redis, "DataProtection-Keys");
+			services.AddDataProtection().PersistKeysToRedis(redis, "DataProtection-Keys");
 		}
 
 		private void ConfigureRepository(IServiceCollection services)
@@ -148,12 +155,19 @@ namespace VamBooru
 
 		private void ConfigureDatabase(IServiceCollection services)
 		{
+			var connectionString = Configuration["Repository:EFPostgres:ConnectionString"] ?? throw new NullReferenceException( "The VamBooru Postgres connection string was not configured in appsettings.json");
+
+			if (connectionString.StartsWith("$"))
+			{
+				connectionString = Environment.GetEnvironmentVariable(connectionString.Substring(1));
+				if (connectionString == null) throw new NullReferenceException( "The VamBooru Postgres connection string points to an environment variable that does not exist");
+				var match = Regex.Match(connectionString, @"postgres://(?<username>.+?):(?<password>.+?)@(?<server>.+?):(?<port>\d+)/(?<database_name>.+)");
+				if (!match.Success) throw new Exception("Invalid VamBooru Postgres environment variable: regex did not match");
+				connectionString = $"Server={match.Groups["server"]};Port={match.Groups["port"]};Database={match.Groups["database_name"]};User Id={match.Groups["username"]};Password={match.Groups["password"]};";
+			}
 			services.AddEntityFrameworkNpgsql().AddDbContext<VamBooruDbContext>(options =>
 			{
-				options.UseNpgsql(
-					Configuration["Repository:EFPostgres:ConnectionString"] ??
-					throw new NullReferenceException("The VamBooru Postgres connection string was not configured in appsettings.json")
-				);
+				options.UseNpgsql(connectionString);
 			});
 		}
 
@@ -298,3 +312,4 @@ namespace VamBooru
 		}
 	}
 }
+
