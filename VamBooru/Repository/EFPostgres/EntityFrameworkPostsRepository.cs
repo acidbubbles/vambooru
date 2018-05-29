@@ -125,7 +125,7 @@ namespace VamBooru.Repository.EFPostgres
 
 			if (tags != null && tags.Length > 0)
 			{
-				baseQuery = baseQuery.Where(p => tags.All(t => p.Tags.Any(pt => pt.Tag.Name == t)));
+				baseQuery = tags.Aggregate(baseQuery, (curentQuery, tag) => curentQuery.Where(p => p.Tags.Any(pt => pt.Tag.Name == tag)));
 			}
 
 			switch (sortBy)

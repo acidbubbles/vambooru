@@ -287,9 +287,9 @@ namespace VamBooru
 			});
 		}
 
-		private static void Return404(IApplicationBuilder appBuilder)
+		private static void Return404(IApplicationBuilder app)
 		{
-			appBuilder.Run(async c =>
+			app.Run(async c =>
 			{
 				c.Response.StatusCode = 404;
 				c.Response.ContentType = "text/plain";
