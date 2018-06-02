@@ -68,11 +68,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				Author = CurrentUser,
 				DateCreated = new DateTimeOffset(2005, 02, 03, 04, 05, 06, TimeSpan.Zero),
 				ThumbnailUrn = "urn:vambooru:tests:0002",
-				PostFiles = new[]
-				{
-					new PostFile {Filename = "file.json", MimeType = "application/json", Urn = "urn:vambooru:tests:0001", Compressed = true},
-					new PostFile {Filename = "file.jpg", MimeType = "image/jpeg", Urn = "urn:vambooru:tests:0002"}
-				}.ToHashSet(),
+				PostFiles = new[] { new PostFile { Urn = "This is validated in assertion below" } },
 				Tags = new[]
 				{
 					new PostTag {Tag = new Tag {Name = "my-tag"}}
@@ -86,6 +82,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				}.ToHashSet()
 			}, c =>
 			{
+				c.MembersToIgnore.Add("Post.PostFiles");
 				c.MembersToIgnore.Add("*Id");
 				c.MembersToIgnore.Add("UserLogin.User");
 				c.MembersToIgnore.Add("PostTag.PostId");
@@ -93,9 +90,28 @@ namespace VamBooru.Tests.Repository.EFPostgres
 				c.MembersToIgnore.Add("PostTag.Post");
 				c.MembersToIgnore.Add("Tag.Id");
 				c.MembersToIgnore.Add("Scene.Post");
-				c.MembersToIgnore.Add("PostFile.Post");
 				c.MembersToIgnore.Add("User.Posts");
 				c.MembersToIgnore.Add("User.Logins");
+			});
+			post.PostFiles.OrderBy(pf => pf.Urn).ToArray().ShouldDeepEqual(new[]
+			{
+				new PostFile
+				{
+					Filename = "file.json",
+					MimeType = "application/json",
+					Urn = "urn:vambooru:tests:0001",
+					Compressed = true
+				},
+				new PostFile
+				{
+					Filename = "file.jpg",
+					MimeType = "image/jpeg",
+					Urn = "urn:vambooru:tests:0002"
+				}
+			}, c =>
+			{
+				c.MembersToIgnore.Add("*Id");
+				c.MembersToIgnore.Add("PostFile.Post");
 			});
 		}
 
@@ -240,7 +256,6 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			var posts = await Repository.BrowsePostsAsync(PostSortBy.Default, PostSortDirection.Default, PostedSince.Default, 0, 1, null, null, null, DateTimeOffset.MaxValue);
 
 			Assert.That(posts.Length, Is.EqualTo(1));
-
 			posts[0].ShouldDeepEqual(new Post
 			{
 				Title = "My Post",

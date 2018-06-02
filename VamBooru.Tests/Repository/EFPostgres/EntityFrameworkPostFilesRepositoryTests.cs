@@ -42,7 +42,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 			CreateDbContext();
 			var files = await Repository.LoadPostFilesAsync(post.Id);
 
-			files.ShouldDeepEqual(new[]
+			files.OrderBy(pf => pf.Urn).ToArray().ShouldDeepEqual(new[]
 			{
 				new PostFile {Filename = "My Scene.json", MimeType = "application/json", Urn = "urn:vambooru:tests:0001", Compressed = true},
 				new PostFile {Filename = "My Scene.jpg", MimeType = "image/jpeg", Urn = "urn:vambooru:tests:0002"},

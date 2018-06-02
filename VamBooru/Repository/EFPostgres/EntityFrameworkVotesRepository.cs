@@ -21,7 +21,10 @@ namespace VamBooru.Repository.EFPostgres
 		public async Task<UserPostVote> GetVoteAsync(UserLoginInfo login, Guid postId)
 		{
 			var dbUser = await _users.LoadPrivateUserAsync(login) ?? throw new NullReferenceException("User does not exist");
-			return await DbContext.UserPostVotes.Where(upv => upv.User == dbUser && upv.PostId == postId).FirstOrDefaultAsync();
+			return await DbContext.UserPostVotes
+				.AsNoTracking()
+				.Where(upv => upv.User == dbUser && upv.PostId == postId)
+				.FirstOrDefaultAsync();
 		}
 
 		public async Task<int> VoteAsync(UserLoginInfo login, Guid postId, int votes)

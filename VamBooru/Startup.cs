@@ -125,6 +125,8 @@ namespace VamBooru
 				if (!match.Success) throw new Exception("Invalid redis environment variable: regex did not match");
 				redisUrl = $"{match.Groups["server"]}:{match.Groups["port"]},password={match.Groups["password"]}";
 			}
+
+			if (string.IsNullOrEmpty(redisUrl)) return;
 			var redis = ConnectionMultiplexer.Connect(redisUrl);
 			services.AddDataProtection().PersistKeysToRedis(redis, "DataProtection-Keys");
 		}

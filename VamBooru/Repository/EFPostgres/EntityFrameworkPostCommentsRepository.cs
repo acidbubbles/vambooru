@@ -36,6 +36,7 @@ namespace VamBooru.Repository.EFPostgres
 		public Task<PostComment[]> LoadPostCommentsAsync(Guid postId)
 		{
 			return DbContext.PostComments
+				.AsNoTracking()
 				.Where(pc => pc.Post.Id == postId)
 				.Include(pc => pc.Author)
 				.OrderByDescending(pc => pc.DateCreated)

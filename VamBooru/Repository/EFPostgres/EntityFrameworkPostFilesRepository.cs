@@ -16,6 +16,7 @@ namespace VamBooru.Repository.EFPostgres
 		public Task<PostFile[]> LoadPostFilesAsync(Guid postId)
 		{
 			return DbContext.PostFiles
+				.AsNoTracking()
 				.Where(sf => sf.Post.Id == postId)
 				.ToArrayAsync();
 		}
@@ -23,6 +24,7 @@ namespace VamBooru.Repository.EFPostgres
 		public Task<PostFile> LoadPostFileAsync(Guid postId, string urn)
 		{
 			return DbContext.PostFiles
+				.AsNoTracking()
 				.SingleOrDefaultAsync(sf => sf.Urn == urn && sf.Post.Id == postId);
 		}
 	}

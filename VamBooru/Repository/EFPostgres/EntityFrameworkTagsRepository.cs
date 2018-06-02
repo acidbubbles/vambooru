@@ -15,6 +15,7 @@ namespace VamBooru.Repository.EFPostgres
 		public Task<Tag[]> SearchTags(string q)
 		{
 			return DbContext.Tags
+				.AsNoTracking()
 				.Where(t => t.Name.Contains(q))
 				.ToArrayAsync();
 		}
@@ -22,6 +23,7 @@ namespace VamBooru.Repository.EFPostgres
 		public Task<Tag[]> LoadTopTags(int max)
 		{
 			return DbContext.Tags
+				.AsNoTracking()
 				.Where(t => t.PostsCount > 0)
 				.OrderByDescending(t => t.PostsCount)
 				.ThenBy(t => t.Name)

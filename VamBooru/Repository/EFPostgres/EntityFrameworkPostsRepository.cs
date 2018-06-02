@@ -77,13 +77,14 @@ namespace VamBooru.Repository.EFPostgres
 
 		public Task<Post> LoadPostAsync(Guid id)
 		{
-			return DbContext.Posts
+			var query = DbContext.Posts
 				.Include(p => p.Author)
 				.Include(p => p.Tags)
 				.ThenInclude(t => t.Tag)
 				.Include(p => p.Scenes)
-				.Include(p => p.PostFiles)
-				.FirstOrDefaultAsync(p => p.Id == id);
+				.Include(p => p.PostFiles);
+
+			return query.FirstOrDefaultAsync(p => p.Id == id);
 		}
 
 		public Task SavePostAsync(Post post)
@@ -97,59 +98,59 @@ namespace VamBooru.Repository.EFPostgres
 			if (page < 0) throw new ArgumentException("Page must be greater than or equal to 0");
 			if (pageSize < 1) throw new ArgumentException("Page must be greater than or equal to 1");
 
-			var baseQuery = DbContext.Posts
+			var query = DbContext.Posts
 				.AsNoTracking()
 				.Include(p => p.Author)
 				.Include(p => p.Tags)
-				.ThenInclude(t => t.Tag)
+				.ThenInclude(p => p.Tag)
 				.Where(p => p.Published);
 
 			if (since != PostedSince.Forever)
 			{
 				var dateTimeOffset = now.AddDays(-(int) since);
-				baseQuery = sortBy == PostSortBy.Updated
-					? baseQuery.Where(p => p.DatePublished >= dateTimeOffset)
-					: baseQuery.Where(p => p.DateCreated >= dateTimeOffset);
+				query = sortBy == PostSortBy.Updated
+					? query.Where(p => p.DatePublished >= dateTimeOffset)
+					: query.Where(p => p.DateCreated >= dateTimeOffset);
 			}
 
 			if (!string.IsNullOrWhiteSpace(author))
 			{
-				baseQuery = baseQuery.Where(p => p.Author.Username == author);
+				query = query.Where(p => p.Author.Username == author);
 			}
 
 			if (!string.IsNullOrWhiteSpace(text))
 			{
 				//TODO: Replace with ts_vector full text search when available
-				baseQuery = baseQuery.Where(p => p.Text.Contains(text) || p.Title.Contains(text));
+				query = query.Where(p => p.Text.Contains(text) || p.Title.Contains(text));
 			}
 
 			if (tags != null && tags.Length > 0)
 			{
-				baseQuery = tags.Aggregate(baseQuery, (curentQuery, tag) => curentQuery.Where(p => p.Tags.Any(pt => pt.Tag.Name == tag)));
+				query = tags.Aggregate(query, (curentQuery, tag) => curentQuery.Where(p => p.Tags.Any(pt => pt.Tag.Name == tag)));
 			}
 
 			switch (sortBy)
 			{
 				case PostSortBy.Votes:
-					baseQuery = sortDirection == PostSortDirection.Down
-						? baseQuery.OrderByDescending(p => p.Votes).ThenByDescending(p => p.DateCreated)
-						: baseQuery.OrderBy(p => p.Votes).ThenBy(p => p.DateCreated);
+					query = sortDirection == PostSortDirection.Down
+						? query.OrderByDescending(p => p.Votes).ThenByDescending(p => p.DateCreated)
+						: query.OrderBy(p => p.Votes).ThenBy(p => p.DateCreated);
 					break;
 				case PostSortBy.Created:
-					baseQuery = sortDirection == PostSortDirection.Down
-						? baseQuery.OrderByDescending(p => p.DateCreated)
-						: baseQuery.OrderBy(p => p.DateCreated);
+					query = sortDirection == PostSortDirection.Down
+						? query.OrderByDescending(p => p.DateCreated)
+						: query.OrderBy(p => p.DateCreated);
 					break;
 				case PostSortBy.Updated:
-					baseQuery = sortDirection == PostSortDirection.Down
-						? baseQuery.OrderByDescending(p => p.DatePublished)
-						: baseQuery.OrderBy(p => p.DatePublished);
+					query = sortDirection == PostSortDirection.Down
+						? query.OrderByDescending(p => p.DatePublished)
+						: query.OrderBy(p => p.DatePublished);
 					break;
 				default:
 					throw new ArgumentException($"Unknown sort by: {sortBy}", nameof(sortBy));
 			}
 
-			return baseQuery
+			query = query
 				.Skip(page * pageSize)
 				.Take(pageSize)
 				.Select(p => new Post
@@ -163,8 +164,9 @@ namespace VamBooru.Repository.EFPostgres
 					ThumbnailUrn = p.ThumbnailUrn,
 					Tags = p.Tags,
 					Votes = p.Votes,
-				})
-				.ToArrayAsync();
+				});
+
+			return query.ToArrayAsync();
 		}
 
 		public async Task<Post[]> BrowseMyPostsAsync(UserLoginInfo login)
