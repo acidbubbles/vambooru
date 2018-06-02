@@ -40,8 +40,8 @@ namespace VamBooru.ViewModels
 				Votes = from.Votes,
 				Tags = tags.Select(tag => TagViewModel.From(tag.Tag)).OrderByDescending(t => t.PostsCount).ThenBy(t => t.Name).ToArray(),
 				Author = UserViewModel.From(from.Author),
-				Scenes = optimize ? null : (from.Scenes?.Select(SceneViewModel.From).ToArray() ?? new SceneViewModel[0]),
-				Files = from.PostFiles?.Select(FileViewModel.From).ToArray()
+				Scenes = optimize ? null : (from.Scenes?.OrderBy(s => s.Name).Select(SceneViewModel.From).ToArray() ?? new SceneViewModel[0]),
+				Files = from.PostFiles?.OrderBy(pf => pf.Filename).Select(FileViewModel.From).ToArray()
 			};
 		}
 	}

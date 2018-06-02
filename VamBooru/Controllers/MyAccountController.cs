@@ -32,7 +32,7 @@ namespace VamBooru.Controllers
 			return Ok(new MyAccountViewModel
 			{
 				Username = account.Username,
-				MyPosts = posts.Select(p => PostViewModel.From(p, true)).ToArray()
+				MyPosts = posts.OrderByDescending(p => p.DatePublished).Select(p => PostViewModel.From(p, true)).ToArray()
 			});
 		}
 

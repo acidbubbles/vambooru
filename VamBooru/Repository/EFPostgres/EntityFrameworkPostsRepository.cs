@@ -101,8 +101,6 @@ namespace VamBooru.Repository.EFPostgres
 			var query = DbContext.Posts
 				.AsNoTracking()
 				.Include(p => p.Author)
-				.Include(p => p.Tags)
-				.ThenInclude(p => p.Tag)
 				.Where(p => p.Published);
 
 			if (since != PostedSince.Forever)
@@ -151,8 +149,6 @@ namespace VamBooru.Repository.EFPostgres
 			}
 
 			query = query
-				.Skip(page * pageSize)
-				.Take(pageSize)
 				.Select(p => new Post
 				{
 					Id = p.Id,
@@ -162,9 +158,13 @@ namespace VamBooru.Repository.EFPostgres
 					DateCreated = p.DateCreated,
 					DatePublished = p.DatePublished,
 					ThumbnailUrn = p.ThumbnailUrn,
-					Tags = p.Tags.Select(t => new PostTag { Tag = t.Tag }).ToHashSet(),
+					Tags = p.Tags.Select(t => new PostTag {Tag = t.Tag}).ToHashSet(),
 					Votes = p.Votes
-				});
+				})
+				.Skip(page * pageSize)
+				.Take(pageSize)
+				.Include(p => p.Tags)
+				.ThenInclude(p => p.Tag);
 
 			return query.ToArrayAsync();
 		}

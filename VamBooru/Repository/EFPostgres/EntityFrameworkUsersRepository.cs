@@ -14,10 +14,10 @@ namespace VamBooru.Repository.EFPostgres
 		{
 		}
 
-		public async Task<LoadOrCreateUserFromLoginResult> LoadOrCreateUserFromLoginAsync(string scheme,
-			string nameIdentifier, string username, DateTimeOffset now)
+		public async Task<LoadOrCreateUserFromLoginResult> LoadOrCreateUserFromLoginAsync(string scheme, string nameIdentifier, string username, DateTimeOffset now)
 		{
 			var login = await DbContext.UserLogins
+				.AsNoTracking()
 				.Include(ul => ul.User)
 				.FirstOrDefaultAsync(l => l.Scheme == scheme && l.NameIdentifier == nameIdentifier);
 
@@ -68,7 +68,9 @@ namespace VamBooru.Repository.EFPostgres
 
 		public Task<User> LoadPublicUserAsync(string username)
 		{
-			return DbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
+			return DbContext.Users
+				.AsNoTracking()
+				.FirstOrDefaultAsync(u => u.Username == username);
 		}
 
 		public async Task<User> UpdateUserAsync(UserLoginInfo login, string username)
