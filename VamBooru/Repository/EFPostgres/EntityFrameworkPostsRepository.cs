@@ -162,8 +162,8 @@ namespace VamBooru.Repository.EFPostgres
 					DateCreated = p.DateCreated,
 					DatePublished = p.DatePublished,
 					ThumbnailUrn = p.ThumbnailUrn,
-					Tags = p.Tags,
-					Votes = p.Votes,
+					Tags = p.Tags.Select(t => new PostTag { Tag = t.Tag }).ToHashSet(),
+					Votes = p.Votes
 				});
 
 			return query.ToArrayAsync();
