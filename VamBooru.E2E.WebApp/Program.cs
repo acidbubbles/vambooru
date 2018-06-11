@@ -15,7 +15,7 @@ namespace VamBooru.E2E.WebApp
 		public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
 			WebHost.CreateDefaultBuilder(args)
 				// https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/testing#integration-testing
-				.UseContentRoot(Path.GetFullPath(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "../../../../VamBooru")))
+				.UseContentRoot(Path.GetFullPath(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "..", "..", "..", "..", "VamBooru")))
 				.UseStartup<Startup>();
 	}
 }

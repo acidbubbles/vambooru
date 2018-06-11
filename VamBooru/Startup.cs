@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -60,6 +59,12 @@ namespace VamBooru
 			ConfigureStorage(services);
 			ConfigureVamBooruServices(services);
 			ConfigureAuthentication(services);
+
+			OnConfigurationComplete(services);
+		}
+
+		protected virtual void OnConfigurationComplete(IServiceCollection services)
+		{
 		}
 
 		private void ConfigureOwasp()
@@ -267,6 +272,8 @@ namespace VamBooru
 
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
+			OnBeforeConfigure(app, env);
+
 			app.UseForwardedHeaders();
 			app.UseIpRateLimiting();
 			app.UseSecureHeadersMiddleware(_secureHeadersMiddlewareConfiguration);
@@ -306,6 +313,10 @@ namespace VamBooru
 					spa.UseAngularCliServer(npmScript: "start");
 				}
 			});
+		}
+
+		protected virtual void OnBeforeConfigure(IApplicationBuilder app, IHostingEnvironment env)
+		{
 		}
 
 		private static void Return404(IApplicationBuilder app)
