@@ -49,6 +49,7 @@ There can be an infinite list of things to add, but here's the core features tha
 
 ## Improvements
 
+* Do not return unused tags (and eventually clean them up, e.g. in a deamon)
 * Update the browse URL as you search, to allow favorites or sharing
 * On login, return to the original url (unless you were on the login page)
 * Review how votes work (right now, negative = -2, positive = 10)

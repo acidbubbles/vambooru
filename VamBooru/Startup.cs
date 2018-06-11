@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -177,7 +179,10 @@ namespace VamBooru
 		{
 			services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
-			services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
+			services.AddSpaStaticFiles(configuration =>
+			{
+			 	configuration.RootPath = "ClientApp/dist";
+			});
 		}
 
 		private void ConfigureAuthentication(IServiceCollection services)
@@ -294,7 +299,7 @@ namespace VamBooru
 
 			app.UseSpa(spa =>
 			{
-				spa.Options.SourcePath = "ClientApp";
+				spa.Options.SourcePath = Path.Combine(env.ContentRootPath, "ClientApp");
 
 				if (env.IsDevelopment())
 				{
