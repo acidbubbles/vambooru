@@ -3,20 +3,21 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using VamBooru.E2E.WebApp.Bootstrapping;
+using VamBooru.E2E.Bootstrapping;
 using VamBooru.Models;
 
-namespace VamBooru.E2E.WebApp
+namespace VamBooru.E2E.Web
 {
-	public class Startup : VamBooru.Startup
+	public class TestStartup : Startup
 	{
-		public Startup(IConfiguration configuration) : base(configuration)
+		public TestStartup(IConfiguration configuration) : base(configuration)
 		{
 		}
 
 		protected override void OnConfigurationComplete(IServiceCollection services)
 		{
 			services.AddTransient<Bootstrapper>();
+
 		}
 
 		protected override void OnBeforeConfigure(IApplicationBuilder app, IHostingEnvironment env)

@@ -2,13 +2,13 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using VamBooru.Models;
 using VamBooru.Repository;
 using VamBooru.Storage;
+using VamBooru.Tests.Repository.EFPostgres;
 using VamBooru.ViewModels;
 
-namespace VamBooru.E2E.WebApp.Bootstrapping
+namespace VamBooru.E2E.Bootstrapping
 {
 	public class Bootstrapper
 	{
@@ -34,15 +34,7 @@ namespace VamBooru.E2E.WebApp.Bootstrapping
 		public async Task Seed()
 		{
 			// Clear database
-			await _dbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostTags\"");
-			await _dbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Tags\"");
-			await _dbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserPostVotes\"");
-			await _dbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostFiles\"");
-			await _dbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostComments\"");
-			await _dbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Scenes\"");
-			await _dbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Posts\"");
-			await _dbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserLogins\"");
-			await _dbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Users\"");
+			await EntityFrameworkTestsHelper.ClearAndMarkTestDatabase(_dbContext);
 
 			// Setup users
 			var cloudyLogin = new UserLoginInfo("e2e", "cloudy_dude");
@@ -110,7 +102,7 @@ namespace VamBooru.E2E.WebApp.Bootstrapping
 		{
 			if(fileInfo.Filename.IndexOfAny(Path.GetInvalidFileNameChars()) > 0) throw new UnauthorizedAccessException();
 
-			var source = Path.Combine(_env.ContentRootPath, "..", "VamBooru.E2E.WebApp", "Bootstrapping", "Files", fileInfo.Filename);
+			var source = Path.Combine(_env.ContentRootPath, "..", "VamBooru.E2E", "Bootstrapping", "Files", fileInfo.Filename);
 
 			var file = fileInfo;
 			using (var fileStream = File.OpenRead(source))

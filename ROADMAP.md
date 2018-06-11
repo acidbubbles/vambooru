@@ -70,3 +70,4 @@ There can be an infinite list of things to add, but here's the core features tha
 * Use built-in .NET Authenticate/Roles instead of checking manually
 * Docker image for quick tests (https://docs.docker.com/samples/library/postgres/, https://docs.docker.com/engine/examples/dotnetcore/)
 * Some analytics to track usage, uploads, etc. (anonymous as much as possible)
+* Faster Postgres unit and e2e tests: https://stackoverflow.com/questions/9407442/optimise-postgresql-for-fast-testing

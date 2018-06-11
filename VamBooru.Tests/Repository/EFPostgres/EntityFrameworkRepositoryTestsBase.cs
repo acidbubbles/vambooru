@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using VamBooru.Models;
 using VamBooru.Repository.EFPostgres;
 using VamBooru.ViewModels;
@@ -18,15 +17,7 @@ namespace VamBooru.Tests.Repository.EFPostgres
 		{
 			CreateDbContext();
 
-			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostTags\"");
-			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Tags\"");
-			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserPostVotes\"");
-			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostFiles\"");
-			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"PostComments\"");
-			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Scenes\"");
-			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Posts\"");
-			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"UserLogins\"");
-			await DbContext.Database.ExecuteSqlCommandAsync("DELETE FROM \"Users\"");
+			await EntityFrameworkTestsHelper.ClearAndMarkTestDatabase(DbContext);
 		}
 
 		protected async Task CreateUser()
