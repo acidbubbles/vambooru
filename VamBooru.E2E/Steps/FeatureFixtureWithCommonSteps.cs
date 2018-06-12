@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using LightBDD.NUnit3;
 using NUnit.Framework;
+using VamBooru.E2E.Runtime;
 
 namespace VamBooru.E2E.Steps
 {

@@ -5,22 +5,22 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using LightBDD.NUnit3;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using VamBooru.E2E.Steps;
+using OpenQA.Selenium.Chrome;
 using VamBooru.E2E.Web;
 
-[assembly: ConfiguredLightBddScope]
-
-namespace VamBooru.E2E.Steps
+namespace VamBooru.E2E.Runtime
 {
-	public class ConfiguredLightBddScopeAttribute : LightBddScopeAttribute
+	public class TestRuntimeInitializer : IDisposable
 	{
+		private static readonly string BinPath = Path.GetDirectoryName(new Uri(typeof(TestRuntimeInitializer).Assembly.CodeBase).LocalPath);
+
 		private CancellationTokenSource _token;
 		private Task _task;
+		private ChromeDriver _driver;
 
-		protected override void OnSetUp()
+		public void Initialize()
 		{
 			OverrideEnvironmentDirectory();
 
@@ -28,12 +28,13 @@ namespace VamBooru.E2E.Steps
 
 			_token = new CancellationTokenSource();
 			_task = Task.Run(async () => await host.RunAsync(_token.Token));
+			_driver = CreateChromeDriver();
 
 			DoAndWait(
 				"Acquiring host address",
 				() => host.ServerFeatures.Get<IServerAddressesFeature>()?.Addresses?.FirstOrDefault(),
 				address => address != null,
-				address => TestRuntime.Initialize(new Uri(address)),
+				address => TestRuntime.InitializeServer(new Uri(address)),
 				_ => "address was null"
 			);
 
@@ -52,13 +53,36 @@ namespace VamBooru.E2E.Steps
 				response => { },
 				response => response.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult()
 			);
+
+			DoAndWait(
+				"Open browser on the home page",
+				() =>
+				{
+					TestRuntime.InitializeDriver(_driver);
+					TestRuntime.Pages.Home.Go();
+					return TestRuntime.Pages;
+				},
+				pages => pages.Title() == "VamBooru",
+				pages => { },
+				pages => $"Title: {pages.Title()}\nSource:\n{pages.Source()}"
+			);
 		}
 
 		private static void OverrideEnvironmentDirectory()
 		{
-			var dir = Path.Combine(Path.GetDirectoryName(new Uri(typeof(TestStartup).Assembly.CodeBase).LocalPath), "..", "..", "..");
+			var dir = Path.Combine(BinPath, "..", "..", "..");
 			dir = Path.GetFullPath(new Uri(dir).LocalPath);
 			Environment.CurrentDirectory = dir;
+		}
+
+		private static ChromeDriver CreateChromeDriver()
+		{
+			var chromeOptions = new ChromeOptions();
+			chromeOptions.AddArguments("headless");
+
+			var chromeDriverService = ChromeDriverService.CreateDefaultService(BinPath);
+			ChromeDriver driver = new ChromeDriver(chromeDriverService, chromeOptions);
+			return driver;
 		}
 
 		private void DoAndWait<T>(string name, Func<T> acquire, Func<T, bool> test, Action<T> act, Func<T, string> error)
@@ -87,10 +111,13 @@ namespace VamBooru.E2E.Steps
 			}
 		}
 
-		protected override void OnTearDown()
+		public void Dispose()
 		{
+			_driver?.Close();
+			_driver?.Dispose();
 			_token?.Cancel();
 			_task?.Wait();
+			_task?.Dispose();
 		}
 	}
 }
