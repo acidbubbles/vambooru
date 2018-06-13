@@ -4,12 +4,23 @@ using System.Threading.Tasks;
 using LightBDD.NUnit3;
 using NUnit.Framework;
 using VamBooru.E2E.Runtime;
+using VamBooru.E2E.Steps.Pages;
 
 namespace VamBooru.E2E.Steps
 {
 	public partial class FeatureFixtureWithCommonSteps : FeatureFixture
 	{
+		#region state
+
 		private HttpResponseMessage _result;
+
+		#endregion
+
+		#region helpers
+
+		public PagesLocator Pages => TestRuntime.Pages;
+
+		#endregion
 
 		#region when
 

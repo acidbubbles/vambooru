@@ -6,8 +6,7 @@ using LightBDD.NUnit3;
 
 namespace VamBooru.E2E.Features
 {
-	[FeatureDescription(@"/api")]
-	public partial class BasicApiFeature
+	public partial class ApiFeature
 	{
 		[Scenario]
 		public Task server_can_be_pinged()

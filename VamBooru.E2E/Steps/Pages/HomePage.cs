@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using OpenQA.Selenium;
 
 namespace VamBooru.E2E.Steps.Pages
@@ -9,9 +10,9 @@ namespace VamBooru.E2E.Steps.Pages
 		{
 		}
 
-		public void Go()
+		public Task Go()
 		{
-			GoAndWaitForAngular("/");
+			return GoAndWaitForAngular("/browse");
 		}
 	}
 }

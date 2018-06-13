@@ -15,6 +15,7 @@ namespace VamBooru.E2E.Steps.Pages
 		}
 
 		public HomePage Home => new HomePage(_browser, _baseUrl);
+		public BrowsePage Browse => new BrowsePage(_browser, _baseUrl);
 
 		public string Title()
 		{

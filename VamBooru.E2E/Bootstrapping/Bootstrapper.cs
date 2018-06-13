@@ -93,9 +93,9 @@ namespace VamBooru.E2E.Bootstrapping
 			await _commentsRepository.CreatePostCommentAsync(billyLogin, gettingReadyToJumpPost.Id, "Get\na\nlife", new DateTimeOffset(2018, 01, 16, 21, 12, 35, TimeSpan.Zero));
 
 			// Setup votes
-			await _votesRepository.VoteAsync(cloudyLogin, gettingReadyToJumpPost.Id, 1);
-			await _votesRepository.VoteAsync(billyLogin, gettingReadyToJumpPost.Id, 1);
-			await _votesRepository.VoteAsync(edLogin, gettingReadyToJumpPost.Id, -1);
+			await _votesRepository.VoteAsync(cloudyLogin, gettingReadyToJumpPost.Id, 10);
+			await _votesRepository.VoteAsync(billyLogin, gettingReadyToJumpPost.Id, 10);
+			await _votesRepository.VoteAsync(edLogin, gettingReadyToJumpPost.Id, -2);
 		}
 
 		private async Task<PostFile> CreateFile(PostFile fileInfo)

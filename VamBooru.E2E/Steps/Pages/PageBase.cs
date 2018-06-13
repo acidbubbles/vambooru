@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 
@@ -17,17 +18,18 @@ namespace VamBooru.E2E.Steps.Pages
 			BaseUrl = baseUrl;
 		}
 
-		protected void GoAndWaitForAngular(string url)
+		protected Task GoAndWaitForAngular(string url)
 		{
 			Browser.Navigate().GoToUrl(new Uri(BaseUrl, url));
-			WaitForAngular();
+			return WaitForAngular();
 		}
 
-		protected void WaitForAngular()
+		protected Task WaitForAngular()
 		{
 			var wait = new WebDriverWait(Browser, MaxWaitTime);
 			var success = wait.Until(CheckForAngularReady);
 			if (!success) throw new TimeoutException("Timeout while waiting for angular to be ready again.");
+			return Task.CompletedTask;
 		}
 
 		private static bool CheckForAngularReady(IWebDriver browser)
