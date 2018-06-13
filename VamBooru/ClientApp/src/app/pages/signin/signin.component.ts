@@ -27,10 +27,10 @@ export class SignInComponent {
 						css: "fab fa-github"
 					});
 					break;
-				case "AnonymousGuest":
+				case "Stub":
 					this.signInButtons.push({
-						label: "Sign in as an anonymous guest",
-						link: "/auth/AnonymousGuest/login",
+						label: "Sign in (Stub)",
+						link: "/auth/Stub/login",
 						css: "far fa-smile"
 					});
 					break;

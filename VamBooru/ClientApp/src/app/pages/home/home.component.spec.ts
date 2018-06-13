@@ -1,5 +1,5 @@
 import { async, ComponentFixture, TestBed } from "@angular/core/testing";
-import { Observable } from "rxjs";
+import { Observable, of } from "rxjs";
 import "rxjs/add/observable/of";
 
 import { PostsService, PostSortBy, PostSortDirection, PostedSince, IPostQuery } from "../../services/posts-service";
@@ -39,7 +39,7 @@ describe("HomeComponent", () => {
 					provide: TagsService,
 					useClass: class {
 						loadTopTags(): Observable<ITag[]> {
-							return Observable.of([{ name: "tag1", postsCount: 2 } as ITag]);
+							return of([{ name: "tag1", postsCount: 2 } as ITag]);
 						}
 					}
 				}
@@ -58,9 +58,9 @@ describe("HomeComponent", () => {
 			expect(query.text).toEqual("");
 
 			if(query.sort === PostSortBy.votes)
-				return Observable.of([{ title: "Good post", author: { username: "user1" } } as IPost]);
+				return of([{ title: "Good post", author: { username: "user1" } } as IPost]);
 			else if (query.sort === PostSortBy.created)
-				return Observable.of([{ title: "New post", author: { username: "user2" } } as IPost]);
+				return of([{ title: "New post", author: { username: "user2" } } as IPost]);
 			else
 				throw new Error(`Unexpected sort: ${query.sort}`);
 		};
