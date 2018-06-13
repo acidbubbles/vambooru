@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using VamBooru.Repository;
@@ -28,9 +26,6 @@ namespace VamBooru.Controllers
 		[ResponseCache(NoStore = true, Duration = 0)]
 		public async Task<IActionResult> Login([FromRoute] string scheme)
 		{
-			if (_defaultScheme == "AnonymousGuest")
-				return await AnonymousGuestLoginAsync();
-
 			await HttpContext.ChallengeAsync(_defaultScheme, new AuthenticationProperties {RedirectUri = Url.RouteUrl(nameof(ValidateLogin))});
 			return new EmptyResult();
 		}
@@ -66,34 +61,6 @@ namespace VamBooru.Controllers
 				default:
 					return Redirect("/");
 			}
-		}
-
-		public async Task<IActionResult> AnonymousGuestLoginAsync()
-		{
-			// This is a method used for development only
-
-			var userId = GetUniqueUsername("anon");
-			var claims = new List<Claim>
-			{
-				new Claim(ClaimTypes.NameIdentifier, userId),
-				new Claim(ClaimTypes.Name, userId),
-			};
-
-			var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-			var returnUrl = Url.RouteUrl(nameof(ValidateLogin));
-			var authProperties = new AuthenticationProperties
-			{
-				RedirectUri = Url.Content(returnUrl)
-			};
-
-			await HttpContext.SignInAsync(
-				CookieAuthenticationDefaults.AuthenticationScheme,
-				new ClaimsPrincipal(claimsIdentity),
-				authProperties
-			);
-
-			return Redirect(returnUrl);
 		}
 
 		private static string GetUniqueUsername(string prefix)

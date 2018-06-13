@@ -27,6 +27,7 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 
 There can be an infinite list of things to add, but here's the core features that can be expected:
 
+* Sign out
 * Paging (right now, only the first page is shown)
 * Ability to modify/overwrite existing scene files (last updated, version)
 * Notifications (new comment, like, new version of post files, follow post)

@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using VamBooru.Models;
 
 namespace VamBooru.Storage.EFPostgres
@@ -44,7 +43,7 @@ namespace VamBooru.Storage.EFPostgres
 		{
 			var id = GetIdFromUrn(urn);
 
-			var file = await _context.StorageFiles.FirstOrDefaultAsync(sf => sf.Id == id);
+			var file = await _context.StorageFiles.FindAsync(id);
 			if (file == null) return null;
 
 			if (compressed)
@@ -70,10 +69,10 @@ namespace VamBooru.Storage.EFPostgres
 			return _context.SaveChangesAsync();
 		}
 
-		private static int GetIdFromUrn(string urn)
+		private static long GetIdFromUrn(string urn)
 		{
 			if (!urn.StartsWith(UrnPrefix)) throw new ArgumentException($"Invalid or unsupported URN: '{urn}'", nameof(urn));
-			var id = int.Parse(urn.Substring(UrnPrefix.Length));
+			var id = long.Parse(urn.Substring(UrnPrefix.Length));
 			return id;
 		}
 	}

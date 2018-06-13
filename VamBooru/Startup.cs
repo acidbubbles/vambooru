@@ -48,6 +48,11 @@ namespace VamBooru
 			services.AddMemoryCache();
 			services.AddResponseCompression();
 
+			services.ConfigureApplicationCookie(options =>
+			{
+				options.LoginPath = "/";
+			});
+
 			ConfigureOwasp();
 			ConfigureReverseProxy(services);
 			ConfigureRateLimit(services);
@@ -190,15 +195,12 @@ namespace VamBooru
 			});
 		}
 
-		private void ConfigureAuthentication(IServiceCollection services)
+		protected virtual void ConfigureAuthentication(IServiceCollection services)
 		{
 			var authenticationScheme = Configuration["Authentication:Scheme"];
 
 			switch (authenticationScheme)
 			{
-				case "AnonymousGuest":
-					ConfigureAnonymousGuestAuthentication(services);
-					break;
 				case "GitHub":
 					ConfigureGitHubAuthentication(services);
 					break;
@@ -223,19 +225,8 @@ namespace VamBooru
 			});
 		}
 
-		private static void ConfigureAnonymousGuestAuthentication(IServiceCollection services)
-		{
-			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-				.AddCookie(options => options.LoginPath = "/");
-		}
-
 		private void ConfigureOAuthAuthentication(IServiceCollection services, string scheme, Action<OAuthOptions> configureOptions)
 		{
-			services.ConfigureApplicationCookie(options =>
-			{
-				options.LoginPath = "/";
-			});
-
 			services.AddAuthentication(options =>
 				{
 					options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
