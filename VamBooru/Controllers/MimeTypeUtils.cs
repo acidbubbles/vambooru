@@ -16,6 +16,8 @@ namespace VamBooru.Controllers
 			{
 				case ".json":
 					return "application/json";
+				case ".vac":
+					return "application/octet-stream";
 				case ".jpg":
 					return "image/jpeg";
 				case ".wav":

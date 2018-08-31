@@ -115,21 +115,24 @@ namespace VamBooru.Controllers
 			OrganizeFiles(out var scenesFiles, out var supportFiles);
 
 			var scenes = await Task.WhenAll(scenesFiles.Select(async sf =>
-				new Tuple<Scene, SceneJsonAndJpg, MemoryStream, MemoryStream>(
+				new Tuple<Scene, SceneAndThumbnail, MemoryStream, MemoryStream>(
 					new Scene {Name = sf.FilenameWithoutExtension},
 					sf,
-					await CopyToMemoryStream(sf.JsonFile),
+					await CopyToMemoryStream(sf.SceneFile),
 					await CopyToMemoryStream(sf.JpgFile)
 				)));
 
 			var tags = new List<string>();
 			foreach (var sceneData in scenes)
 			{
-				var project = _sceneFormat.Deserialize(sceneData.Item3.ToArray());
-				tags.AddRange(_sceneFormat.GetTags(project));
+				if (sceneData.Item2.SceneFile.FileName.EndsWith(".json"))
+				{
+					var project = _sceneFormat.Deserialize(sceneData.Item3.ToArray());
+					tags.AddRange(_sceneFormat.GetTags(project));
+				}
+
 				if (!ValidateJpeg(sceneData.Item4))
-					throw new PostUploadException("InvalidJpegHeader",
-						$"The file '{sceneData.Item2.FilenameWithoutExtension}.jpg' is not a valid jpeg image.");
+					throw new PostUploadException("InvalidJpegHeader", $"The file '{sceneData.Item2.FilenameWithoutExtension}.jpg' is not a valid jpeg image.");
 			}
 
 			var postFiles = new List<PostFile>();
@@ -139,8 +142,8 @@ namespace VamBooru.Controllers
 				postFiles.Add(new PostFile
 				{
 					Urn = await _storage.SaveFileAsync(sceneData.Item3, true),
-					Filename = sceneData.Item2.FilenameWithoutExtension + ".json",
-					MimeType = "application/json",
+					Filename = sceneData.Item2.SceneFile.FileName,
+					MimeType = MimeTypeUtils.Of(sceneData.Item2.SceneFile.FileName),
 					Compressed = true
 				});
 				sceneData.Item3.Dispose();
@@ -187,7 +190,7 @@ namespace VamBooru.Controllers
 			};
 		}
 
-		public void OrganizeFiles(out List<SceneJsonAndJpg> scenesFiles, out List<IFormFile> supportFiles)
+		public void OrganizeFiles(out List<SceneAndThumbnail> scenesFiles, out List<IFormFile> supportFiles)
 		{
 			var files = Request.Form.Files;
 
@@ -196,16 +199,16 @@ namespace VamBooru.Controllers
 
 			supportFiles = new List<IFormFile>();
 			scenesFiles = files
-				.Where(file => Path.GetExtension(file.FileName) == ".json")
-				.Select(file => new SceneJsonAndJpg
+				.Where(file => new[] { ".json", ".vac" }.Contains(Path.GetExtension(file.FileName)))
+				.Select(file => new SceneAndThumbnail
 				{
-					JsonFile = file,
+					SceneFile = file,
 					FilenameWithoutExtension = Path.GetFileNameWithoutExtension(file.FileName)
 				})
 				.ToList();
 
 			if (!scenesFiles.Any())
-				throw new PostUploadException("NoSceneJson", "There was no .json file in the uploaded files list");
+				throw new PostUploadException("NoSceneJson", "There was no .json or .vac file in the uploaded files list");
 
 			foreach (var file in files)
 			{
@@ -224,6 +227,7 @@ namespace VamBooru.Controllers
 				switch (extension)
 				{
 					case ".json":
+					case ".vac":
 						continue;
 					case ".jpg":
 						var sceneFile = scenesFiles.FirstOrDefault(sf => sf.FilenameWithoutExtension == filenameWithoutExtension);
@@ -275,10 +279,10 @@ namespace VamBooru.Controllers
 			}
 		}
 
-		public class SceneJsonAndJpg
+		public class SceneAndThumbnail
 		{
 			public string FilenameWithoutExtension { get; set; }
-			public IFormFile JsonFile { get; set; }
+			public IFormFile SceneFile { get; set; }
 			public IFormFile JpgFile { get; set; }
 		}
 
