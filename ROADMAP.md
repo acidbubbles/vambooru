@@ -28,12 +28,13 @@ This was built to allow scaling, but it was implemented for simplicity. Things t
 There can be an infinite list of things to add, but here's the core features that can be expected:
 
 * Sign out
+* DMCA Takedown link
 * Paging (right now, only the first page is shown)
 * Ability to modify/overwrite existing scene files (last updated, version)
 * Notifications (new comment, like, new version of post files, follow post)
 * Reputation system (user ranking)
 * User profiles (bio, avatar, links to other sites)
-* Admin/Moderator roles (ability to assign moderators and other admins, create/merge tags, disable accounts, etc.)
+* Admin/Moderator roles (ability to assign moderators and other admins, create/merge tags, disable accounts, block posts with DMCA notices, etc.)
 * Synonymous tags (multiple tags meaning the same thing should all refer to the same entry)
 * Improved comments system
   * Reference scenes and other users
