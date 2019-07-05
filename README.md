@@ -1,5 +1,7 @@
 # VamBooru
 
+**NOTE: This project is not maintained, and vulnerabilities can exist in dependencies.**
+
 A potential implementation of a sharing site for [Virt-A-Mate](https://www.patreon.com/meshedvr) scenes.
 
 The goal is to create a site for the community to share scenes, and eventually get them in Virt-A-Mate directly: https://trello.com/c/O61WprH2/15-community-sharing-of-scenes-in-app
